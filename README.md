@@ -1,37 +1,56 @@
-## Welcome to GitHub Pages
+# Computer Vision Drone
 
-You can use the [editor on GitHub](https://github.com/codecentric/computer-vision-drone/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+![header](media/header2.png)
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Goal
 
-### Markdown
+This is a fun project to build an interactive drone. 
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+* that has computer vision features
+* that has distance sensors
+* that has audio in and output
 
-```markdown
-Syntax highlighted code block
+first [Mindmap and Vision](media/Teamboard%20CV%20Drone.png)
 
-# Header 1
-## Header 2
-### Header 3
+[![A flight through our office](http://img.youtube.com/vi/rimVxTH05QE/0.jpg)](http://www.youtube.com/watch?v=rimVxTH05QE)
 
-- Bulleted
-- List
 
-1. Numbered
-2. List
+The drone should be able to ...
 
-**Bold** and _Italic_ and `Code` text
+* navigate inside a room and detect obstacles 
+* find persons and detect faces
+* interact with persons
+  * talk to the person
+  * take a picture of the person
+  * interact with social media (e.g.) 
+  
+## Documentation
 
-[Link](url) and ![Image](src)
-```
+We are writing a project diary to document our progress and what we have learned.
+ 
+* Jan 2017: [Getting Started - Evaluating Drone Hardware](doc/drone_hardware_evaluation.md)
+* Jan 2017: [First Features and Milestones](doc/cv-drone-features-milestone.md)
+* Jan 2017: [Perception of the drones surroundings](doc/research-perceive-surroundings.md)
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+## Project Team, communication and Dev Environment
 
-### Jekyll Themes
+### Team
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/codecentric/computer-vision-drone/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+We work at [codecentric](https://www.codecentric.de/) in Karlsruhe and Hamburg, Germany. codecentric encourages every employee to start innovative projects and we have one day per week to work on them ... We are hiring ;)
 
-### Support or Contact
+* Tobias Schaber 
+* Raphael Manke 
+* Michael Plümacher
+* Andrey Skorikov
+* Oli Moser (https://twitter.com/moseroli)
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+### Communication
+
+* communication via slack channel
+* ToDos in (https://trello.com/b/EyBRidZB/cv-drone)
+* sketching diagrams and mindmapping on (https://sketchboard.me/rzUofJAoRqtE)
+* sources and documentation here on github
+* videos on youtube channel (https://www.youtube.com/channel/UC_r-M-0JQZUnOG2gJSL9pfg)
+
+
+
