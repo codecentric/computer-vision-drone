@@ -1,5 +1,6 @@
 from pydrone import *
 import pydrone.hud
+import pydrone.detectors
 
 file = "../../../media/drone-video-test.mp4"
 video = cv2.VideoCapture(file)
@@ -9,12 +10,15 @@ while video.isOpened():
     ret, frame = video.read()
     frame_idx += 1
 
-    if frame_idx < 80:
+    if frame_idx < 100:
         pydrone.hud.get_hud(frame, action="STARTING DRONE", idx=frame_idx)
-    elif 80 < frame_idx < 500:
+    elif 100 < frame_idx < 1000:
         pydrone.hud.get_hud(frame, action=None, idx=frame_idx)
+        pydrone.detectors.detect_person(frame)
 
 
     cv2.imshow("video", frame)
+    cv2.moveWindow("video", 10, 10)
+
     cv2.waitKey(1) & 0xff
 

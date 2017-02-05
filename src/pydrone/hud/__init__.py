@@ -6,8 +6,15 @@ FONT_SIZE = 0.5
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 
-def mark_roi(frame, roi):
-    pass
+def mark_rois(frame, rois):
+    mask = np.zeros_like(frame, dtype=np.uint8)
+
+    for (x,y, w, h) in rois:
+        cv2.rectangle(mask, (x, y), (x + w, y +h), HUD_COLOR, thickness=1)
+        cv2.putText(mask, "person detected", (x, y - 10),
+                    FONT, FONT_SIZE, HUD_COLOR)
+
+    cv2.addWeighted(frame, 1, mask, 0.5, 1, dst=frame)
 
 
 def apply_hud(frame, mask):
@@ -30,6 +37,10 @@ def get_hud(frame, action=None, idx=None):
                 FONT, FONT_SIZE, HUD_COLOR)
     cv2.putText(mask, "{0} - {1}".format(t, idx), (x1 + 20, y2 + 20),
                 FONT, FONT_SIZE, HUD_COLOR)
+
+    if action:
+        cv2.putText(mask, "... {0} ...".format(action), (xc - (len(action) * 7), yc + 50),
+                    FONT, FONT_SIZE, HUD_COLOR)
 
     cv2.line(mask, (xc - 100, yc), (xc - 20, yc), HUD_COLOR, thickness=1)
     cv2.line(mask, (xc + 20, yc), (xc + 100, yc), HUD_COLOR, thickness=1)
