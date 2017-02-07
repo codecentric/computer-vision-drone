@@ -28,4 +28,12 @@ k = cv2.waitKey(delay=0) & 0xff
 if k == 27:
     cv2.destroyAllWindows()
 ```
-```delay``` is the lag in milliseconds, 0 means wait forever, ```& 0xff``` is needed on 64-Bit machines. if the esc-key is pressed (```k==27```) the opene window is destroyed. To be precise, ```cv2.destroyAllWindows()``` closes all open windows. A single named window can be closed with ````cv2.destroyWindow('name of window')```.
+```delay``` is the lag in milliseconds, 0 means wait forever, ```& 0xff``` is needed on 64-Bit machines. if the esc-key is pressed (```k==27```) the opened window is destroyed. To be precise, ```cv2.destroyAllWindows()``` closes all open windows. A single named window can be closed with ```cv2.destroyWindow('name of window')```.
+
+An image can be saved to disk with
+```
+cv2.imwrite('path',img)
+```
+
+Accessing the properties of an image:```img.shape``` returns a tuple of numbers or rows, columns and channels, ```img.size``` returns the total number of pixels, and ```img.dtype``` gives the image datatype.
+
