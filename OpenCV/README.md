@@ -82,6 +82,14 @@ cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 ```
 The whole variety of available conversions can be found [here](http://docs.opencv.org/3.2.0/d7/d1b/group__imgproc__misc.html#ga4e0972be5de079fed4e3a10e24ef5ef0)
 
+This can also be used to convert a single color, e.g. the HSV value of green in BGR is given by:
+```
+green = numpy.uint8([[[0,255,0 ]]])
+hsv_green = cv2.cvtColor(green,cv2.COLOR_BGR2HSV)
+```
+
+Affine transformations, i.e. translation, scaling, rotation, shear mapping, are implemented by passing a 2x3 matrix to ```cv2.warpAffine```. The transformation is defined by $\Delta x$
+
 Add, subtract, blend images images
 Bitwise operations
 PCA, SVD, ...
