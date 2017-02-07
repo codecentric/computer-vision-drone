@@ -76,9 +76,15 @@ Here, ```img``` ist the original image, ```top```, ```bottom```, ```left```, and
 * ```cv2.BORDER_REPLICATE``` repeat outermost element, e.g left border is column 0 repeated left times
 * ```cv2.BORDER_WRAP``` periodic boundary conditions, e.g. right border will be columns 0 to left-1 of image
 
+We can convert between different [colorspaces](http://docs.opencv.org/3.2.0/de/d25/imgproc_color_conversions.html), e.g. from BGR to gray scale, with 
+```
+cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+```
+The whole variety of available conversions can be found [here](http://docs.opencv.org/3.2.0/d7/d1b/group__imgproc__misc.html#ga4e0972be5de079fed4e3a10e24ef5ef0)
 
-
-
+Add, subtract, blend images images
+Bitwise operations
+PCA, SVD, ...
 
 
 `````` `````` `````` `````` `````` `````` ``````
