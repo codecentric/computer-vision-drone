@@ -35,5 +35,23 @@ An image can be saved to disk with
 cv2.imwrite('path',img)
 ```
 
-Accessing the properties of an image:```img.shape``` returns a tuple of numbers or rows, columns and channels, ```img.size``` returns the total number of pixels, and ```img.dtype``` gives the image datatype.
+Accessing the properties of an image:```img.shape``` returns a tuple of numbers of rows, columns and channels, ```img.size``` returns the total number of pixels, and ```img.dtype``` gives the image datatype.
+
+An image can be resized with 
+```
+img2 = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA)
+```
+Here, ```fx``` and ```fy``` denote the factors by which the image is rescaled in the x and y direction, i.e. in this example the image is shrunk by half. ```interpolation``` denotes the interpolation method used: ```cv2.INTER_AREA``` is recommended for shrinking, while ```cv2.INTER_CUBIC``` and ```cv2.INTER_LINEAR``` can be used for zooming, the latter being significantly faster.
+
+Individual pixel values can be accessed and modified by row and column coordinates, i.e. ```img[y,x]``` is either a triplet, e.g. of blue, green and red values for a BGR image, or the intensity for a gray scale image. As a faster alternative, numpy array methods should be used:
+```
+img.item(y,x,2)  # access the red value of pixel x,y for a BGR image
+img.itemset((y,x,2),100) # set the red value of pixel x,y to 100
+```
+Note that the row and column indices, ```y``` and ```x``` start in the upper left corner of the image, making it a somewhat unintuitive choice of coordinate system.
+
+A region of interest in an image can be selected by standard index slicing methods:
+```
+img[y_min:y_max, x_min:x_max]
+```
 
