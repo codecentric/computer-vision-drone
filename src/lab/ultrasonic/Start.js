@@ -12,7 +12,7 @@ usonic.init(function (error) {
         console.log(error);
     } else {
         //this.sensor = usonic.createSensor(this.gpioEcho, this.gpioTrigger, timeout, delay, rate);
-        usonic.createSensor(9, 10, 750, 60, 5);
+        usonic.createSensor(10, 9, 750, 60, 5);
     }
 
 });
