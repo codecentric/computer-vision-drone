@@ -14,12 +14,18 @@ var sensor;
 /* the name of the sensor to identify it */
 var name;
 
-/* hold the last measured distance */
-var currentDistance = -1;
+///* hold the last measured distance */
+//var currentDistance = -1;
+
+/* hold some measured distances */
+var distances = [];
+
 
 module.exports = Sensor;
 
 function Sensor(gpioTrigger, gpioEcho, name) {
+
+    /* ===================================================================================== */
 
     this.gpioTrigger = gpioTrigger;
     this.gpioEcho = gpioEcho;
@@ -28,31 +34,42 @@ function Sensor(gpioTrigger, gpioEcho, name) {
     this.sensor = usonic.createSensor(this.gpioEcho, this.gpioTrigger, 750, 60, 5);
     console.log('Configured Pin: ' + gpioTrigger + " / " + gpioEcho);
 
-
+    /* ===================================================================================== */
 
     this.getDistance = function() {
-        return currentDistance;
+        var distance = statistics.median(distances);
+        return distance.toFixed(2);
     }
 
-    this.measureDistance = function() {
 
-        /* take some time... */
-        for(i=0; i<1000; i++) {
-            for(j=0; j<1000; j++) {
-                for(k=0; k<1000; k++) {
+    this.triggerMeasureCycle = function() {
 
-                }
+        (function measure() {
+            if (!distances || distances.length === rate) {
+
+                /*
+                 if (distances) {
+                 print(distances);
+                 }
+                 */
+
+                distances = [];
             }
-        }
-        process.nextTick(measureDistance);
 
-        console.log("measured...");
-        currentDistance = currentDistance + 1;
+            setTimeout(function () {
+                distances.push(sensor());
+                console.log(".");
+
+                measure();
+            }, delay);
+        }());
 
     }
 
 
-    this.measureDistance();
+
+
+    this.triggerMeasureCycle();
 
     console.log("initialized sensor [" + name + "] on pins (" + this.gpioTrigger + ", " + this.gpioEcho +")");
 }
