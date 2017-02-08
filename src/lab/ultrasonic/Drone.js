@@ -29,7 +29,7 @@ function Drone() {
 
 
         while(true) {
-            console.log("distances: " + this.sensorFront.getDistance());
+            //console.log("distances: " + this.sensorFront.getDistance());
         }
     }
 }

@@ -21,6 +21,9 @@ var name;
 /* hold some measured distances */
 var distances = [];
 
+/* hold the current distance */
+var currentDistance;
+
 var timeout;
 
 var delay;
@@ -51,8 +54,11 @@ function Sensor(gpioTrigger, gpioEcho, name, timeout, delay, rate) {
     /* ===================================================================================== */
 
     this.getDistance = function() {
-        var distance = statistics.median(distances);
-        return distance.toFixed(2);
+        return currentDistance;
+    }
+
+    this.setDistance = function() {
+        this.currentDistance = statistics.median(distances).toFixed(2);
     }
 
 
@@ -60,6 +66,8 @@ function Sensor(gpioTrigger, gpioEcho, name, timeout, delay, rate) {
 
         (function measure() {
             if (!distances || distances.length === rate) {
+
+                this.setDistance();
 
                 /*
                  if (distances) {
