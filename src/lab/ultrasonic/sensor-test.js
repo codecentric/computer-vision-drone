@@ -17,7 +17,7 @@ var print = function (distances) {
     }
 };
 
-var initSensor = function (echoPin, triggerPin, timeout, rate) {
+var initSensor = function (echoPin, triggerPin, timeout, delay, rate) {
 
     var sensor = usonic.createSensor(echoPin, triggerPin, timeout, delay, rate);
     console.log('Configured Pin: ' + triggerPin + " / " + echoPin);
