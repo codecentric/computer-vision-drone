@@ -17,7 +17,7 @@ function Drone() {
     console.log("Creating a drone");
 
 
-    this.sensorFront = new Sensor(9, 10, "front");
+    this.sensorFront = new Sensor(9, 10, "front", 750, 60, 5);
     //this.sensorLeft  = new Sensor(22, 27, "left");
     //this.sensorRight = new Sensor(23, 24, "right");
     //this.sensorBack  = new Sensor(17, 18, "back");
@@ -29,7 +29,7 @@ function Drone() {
 
 
         while(true) {
-            //console.log("distances: " + this.sensorFront.getDistance());
+            console.log("distances: " + this.sensorFront.getDistance());
         }
     }
 }

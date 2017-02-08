@@ -43,6 +43,7 @@ function Sensor(gpioTrigger, gpioEcho, name, timeout, delay, rate) {
     this.delay = delay;
     this.rate = rate;
 
+    this.sensor = usonic.createSensor(this.gpioEcho, this.gpioTrigger, timeout, delay, rate);
 
 
     console.log('Configured Pin: trigger:' + gpioTrigger + " / echo: " + gpioEcho);
