@@ -5,7 +5,7 @@
 
 var readline   = require('readline');
 var statistics = require('math-statistics');
-var usonic     = require('../lib/usonic.js');
+var usonic     = require('mmm-usonic');
 
 var print = function (distances) {
     var distance = statistics.median(distances);
