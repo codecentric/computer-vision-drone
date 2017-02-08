@@ -4,7 +4,6 @@
 
 var Drone = require('./Drone.js');
 
-
 console.log("Starting drone..");
 var myDrone = new Drone();
 

@@ -3,6 +3,7 @@
  */
 
 var usonic     = require('mmm-usonic');
+var statistics = require('math-statistics');
 
 /* the GPIO pins */
 var gpioTrigger;
@@ -42,15 +43,7 @@ function Sensor(gpioTrigger, gpioEcho, name, timeout, delay, rate) {
     this.delay = delay;
     this.rate = rate;
 
-    usonic.init(function (error) {
 
-        if(error) {
-            console.log(error);
-        } else {
-            this.sensor = usonic.createSensor(this.gpioEcho, this.gpioTrigger, timeout, delay, rate);
-        }
-
-    });
 
     console.log('Configured Pin: ' + gpioTrigger + " / " + gpioEcho);
 
