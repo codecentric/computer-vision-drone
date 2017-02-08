@@ -20,18 +20,29 @@ var name;
 /* hold some measured distances */
 var distances = [];
 
+var timeout;
+
+var delay;
+
+var rate;
+
+
+
 
 module.exports = Sensor;
 
-function Sensor(gpioTrigger, gpioEcho, name) {
+function Sensor(gpioTrigger, gpioEcho, name, timeout, delay, rate) {
 
     /* ===================================================================================== */
 
     this.gpioTrigger = gpioTrigger;
     this.gpioEcho = gpioEcho;
     this.name = name;
+    this.timeout = timeout;
+    this.delay = delay;
+    this.rate = rate;
 
-    this.sensor = usonic.createSensor(this.gpioEcho, this.gpioTrigger, 750, 60, 5);
+    this.sensor = usonic.createSensor(this.gpioEcho, this.gpioTrigger, timeout, delay, rate);
     console.log('Configured Pin: ' + gpioTrigger + " / " + gpioEcho);
 
     /* ===================================================================================== */
