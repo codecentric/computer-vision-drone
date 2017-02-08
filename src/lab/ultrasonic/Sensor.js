@@ -26,7 +26,7 @@ function Sensor(gpioTrigger, gpioEcho, name) {
     this.name = name;
 
     this.sensor = usonic.createSensor(this.gpioEcho, this.gpioTrigger, 750, 60, 5);
-    console.log('Configured Pin: ' + triggerPin + " / " + echoPin);
+    console.log('Configured Pin: ' + gpioTrigger + " / " + gpioEcho);
 
 
 
