@@ -19,7 +19,7 @@ var print = function (distances) {
 
 var initSensor = function (echoPin, triggerPin, timeout, rate) {
 
-    var sensor = usonic.createSensor(echoPin, triggerPin, timeout);
+    var sensor = usonic.createSensor(echoPin, triggerPin, timeout, delay, rate);
     console.log('Configured Pin: ' + triggerPin + " / " + echoPin);
 
     var distances;
@@ -46,13 +46,13 @@ usonic.init(function (error) {
     if (error) {
         console.log(error);
     } else {
-        initSensor({
-            echoPin: 10,
-            triggerPin:9,
-            timeout: 750,
-            delay: 60,
-            rate: 5         // ich glaube, die anzahl an messungen, die zum mitteln genutzt wird
-        });
+        initSensor(
+            10,
+            9,
+            750,
+            60,
+            5         // ich glaube, die anzahl an messungen, die zum mitteln genutzt wird
+        );
     }
 });
 
