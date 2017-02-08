@@ -37,7 +37,7 @@ var initSensor = function (echoPin, triggerPin, timeout, rate) {
             distances.push(sensor());
 
             measure();
-        }, config.delay);
+        }, delay);
     }());
 };
 
