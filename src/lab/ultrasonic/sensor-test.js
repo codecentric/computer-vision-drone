@@ -6,6 +6,7 @@ var usonic     = require('mmm-usonic');
 var print = function (distances) {
 
     var distance = statistics.median(distances);
+
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
 
@@ -16,15 +17,15 @@ var print = function (distances) {
     }
 };
 
-var initSensor = function (config) {
-    var sensor = usonic.createSensor(config.echoPin, config.triggerPin, config.timeout);
+var initSensor = function (echoPin, triggerPin, timeout, rate) {
 
-    console.log('Config: ' + JSON.stringify(config));
+    var sensor = usonic.createSensor(echoPin, triggerPin, timeout);
+    console.log('Configured Pin: ' + triggerPin + " / " + echoPin);
 
     var distances;
 
     (function measure() {
-        if (!distances || distances.length === config.rate) {
+        if (!distances || distances.length === rate) {
             if (distances) {
                 print(distances);
             }
@@ -38,16 +39,6 @@ var initSensor = function (config) {
             measure();
         }, config.delay);
     }());
-};
-
-
-
-var askForInteger = function (name, defaultValue, callback) {
-    rl.question(name + ' (default ' + defaultValue + '): ', function (response) {
-        var value = parseInt(response, 10);
-
-        callback(isNaN(value) ? defaultValue : value);
-    });
 };
 
 
