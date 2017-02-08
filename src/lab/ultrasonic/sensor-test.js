@@ -1,15 +1,11 @@
-/* example from https://github.com/mochman/mmm-usonic/blob/master/examples/surveyor.js */
-
-
 'use strict';
 
-//var readline   = require('readline');
 var statistics = require('math-statistics');
 var usonic     = require('mmm-usonic');
 
 var print = function (distances) {
-    var distance = statistics.median(distances);
 
+    var distance = statistics.median(distances);
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
 
@@ -64,7 +60,7 @@ usonic.init(function (error) {
             triggerPin:9,
             timeout: 750,
             delay: 60,
-            rate: 5
+            rate: 5         // ich glaube, die anzahl an messungen, die zum mitteln genutzt wird
         });
     }
 });
