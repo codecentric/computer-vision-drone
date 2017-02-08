@@ -45,7 +45,7 @@ function Sensor(gpioTrigger, gpioEcho, name, timeout, delay, rate) {
 
 
 
-    console.log('Configured Pin: ' + gpioTrigger + " / " + gpioEcho);
+    console.log('Configured Pin: trigger:' + gpioTrigger + " / echo: " + gpioEcho);
 
     /* ===================================================================================== */
 
