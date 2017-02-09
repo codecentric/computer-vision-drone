@@ -8,6 +8,8 @@ var Sensor = require('./Sensor');
 var usonic = require('mmm-usonic');
 
 var sensorFront = new Sensor(9, 10, "front");
+var sensorLeft  = new Sensor(22, 27, "left");
+var sensorRight  = new Sensor(23, 24, "right");
 
 
 usonic.init(function (error) {
@@ -18,6 +20,8 @@ usonic.init(function (error) {
     } else {
         console.log("created sensor");
         sensorFront.triggerStart();
+        sensorLeft.triggerStart();
+        sensorRight.triggerStart();
     }
 });
 
@@ -26,6 +30,12 @@ setTimeout(function() {
     /* this function will contain the drone steering */
     setInterval(function () {
         var curDis = sensorFront.getDistance();
+        console.log("front: " + sensorFront.getDistance());
+        console.log("left: " + sensorLeft.getDistance());
+        console.log("right: " + sensorRight.getDistance());
+        console.log("------------------------------------");
+
+
         if (curDis < 30) {
             console.log("OH MY GOD! BREAK THE DRONE!! STOP IT! Distance: " + curDis);
         }

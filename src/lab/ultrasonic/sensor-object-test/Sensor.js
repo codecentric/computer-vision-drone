@@ -9,7 +9,7 @@
 
  */
 
-
+var statistics = require('math-statistics');
 var usonic = require('mmm-usonic');
 
 module.exports = Sensor;
@@ -37,5 +37,6 @@ Sensor.prototype.triggerStart = function() {
 
 
 Sensor.prototype.getDistance = function() {
-    return this.distance;
+
+    return this.distance.toFixed(2);
 }
