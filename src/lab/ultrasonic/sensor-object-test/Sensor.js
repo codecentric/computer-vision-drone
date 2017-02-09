@@ -16,6 +16,7 @@ module.exports = Sensor;
 
 function Sensor(pinTrigger, pinEcho, name, refreshInterval) {
 
+    this.maxDistance = 320; // max distance in cm
     this.refreshInterval = refreshInterval;
     this.pinTrigger = pinTrigger;
     this.pinEcho = pinEcho;
@@ -26,9 +27,13 @@ function Sensor(pinTrigger, pinEcho, name, refreshInterval) {
 
 /* refresh the drone. will be called in an interval */
 Sensor.prototype.refresh = function() {
+    /* get distance from sensor */
     var newMeasured = this.internalSensor();
-    if(newMeasured == -1)  newMeasured = 400;   // set to max max distance if negative
-    if(newMeasured > 1000) newMeasured = 400;   // set invalid big values to max distance
+
+    /* filter invalid values (-1 or > max distance */
+    if( newMeasured == -1 || newMeasured > this.maxDistance) {
+        newMeasured = this.maxDistance;
+    }
 
     /* add a new measurement and remove the oldest */
     this.distances.push(newMeasured);
