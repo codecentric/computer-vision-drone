@@ -15,11 +15,13 @@ function SensorObj(pinTrigger, pinEcho, name) {
     this.distance = 0;
     internalSensor = usonic.createSensor(pinEcho, pinTrigger, 750, 60, 5);
 
-    setInterval(function () {
-        this.distance = internalSensor();
-        console.log(this.distance);
-    }, 500);
+    setInterval(this.refresh.bind(this), 500);
 
+}
+
+SensorObj.prototype.refresh = function() {
+    this.distance = internalSensor();
+    console.log(this.distance);
 }
 
 SensorObj.prototype.triggerStart = function() {
