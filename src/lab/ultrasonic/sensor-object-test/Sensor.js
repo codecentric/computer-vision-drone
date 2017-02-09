@@ -40,14 +40,16 @@ Sensor.prototype.triggerStart = function() {
  * an average, and round that to 2 digits
  */
 Sensor.prototype.getDistance = function() {
-    return (
-        this.distances.reduce(
-            function(a,b) { return a+b}
-        )
-        - Math.max.apply(Math, this.distances)
-        - Math.min.apply(Math, this.distances)
-        ) / (this.distances.length-2)
-            .toFixed(2);
 
-    //return this.distance.toFixed(2);
+    var cleanDist = (((
+            this.distances.reduce(
+                function(a,b) { return a+b}
+            )        )
+        - Math.max.apply(Math, this.distances)  // remove biggest value
+        - Math.min.apply(Math, this.distances)  // remove smallest value
+    ) / (this.distances.length-2))              // build average
+        .toFixed(2);                            // reduce number of decimal places
+
+    return cleanDist;
+    
 }
