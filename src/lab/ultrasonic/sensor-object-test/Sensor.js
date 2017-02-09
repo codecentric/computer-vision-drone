@@ -20,13 +20,12 @@ function Sensor(pinTrigger, pinEcho, name) {
     this.pinEcho = pinEcho;
     this.name = name;
     this.distance = 0;
-    this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 750, 60, 5);
+    this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 750);
 }
 
 /* refresh the drone. will be called in an interval */
 Sensor.prototype.refresh = function() {
     this.distance = this.internalSensor();
-    console.log(this.distance);
 }
 
 /* trigger the measurement background job */
