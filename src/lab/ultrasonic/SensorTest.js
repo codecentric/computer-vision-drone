@@ -18,18 +18,9 @@ function change() {
     wert = sensx();
 
     // recall every 5 seconds
-    setTimeout(change, 5000);
+    setTimeout(change, 500);
 }
 
-/* REPLACED BY SETINTERVAL
-function getWert() {
-    console.log(wert);
-
-    // recall every 4 seconds
-    setTimeout(getWert, 4000);
-} */
-
-//TODO setInterval probieren
 
 setInterval(function () {
    console.log(wert);
@@ -46,8 +37,8 @@ setInterval(function () {
             console.log("FEHLER :(");
             console.log(error);
         } else {
-            console.log("X");
-            sensx = usonic.createSensor(24, 23, 450);
+            console.log("created sensor");
+            sensx = usonic.createSensor(10, 9, 750, 60, 5);
             change();
             getWert();
         }
