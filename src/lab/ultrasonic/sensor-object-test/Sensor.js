@@ -2,13 +2,6 @@
  * Created by tobias on 09.02.17.
  */
 
-
-/* TODO: mengenmessung / filter zum filtern von ausreisern (z.B. > 10m)
-    -1 rausfiltern
-    genauigkeit. ab einer bestimmten distanz kommen krumme sachen raus.
-
- */
-
 var statistics = require('math-statistics');
 var usonic = require('mmm-usonic');
 
