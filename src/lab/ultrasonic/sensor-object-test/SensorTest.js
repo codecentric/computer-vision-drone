@@ -12,7 +12,7 @@ var sens = new SensorO(9, 10, "front");
 
 usonic.init(function (error) {
     if (error) {
-        sens.triggerStart();
+        //sens.triggerStart();
         console.log("FEHLER :(");
         console.log(error);
     } else {
@@ -26,8 +26,9 @@ usonic.init(function (error) {
 setTimeout(function() {
     /* this function will contain the drone steering */
     setInterval(function () {
-        if (sens.getDistance() < 30) {
-            console.log("OH MY GOD! BREAK THE DRONE!! STOP IT!");
+        var curDis = sens.getDistance();
+        if (curDis < 30) {
+            console.log("OH MY GOD! BREAK THE DRONE!! STOP IT! Distance: " + curDis);
         }
 
     }, 200);

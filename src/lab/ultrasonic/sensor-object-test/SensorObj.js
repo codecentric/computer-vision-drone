@@ -12,12 +12,12 @@ function SensorObj(pinTrigger, pinEcho, name) {
     this.pinTrigger = pinTrigger;
     this.pinEcho = pinEcho;
     this.name = name;
-    this.distance;
+    this.distance = 0;
     internalSensor = usonic.createSensor(pinEcho, pinTrigger, 750, 60, 5);
 
     setInterval(function () {
-        distance = internalSensor();
-        console.log(distance);
+        this.distance = internalSensor();
+        console.log(this.distance);
     }, 500);
 
 }
