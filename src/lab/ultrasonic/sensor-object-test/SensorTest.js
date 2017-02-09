@@ -20,12 +20,12 @@ setInterval(function () {
 
 usonic.init(function (error) {
     if (error) {
+        //setInterval(sens.sens(), 500);
         console.log("FEHLER :(");
         console.log(error);
     } else {
         console.log("created sensor");
-        sensx = usonic.createSensor(10, 9, 750, 60, 5);
-        change();
+        setInterval(sens.sens(), 500);
     }
 });
 

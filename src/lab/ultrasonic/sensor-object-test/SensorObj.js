@@ -5,8 +5,9 @@
 
 var usonic = require('mmm-usonic');
 
+var sens;
 
-module.exports = SensorObj;
+module.exports = SensorObj, sens;
 
 function SensorObj(pinTrigger, pinEcho, name) {
 
@@ -19,14 +20,10 @@ function SensorObj(pinTrigger, pinEcho, name) {
 
 }
 
-
-
 SensorObj.prototype.updateValue = function() {
     console.log("updating");
 
     this.distance = this.sens();
-
-    setTimeout(SensorObj.prototype.updateValue, 500);
 
 }
 
