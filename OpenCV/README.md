@@ -12,6 +12,7 @@ import cv2
 import numpy
 ```
 
+### Read and save images
 Read an image:
 ```
 img = cv2.imread('path', flag)
@@ -35,6 +36,7 @@ An image can be saved to disk with
 cv2.imwrite('path',img)
 ```
 
+### Basic image manipulation
 Accessing the properties of an image:```img.shape``` returns a tuple of numbers of rows, columns and channels, ```img.size``` returns the total number of pixels, and ```img.dtype``` gives the image datatype.
 
 An image can be resized with 
@@ -88,6 +90,7 @@ green = numpy.uint8([[[0,255,0 ]]])
 hsv_green = cv2.cvtColor(green,cv2.COLOR_BGR2HSV)
 ```
 
+### Image warping
 Affine transformations, i.e. translation, scaling, rotation, shear mapping, are implemented by passing a 2x3 matrix to ```cv2.warpAffine```. The first two columns of the matrix encode scaling, rotation and shear and the last column the translation.
 Example of a translation by 100 pixels in x and y:
 ```
@@ -117,10 +120,17 @@ Here, ```cv2.getAffineTransform``` returns the corresponding transformation matr
 
 Similarly, a perspective transformation ca be defined by explicitly specifying the mapping for a set of four points. ```cv2.getPerspectiveTransform``` then yields the corresponding 3x3 transformation matrix:
 ```
+orig_points = numpy.float32([[100,100],[650,850],[500,0],[0,900]])
+trans_points = numpy.float32([[0,0],[600,600],[600,0],[0,600]])
 
+U = cv2.getPerspectiveTransform(orig_points, trans_points)
+
+img2 = cv2.warpPerspective(img, U, (600,600))
 ```
- 
+Here again, the first argument in ```cv2.warpPerspective``` is the image to be warped, the second the transformation matrix, and the third the size of the output image.
 
+### Image filtering
+Thresholding selects pixels in a gray scale image whose intensity is larger (or smaller) than a threshold and assigns a new value to them:
 
 
 Add, subtract, blend images images
