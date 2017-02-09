@@ -19,13 +19,17 @@ function Sensor(pinTrigger, pinEcho, name) {
     this.pinTrigger = pinTrigger;
     this.pinEcho = pinEcho;
     this.name = name;
-    this.distances = [0, 0, 0 ,0 ,0]; // fixed length
+    this.distances = [0, 0, 0 ,0 ,0]; // last X measurements
     this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 750, true);
 }
 
 /* refresh the drone. will be called in an interval */
 Sensor.prototype.refresh = function() {
-    this.distances.push(this.internalSensor());
+    var newMeasured = this.internalSensor();
+    if(newMeasured == -1) newMeasured = 400;    // set to max max distance if negative
+
+    /* add a new measurement and remove the oldest */
+    this.distances.push(newMeasured);
     this.distances.shift();
 }
 
@@ -51,5 +55,5 @@ Sensor.prototype.getDistance = function() {
         .toFixed(2);                            // reduce number of decimal places
 
     return cleanDist;
-    
+
 }
