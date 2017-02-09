@@ -13,30 +13,32 @@ var wert = -1;
 
 /* this is only a logger function. it can be removed! */
 setInterval(function () {
-   wert = sens.getDistance();
-}, 1000);
+   wert = sens.sens();
+   console.log(wert);
+}, 500);
 
 
 
 usonic.init(function (error) {
     if (error) {
-        //setInterval(sens.sens(), 500);
         console.log("FEHLER :(");
         console.log(error);
     } else {
         console.log("created sensor");
-        setInterval(sens.sens(), 500);
+
     }
 });
 
 
-/* this function will contain the drone steering */
-setInterval(function () {
-    if( wert < 30) {
-        console.log("OH MY GOD! BREAK THE DRONE!! STOP IT!");
-    }
+setTimeout(function() {
+    /* this function will contain the drone steering */
+    setInterval(function () {
+        if (wert < 30) {
+            console.log("OH MY GOD! BREAK THE DRONE!! STOP IT!");
+        }
 
-}, 200);
+    }, 200);
+}, 1000);
 
 
 
