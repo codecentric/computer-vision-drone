@@ -28,9 +28,9 @@ function Drone() {
 
 
 
-        while(true) {
+        //while(true) {
             //console.log("distances: " + this.sensorFront.getDistance());
-        }
+        //}
     }
 }
 
