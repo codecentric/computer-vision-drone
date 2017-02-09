@@ -14,8 +14,9 @@ var usonic = require('mmm-usonic');
 
 module.exports = Sensor;
 
-function Sensor(pinTrigger, pinEcho, name) {
+function Sensor(pinTrigger, pinEcho, name, refreshInterval) {
 
+    this.refreshInterval = refreshInterval;
     this.pinTrigger = pinTrigger;
     this.pinEcho = pinEcho;
     this.name = name;
@@ -26,17 +27,18 @@ function Sensor(pinTrigger, pinEcho, name) {
 /* refresh the drone. will be called in an interval */
 Sensor.prototype.refresh = function() {
     var newMeasured = this.internalSensor();
-    if(newMeasured == -1) newMeasured = 400;    // set to max max distance if negative
+    if(newMeasured == -1)  newMeasured = 400;   // set to max max distance if negative
+    if(newMeasured > 1000) newMeasured = 400;   // set invalid big values to max distance
 
     /* add a new measurement and remove the oldest */
     this.distances.push(newMeasured);
     this.distances.shift();
 }
 
-/* trigger the measurement background job */
+/* trigger the measurement background job with a given interval */
 Sensor.prototype.triggerStart = function() {
     console.log("sensor [" + this.name + " ] is beginning with scanning.");
-    setInterval(this.refresh.bind(this), 500);
+    setInterval(this.refresh.bind(this), this.refreshInterval);
 }
 
 
