@@ -2,7 +2,6 @@
  * Created by tobias on 09.02.17.
  */
 
-var statistics = require('math-statistics');
 var usonic = require('mmm-usonic');
 
 module.exports = Sensor;

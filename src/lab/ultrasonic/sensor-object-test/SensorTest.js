@@ -7,9 +7,9 @@
 var Sensor = require('./Sensor');
 var usonic = require('mmm-usonic');
 
-var sensorLeft  = new Sensor(22, 27, "front", 300);
-var sensorFront = new Sensor(9, 10, "left", 300);
-var sensorRight  = new Sensor(23, 24, "right", 300);
+var sensorLeft  = new Sensor(22, 27, "front", 100);
+var sensorFront = new Sensor(9, 10, "left", 100);
+var sensorRight  = new Sensor(23, 24, "right", 100);
 
 
 usonic.init(function (error) {
