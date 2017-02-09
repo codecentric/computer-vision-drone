@@ -40,7 +40,6 @@ setInterval(function () {
             console.log("created sensor");
             sensx = usonic.createSensor(10, 9, 750, 60, 5);
             change();
-            getWert();
         }
     });
 
