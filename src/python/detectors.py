@@ -1,7 +1,7 @@
 from pydrone import *
-import pydrone.hud
+import hud
 
-body_cascade = cv2.CascadeClassifier('../detectors/haarcascade_upperbody.xml')
+body_cascade = cv2.CascadeClassifier('./detectors/haarcascade_upperbody.xml')
 
 
 def detect_person(frame):
@@ -9,7 +9,7 @@ def detect_person(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     rois = body_cascade.detectMultiScale(gray, 1.3, 5)
 
-    pydrone.hud.mark_rois(frame, rois)
+    hud.mark_rois(frame, rois)
 
 
 
