@@ -45,22 +45,8 @@ Install the HC-SR04 sensor module:
 `npm install mmm-usonic --save`
 
   
- 
- 
- 
- 
-
-## How To setup dev environment
-
-todo
 
 ## Frameworks
 
-* nodejs
 * opencv
 * dlib
-
-
-## Structure
-
-todo
