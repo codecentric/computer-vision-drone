@@ -25,7 +25,7 @@ def get_hud(frame, action=None, idx=None):
     mask = np.zeros_like(frame, dtype=np.uint8)
     rows, cols = frame.shape[:2]
 
-    margin = 80
+    margin = 40
     x1, y1 = margin, margin
     x2, y2 = cols - margin, rows - margin
     xc, yc = int(x2 / 2), int(y2 / 2)
