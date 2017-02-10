@@ -8,8 +8,8 @@ var DistanceSensor = require('../../../main/drone/sensors/DistanceSensor');
 var Buzzer = require('../../../main/drone/sensors/Buzzer')
 var usonic = require('mmm-usonic');
 
-var sensorLeft  = new DistanceSensor(22, 27, "front", 200);
-var sensorFront = new DistanceSensor(9, 10, "left", 200);
+var sensorLeft  = new DistanceSensor(20, 16, "front", 200);
+var sensorFront = new DistanceSensor(19, 26, "left", 200);
 var sensorRight  = new DistanceSensor(23, 24, "right", 200);
 var distanceWarner = new Buzzer(5, 'distanceWarner');
 
