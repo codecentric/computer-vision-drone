@@ -1,7 +1,7 @@
 /**
  *
  * @Autor Tobias Schaber, codecentric AG
- * 
+ *
  * This class represents a distance sensor on the drone.
  *
  * Create a sensor object with the constructor. This will automatically initialize the hardware.
@@ -23,7 +23,7 @@
 
 var usonic = require('mmm-usonic');
 
-module.exports = Sensor;
+module.exports = DistanceSensor;
 
 
 /**
@@ -34,7 +34,7 @@ module.exports = Sensor;
  * @param refreshInterval the interval in which a measurement will be performed
  * @constructor
  */
-function Sensor(pinTrigger, pinEcho, name, refreshInterval) {
+function DistanceSensor(pinTrigger, pinEcho, name, refreshInterval) {
 
     this.maxDistance = 320; // max distance in cm
     this.refreshInterval = refreshInterval;
@@ -49,11 +49,11 @@ function Sensor(pinTrigger, pinEcho, name, refreshInterval) {
 /**
  *  refresh the drone. will be called in an interval
  */
-Sensor.prototype.refresh = function() {
+DistanceSensor.prototype.refresh = function() {
     /* get distance from sensor */
     var newMeasured = this.internalSensor();
 
-    /* filter invalid values (-1 or > max distance */
+    /* filter invalid values (-1 or > max distance) */
     if( newMeasured == -1 || newMeasured > this.maxDistance) {
         newMeasured = this.maxDistance;
     }
@@ -67,7 +67,7 @@ Sensor.prototype.refresh = function() {
 /**
  * trigger the measurement background job with a given interval
  */
-Sensor.prototype.triggerStart = function() {
+DistanceSensor.prototype.triggerStart = function() {
     console.log("sensor [" + this.name + " ] is beginning with scanning.");
     setInterval(this.refresh.bind(this), this.refreshInterval);
 }
@@ -77,7 +77,7 @@ Sensor.prototype.triggerStart = function() {
  * take the list of past measurements, remove the max and min value, and build
  * an average, and round that to 2 digits
  */
-Sensor.prototype.getDistance = function() {
+DistanceSensor.prototype.getDistance = function() {
 
     var cleanDist = (((
             this.distances.reduce(

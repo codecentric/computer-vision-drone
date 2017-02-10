@@ -4,12 +4,12 @@
 
 'use strict'
 
-var Sensor = require('./DistanceSensor');
+var DistanceSensor = require('../../../main/drone/sensors/DistanceSensor');
 var usonic = require('mmm-usonic');
 
-var sensorLeft  = new Sensor(22, 27, "front", 200);
-var sensorFront = new Sensor(9, 10, "left", 200);
-var sensorRight  = new Sensor(23, 24, "right", 200);
+var sensorLeft  = new DistanceSensor(22, 27, "front", 200);
+var sensorFront = new DistanceSensor(9, 10, "left", 200);
+var sensorRight  = new DistanceSensor(23, 24, "right", 200);
 
 
 usonic.init(function (error) {
@@ -34,7 +34,6 @@ setTimeout(function() {
         console.log("left: " + sensorLeft.getDistance());
         console.log("right: " + sensorRight.getDistance());
         console.log("------------------------------------");
-
 
         if (curDis < 30) {
             console.log("OH MY GOD! BREAK THE DRONE!! STOP IT! Distance: " + curDis);
