@@ -42,7 +42,7 @@ We work at [codecentric](https://www.codecentric.de/) in Karlsruhe and Hamburg, 
 * Raphael Manke 
 * Michael Plümacher
 * Andrey Skorikov
-* Oli Moser (https://twitter.com/moseroli)
+* Oli Moser [@moseroli](https://twitter.com/moseroli)
 
 ### Communication
 
