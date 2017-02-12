@@ -1,8 +1,4 @@
-# A Rough Guide to OpenCV 3.* in Python 3.*
-
-OpenCV is an incredibly powerful tool for implementing computer vision applications in Python. However, it can
-be fairly inaccessible in the begeinning. Here, we try to collect all the information we gathered in an attempt
-to provide a guide on how to do certain things. This is by no means complete but, hopefully, a useful starting point.
+# opencv cheat sheet
 
 ## Getting Started with Images
 Import OpenCV and numpy
@@ -35,6 +31,9 @@ An image can be saved to disk with
 ```
 cv2.imwrite('path',img)
 ```
+
+[rotate image](opencv-rotate-image.md): ```rotated_image = imutils.rotate(image, 90)``` 
+
 
 ### Basic image manipulation
 Accessing the properties of an image:```img.shape``` returns a tuple of numbers of rows, columns and channels, ```img.size``` returns the total number of pixels, and ```img.dtype``` gives the image datatype.
