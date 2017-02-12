@@ -9,10 +9,10 @@ import numpy
 ```
 
 ## basics
-|Task  | Example  | Comment  |
-|------|----------|----------|
-|[read or save image](opencv-read-and-save-images.md) | ```cv2.imshow('name of window', img)``` |   |
-|[rotate image](opencv-rotate-image.md) | ```rotated_image = imutils.rotate(image, 90)``` |  | 
+
+[read or save image](opencv-read-and-save-images.md) : ```cv2.imshow('name of window', img)```
+
+[rotate image](opencv-rotate-image.md)               : ```rotated_image = imutils.rotate(image, 90)```  
 
 
 ### Basic image manipulation
