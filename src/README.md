@@ -42,7 +42,8 @@ There are different ways to install node.js on the PI. Maybe you want to do it l
 
 Install the HC-SR04 sensor module:
 
-`npm install mmm-usonic --save`
+`npm install mmm-usonic --save`  
+`npm install wiring-pi --save`
 
   
 
