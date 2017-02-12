@@ -8,7 +8,6 @@ This is a fun project to build an interactive drone.
 * that has distance sensors
 * that has audio in and output
 
-first [Mindmap and Vision](media/Teamboard%20CV%20Drone.png)
 
 First flight:
 
