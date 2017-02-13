@@ -8,6 +8,9 @@ import cv2
 import numpy
 ```
 
+A condensed overview of the following can be found in the
+[Cheat Sheet](OpenCVCheatSheet.pdf)
+
 ## basics
 
 [read or save image](opencv-read-and-save-images.md) : ```cv2.imshow('name of window', img)```
