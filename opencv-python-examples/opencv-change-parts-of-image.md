@@ -1,7 +1,6 @@
 # opencv change parts of an image
 
 Individual pixel values can be accessed and modified by row and column coordinates, i.e.
- 
 ```img[y, x]``` is either a triplet, e.g. of blue, green and red values for a BGR image, or the intensity for a gray scale image. As a faster alternative, numpy array methods should be used:
  
 ```python
