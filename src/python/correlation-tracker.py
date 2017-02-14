@@ -75,12 +75,7 @@ while video.isOpened():
 
         x1, y1, x2, y2 = get_position(tracker)
 
-        mask = np.zeros_like(frame)
-        cv2.line(mask, (x1, int((y2-y1)/2+y1)), (x2, int((y2-y1)/2+y1)), (0, 0, 255), thickness=1)
-        cv2.line(mask, (int((x2-x1)/2+x1), y1), (int((x2-x1)/2+x1), y2), (0, 0, 255), thickness=1)
-        frame = cv2.addWeighted(frame, 1, mask, 0.8, 1)
-        #cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness=1)
-
+        frame = hud.mark_cross(frame, x1, y1, x2, y2)
     hud.get_hud(frame, None, frame_idx)
 
     cv2.imshow("image", frame)
