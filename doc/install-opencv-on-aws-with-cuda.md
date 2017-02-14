@@ -253,3 +253,30 @@ sudo apt-get install liblapacke-dev checkinstall
 ```
 and try again.
 
+### add symbolic link to virtual-env
+``` 
+cd ~/.virtualenvs/computer-vision/lib/python3.5/site-packages
+ln -s /usr/local/lib/python3.5/site-packages/cv2.cpython-35m-x86_64-linux-gnu.so cv2.so
+```
+
+### test installation 
+
+```python
+
+python
+
+import cv2
+cv2.__version__
+```
+
+output:
+```
+(computer-vision) ubuntu@ip-XXXXXXXXXX:~/.virtualenvs/computer-vision/lib/python3.5/site-packages$ python
+Python 3.5.2 (default, Nov 17 2016, 17:05:23) 
+[GCC 5.4.0 20160609] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import cv2
+>>> cv2.__version__
+'3.2.0'
+```
+
