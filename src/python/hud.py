@@ -1,5 +1,6 @@
 from pydrone import *
 from datetime import datetime
+import imutils
 
 HUD_COLOR = (0, 100, 0)
 HUD_CLIGHT = (200, 255, 200)
@@ -8,16 +9,21 @@ FONT_SIZE = 0.5
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 
+def prepare_frame(frame):
+    frame = imutils.resize(frame, width=1024)
+    return frame
+
+
 def mark_cross(frame, x1, y1, x2, y2):
     mask = np.zeros_like(frame)
-    cv2.line(mask, (x1, int((y2 - y1) / 2 + y1-1)), (x2, int((y2 - y1) / 2 + y1-1)), HUD_RED, thickness=1)
-    cv2.line(mask, (int((x2 - x1) / 2 + x1-1), y1), (int((x2 - x1) / 2 + x1-1), y2), HUD_RED, thickness=1)
+    cv2.line(mask, (x1, int((y2 - y1) / 2 + y1 - 1)), (x2, int((y2 - y1) / 2 + y1 - 1)), HUD_RED, thickness=1)
+    cv2.line(mask, (int((x2 - x1) / 2 + x1 - 1), y1), (int((x2 - x1) / 2 + x1 - 1), y2), HUD_RED, thickness=1)
 
     cv2.line(mask, (x1, int((y2 - y1) / 2 + y1)), (x2, int((y2 - y1) / 2 + y1)), HUD_CLIGHT, thickness=1)
     cv2.line(mask, (int((x2 - x1) / 2 + x1), y1), (int((x2 - x1) / 2 + x1), y2), HUD_CLIGHT, thickness=1)
 
-    cv2.line(mask, (x1, int((y2 - y1) / 2 + y1+1)), (x2, int((y2 - y1) / 2 + y1+1)), HUD_RED, thickness=1)
-    cv2.line(mask, (int((x2 - x1) / 2 + x1+1), y1), (int((x2 - x1) / 2 + x1+1), y2), HUD_RED, thickness=1)
+    cv2.line(mask, (x1, int((y2 - y1) / 2 + y1 + 1)), (x2, int((y2 - y1) / 2 + y1 + 1)), HUD_RED, thickness=1)
+    cv2.line(mask, (int((x2 - x1) / 2 + x1 + 1), y1), (int((x2 - x1) / 2 + x1 + 1), y2), HUD_RED, thickness=1)
     frame = cv2.addWeighted(frame, 1, mask, 0.8, 1)
     return frame
 
