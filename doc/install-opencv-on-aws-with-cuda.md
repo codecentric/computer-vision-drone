@@ -150,6 +150,7 @@ echo 'PATH=$PATH:/usr/local/cuda-8.0/bin' >> /etc/profile
 
 # logout, login
 ```
+
 ### setup cuDNN
 
 To install cuDNN you need an nvidia developer account.
@@ -207,8 +208,8 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 ```
 
 Result should be like this:
-```
 
+```
 --   NVIDIA CUDA
 --     Use CUFFT:                   YES
 --     Use CUBLAS:                  YES
@@ -236,6 +237,7 @@ sudo ldconfig
 ```
 
 If the build crashes on:
+
 ``` 
 [ 27%] Building CXX object modules/core/CMakeFiles/opencv_core.dir/src/hal_internal.cpp.o
 In file included from /home/ubuntu/opencv-3.2.0/modules/core/src/hal_internal.cpp:49:0:
@@ -248,12 +250,15 @@ make[2]: *** Waiting for unfinished jobs....
 ```
 
 run:
+
 ```
 sudo apt-get install liblapacke-dev checkinstall
 ```
+
 and try again.
 
 ### add symbolic link to virtual-env
+
 ``` 
 cd ~/.virtualenvs/computer-vision/lib/python3.5/site-packages
 ln -s /usr/local/lib/python3.5/site-packages/cv2.cpython-35m-x86_64-linux-gnu.so cv2.so
@@ -270,6 +275,7 @@ cv2.__version__
 ```
 
 output:
+
 ```
 (computer-vision) ubuntu@ip-XXXXXXXXXX:~/.virtualenvs/computer-vision/lib/python3.5/site-packages$ python
 Python 3.5.2 (default, Nov 17 2016, 17:05:23) 
