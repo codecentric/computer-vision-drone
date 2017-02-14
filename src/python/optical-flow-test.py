@@ -4,7 +4,6 @@ import cv2
 import hud
 
 
-
 def draw_flow(img, flow, step=16):
     h, w = img.shape[:2]
     y, x = np.mgrid[step / 2:h:step, step / 2:w:step].reshape(2, -1).astype(int)
@@ -16,7 +15,6 @@ def draw_flow(img, flow, step=16):
     for (x1, y1), (x2, y2) in lines:
         cv2.circle(vis, (x1, y1), 1, (200, 100, 0), -1)
     return vis
-
 
 
 cam = cv2.VideoCapture("../../../videos/motion-flow.mp4")
@@ -48,12 +46,4 @@ while True:
     ch = cv2.waitKey(5)
     if ch == 27:
         break
-    if ch == ord('1'):
-        show_hsv = not show_hsv
-        print('HSV flow visualization is', ['off', 'on'][show_hsv])
-    if ch == ord('2'):
-        show_glitch = not show_glitch
-        if show_glitch:
-            cur_glitch = img.copy()
-        print('glitch is', ['off', 'on'][show_glitch])
 cv2.destroyAllWindows()
