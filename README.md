@@ -1,7 +1,5 @@
 # Computer Vision Drone
 
-![header](media/header2.png)
-
 ## Goal
 
 This is a fun project to build an interactive drone. 
@@ -10,7 +8,6 @@ This is a fun project to build an interactive drone.
 * that has distance sensors
 * that has audio in and output
 
-first [Mindmap and Vision](media/Teamboard%20CV%20Drone.png)
 
 First flight:
 
@@ -32,6 +29,7 @@ We are writing a project diary to document our progress and what we have learned
 * Jan 2017: [Getting Started - Evaluating Drone Hardware](doc/drone_hardware_evaluation.md)
 * Jan 2017: [First Features and Milestones](doc/cv-drone-features-milestone.md)
 * Jan 2017: [Perception of the drones surroundings](doc/research-perceive-surroundings.md)
+* 10.02.2017: [Person tracking with dlib correlation tracker](doc/person-tracking-with-dlib-correlation-tracker.md)
 
 ## Project Team, communication and Dev Environment
 
@@ -43,7 +41,7 @@ We work at [codecentric](https://www.codecentric.de/) in Karlsruhe and Hamburg, 
 * Raphael Manke 
 * Michael Plümacher
 * Andrey Skorikov
-* Oli Moser (https://twitter.com/moseroli)
+* Oli Moser [@moseroli](https://twitter.com/moseroli)
 
 ### Communication
 
