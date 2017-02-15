@@ -33,7 +33,7 @@ function Button(pinIn, name, callback) {
     wpi.setup('gpio');
     wpi.pinMode(this.pinIn, wpi.INPUT);
     wpi.pullUpDnControl(this.pinIn, wpi.PUD_UP);
-    wpi.wiringPiISR(this.pinIn, wpi.INT_EDGE_SETUP, this.triggered.bind(this));
+    wpi.wiringPiISR(this.pinIn, wpi.INT_EDGE_RISING, this.triggered.bind(this));
 }
 
 
