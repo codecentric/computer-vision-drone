@@ -15,9 +15,6 @@
 
 var wpi = require('wiring-pi');
 
-exports.ON = 1;
-exports.OFF = 0;
-
 module.exports = Buzzer;
 
 
@@ -35,6 +32,9 @@ function Buzzer(pinOut, name) {
     wpi.pinMode(this.pinOut, wpi.OUTPUT);
 }
 
+/* define constants for outer usage */
+Buzzer.OFF = 0;
+Buzzer.ON = 1;
 
 /**
  * switch the buzzer on or off.
