@@ -4,7 +4,7 @@
 
 var Button = require('../../../main/drone/sensors/Button')
 
-var startButton = new Button(5, "startButton", function() { console.log("pushed me")});
+var startButton = new Button(23, "startButton", function() { console.log("pushed me")});
 
 
 setTimeout(function() {

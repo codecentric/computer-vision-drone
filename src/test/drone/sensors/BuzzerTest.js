@@ -6,7 +6,7 @@
 
 var Buzzer = require('../../../main/drone/sensors/Buzzer')
 
-var distanceWarner = new Buzzer(5, 'distanceWarner');
+var distanceWarner = new Buzzer(19, 'distanceWarner');
 
 setTimeout(function() {
     distanceWarner.switch(Buzzer.ON);
