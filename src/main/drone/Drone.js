@@ -4,9 +4,9 @@
  * Drone implementation
  */
 
-var Button = require('sensors/Button')
-var DistanceSensor = require('sensors/DistanceSensor');
-var Buzzer = require('sensors/Buzzer')
+var Button = require('./sensors/Button')
+var DistanceSensor = require('./sensors/DistanceSensor');
+var Buzzer = require('./sensors/Buzzer')
 
 module.exports = Drone;
 
@@ -24,7 +24,7 @@ function Drone() {
     this.led = new Buzzer(26, "led");
 
     this.buzzer.onOff(200);
-    this.led.blink(5, 200);
+    this.led.blink(5, 500);
 
     this.sensorLeft  = new DistanceSensor(17, 5, "left", 200);
     this.sensorFront = new DistanceSensor(27, 6, "front", 200);

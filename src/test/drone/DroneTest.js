@@ -3,7 +3,7 @@
  */
 
 
-var Button = require('../../../main/drone/Drone')
+var Drone = require('../../main/drone/Drone')
 
 var drone = new Drone();
 
