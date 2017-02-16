@@ -112,6 +112,8 @@ Drone.prototype.landing = function() {
 
     console.log("LANDING NOW!!!");
 
+    this.buzzer.blink(3, 1000);
+    this.led.blink(30, 100);
 
     //TODO: to be implemented
 
