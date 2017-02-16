@@ -22,7 +22,7 @@ function Drone(flightDurationSec) {
 
     this.flightDurationSec = flightDurationSec;
     this.readyForTakeoff = false;   // is the drone ready for takeoff?
-    this.takingOffNow = false;      // is the drone currently in takeoff preparation?
+    this.isFlying = false;      // is the drone currently flying?
 
     try {
         this.led = new Buzzer(26, "led");
@@ -66,10 +66,10 @@ function Drone(flightDurationSec) {
  */
 Drone.prototype.buttonPushed = function() {
 
-    if(this.readyForTakeoff == true && this.takingOffNow == false) {
+    if(this.readyForTakeoff == true && this.isFlying == false) {
 
         /* enter takeoff mode to prevent multiple triggers */
-        this.takingOffNow = true;
+        this.isFlying = true;
 
         console.log("received starting signal for takeoff.");
 
@@ -82,8 +82,8 @@ Drone.prototype.buttonPushed = function() {
             console.error("drone is not in ready-for-takeoff state");
         }
 
-        if(this.takingOffNow == true) {
-            console.error("drone is already in takeoff-mode. take your fingers out of the way!!");
+        if(this.isFlying == true) {
+            console.error("drone is already flying. take your fingers out of the way!!");
         }
     }
 
@@ -102,7 +102,7 @@ Drone.prototype.takeoff = function() {
 
     //TODO: to be implemented
 
-    this.takingOffNow = false;
+    this.isFlying = false;
 }
 
 
