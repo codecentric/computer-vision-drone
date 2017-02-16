@@ -20,33 +20,38 @@ function Drone() {
 
     console.log("setting up cv-drone...");
 
-    this.led = new Buzzer(26, "led");
-    this.led.switch(Buzzer.ON);
+    try {
+        this.led = new Buzzer(26, "led");
+        this.led.switch(Buzzer.ON);
 
-    this.startButton = new Button(23, "startButton", this.buttonPushed.bind(this));
+        this.startButton = new Button(23, "startButton", this.buttonPushed.bind(this));
 
-    this.buzzer = new Buzzer(19, "buzzer");
-    this.buzzer.onOff(100);
+        this.buzzer = new Buzzer(19, "buzzer");
+        this.buzzer.onOff(100);
 
-    this.sensorLeft  = new DistanceSensor(17, 5, "left", 200);
-    this.sensorFront = new DistanceSensor(27, 6, "front", 200);
-    this.sensorRight  = new DistanceSensor(22, 13, "right", 200);
+        this.sensorLeft = new DistanceSensor(17, 5, "left", 200);
+        this.sensorFront = new DistanceSensor(27, 6, "front", 200);
+        this.sensorRight = new DistanceSensor(22, 13, "right", 200);
 
-    usonic.init(function (error) {
-        if (error) {
-            console.log("error seting up ultrasonic sensor module: " + error.message);
-            this.onException();
-        } else {
+        usonic.init(function (error) {
+            if (error) {
+                console.log("error seting up ultrasonic sensor module: " + error.message);
+                this.onException();
+            } else {
 
-        }
-    });
+            }
+        });
 
-    this.sensorFront.triggerStart();
-    this.sensorLeft.triggerStart();
-    this.sensorRight.triggerStart();
+        this.sensorFront.triggerStart();
+        this.sensorLeft.triggerStart();
+        this.sensorRight.triggerStart();
 
-    this.led.blink(5, 200);
-    console.log("setting up cv-drone finished! ready for takeoff");
+        this.led.blink(5, 200);
+        console.log("setting up cv-drone finished! ready for takeoff");
+    } catch(error) {
+        console.log("error setting up drone: " + error.message);
+        this.onException();
+    }
 }
 
 
@@ -63,6 +68,8 @@ Drone.prototype.buttonPushed = function() {
  * will stop the drone with warnings end then exit.
  */
 Drone.prototype.onException = function() {
+
+    console.log("EXCEPTION HANDLER STARTING!");
 
     try {
         this.led.blink(100, 100);
