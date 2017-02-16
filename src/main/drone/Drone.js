@@ -13,7 +13,7 @@ module.exports = Drone;
 
 
 /**
- * create a drone object
+ * create a drone object. the constructor will set up all required sensors and components
  * @constructor
  */
 function Drone() {
@@ -35,7 +35,7 @@ function Drone() {
 
         usonic.init(function (error) {
             if (error) {
-                console.log("error seting up ultrasonic sensor module: " + error.message);
+                console.log("error setting up ultrasonic sensor module: " + error.message);
                 this.onException();
             } else {
 
@@ -48,6 +48,7 @@ function Drone() {
 
         this.led.blink(5, 200);
         console.log("setting up cv-drone finished! ready for takeoff");
+
     } catch(error) {
         console.log("error setting up drone: " + error.message);
         this.onException();

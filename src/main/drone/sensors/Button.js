@@ -24,6 +24,7 @@ module.exports = Button;
  * @constructor
  */
 function Button(pinIn, name, callback) {
+    this.blockedTime = 200; // time to block the button after pushed in ms
     this.pinIn = pinIn;
     this.name = name;
     this.pushed = false;
@@ -38,18 +39,29 @@ function Button(pinIn, name, callback) {
 
 
 /**
- * this is the listener function which will be called on IO action
+ * this is the listener function which will be called on IO action.
+ * It will block the button for some time
  */
 Button.prototype.triggered = function() {
 
-    if (wpi.digitalRead(this.pinIn)) {
-        if (false === this.pushed) {
-            this.pushed = true;
+    /* if the button is on clear state, the push will be executed */
+    if(this.pushed == false) {
+        this.pushed = true;
 
-            /* immediately execute the callback */
-            setTimeout(this.callback, 0);
-        }
-    } else {
-        this.pushed = false;
+        /* immediately execute the callback */
+        setTimeout(this.callback, 0);
+
+        /* reset the button after some time */
+        setTimeout(this.resetButton.bind(this), this.blockedTime);
     }
+
 }
+
+
+/**
+ * reset the button pushed state
+ */
+Button.prototype.resetButton = function() {
+    this.pushed = false;
+}
+
