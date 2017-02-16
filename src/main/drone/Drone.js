@@ -65,7 +65,7 @@ Drone.prototype.buttonPushed = function() {
     this.led.blink(3, 1000);
     this.buzzer.blink(3, 1000);
 
-    setTimeout(this.bind.takeoff(this), 4000);
+    setTimeout(this.takeoff.bind(this), 4000);
 }
 
 
@@ -73,7 +73,7 @@ Drone.prototype.buttonPushed = function() {
  * this method will tell the drone to takeoff after some warnings
  */
 Drone.prototype.takeoff = function() {
-    
+
     console.log("TAKING OFF!!!");
     //TODO: to be implemented
 
