@@ -22,7 +22,7 @@ function Drone(flightDurationSec) {
 
     this.flightDurationSec = flightDurationSec;
     this.readyForTakeoff = false;   // is the drone ready for takeoff?
-    this.takingOffNow = false;      // is the drone currently taking off?
+    this.takingOffNow = false;      // is the drone currently in takeoff preparation?
 
     try {
         this.led = new Buzzer(26, "led");
