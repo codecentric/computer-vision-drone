@@ -21,7 +21,8 @@ function Drone(flightDurationSec) {
     console.log("setting up cv-drone...");
 
     this.flightDurationSec = flightDurationSec;
-    this.readyForTakeoff = false;
+    this.readyForTakeoff = false;   // is the drone ready for takeoff?
+    this.takingOffNow = false;      // is the drone currently taking off?
 
     try {
         this.led = new Buzzer(26, "led");
@@ -65,7 +66,11 @@ function Drone(flightDurationSec) {
  */
 Drone.prototype.buttonPushed = function() {
 
-    if(this.readyForTakeoff == true) {
+    if(this.readyForTakeoff == true && this.takingOffNow == false) {
+
+        /* enter takeoff mode to prevent multiple triggers */
+        this.takingOffNow = true;
+
         console.log("received starting signal for takeoff.");
 
         this.led.blink(30, 100);
