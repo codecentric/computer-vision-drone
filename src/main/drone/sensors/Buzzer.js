@@ -30,6 +30,7 @@ function Buzzer(pinOut, name) {
 
     wpi.setup('gpio');
     wpi.pinMode(this.pinOut, wpi.OUTPUT);
+    wpi.digitalWrite(this.pinOut, wpi.LOW);
 }
 
 /* define constants for outer usage */
@@ -57,6 +58,8 @@ Buzzer.prototype.onOff = function(delay) {
     setTimeout(this.switch.bind(this, Buzzer.ON), 0);
     setTimeout(this.switch.bind(this, Buzzer.OFF), delay);
 }
+
+
 
 
 /**

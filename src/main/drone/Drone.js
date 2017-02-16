@@ -19,21 +19,23 @@ function Drone() {
 
     console.log("setting up cv-drone...");
 
-    this.startButton = new Button(23, "startButton", this.buttonPushed.bind(this));
-    this.buzzer = new Buzzer(19, "buzzer");
     this.led = new Buzzer(26, "led");
+    this.led.switch(Buzzer.ON);
 
-    this.buzzer.onOff(200);
-    this.led.blink(5, 500);
+    this.startButton = new Button(23, "startButton", this.buttonPushed.bind(this));
+
+    this.buzzer = new Buzzer(19, "buzzer");
+    this.buzzer.onOff(100);
 
     this.sensorLeft  = new DistanceSensor(17, 5, "left", 200);
     this.sensorFront = new DistanceSensor(27, 6, "front", 200);
     this.sensorRight  = new DistanceSensor(22, 13, "right", 200);
 
-    this.sensorFront.triggerStart();
-    this.sensorLeft.triggerStart();
-    this.sensorRight.triggerStart();
+    //this.sensorFront.triggerStart();
+    //this.sensorLeft.triggerStart();
+    //this.sensorRight.triggerStart();
 
+    this.led.blink(5, 200);
     console.log("setting up cv-drone finished! ready for takeoff");
 }
 
