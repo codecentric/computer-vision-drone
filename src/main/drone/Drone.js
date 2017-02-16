@@ -34,8 +34,8 @@ function Drone() {
 
     usonic.init(function (error) {
         if (error) {
-            //TODO: STOP TAKEOFF AND BRING WARNING ON LED AND BUZZER
-            console.log(error);
+            console.log("error seting up ultrasonic sensor module: " + error.message);
+            this.onException();
         } else {
 
         }
@@ -72,7 +72,6 @@ Drone.prototype.onException = function() {
     }
 
     this.emergencyLand();
-
 }
 
 
