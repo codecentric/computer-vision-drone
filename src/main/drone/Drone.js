@@ -101,8 +101,6 @@ Drone.prototype.takeoff = function() {
     console.log("TAKING OFF!!! Flight length will be : " + this.flightDurationSec + " sec.");
 
     //TODO: to be implemented
-
-    this.isFlying = false;
 }
 
 
@@ -115,6 +113,8 @@ Drone.prototype.landing = function() {
 
 
     //TODO: to be implemented
+
+    this.isFlying = false;
 }
 
 
