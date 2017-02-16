@@ -50,9 +50,29 @@ function Drone() {
 }
 
 
-
+/**
+ * event handler for the button
+ */
 Drone.prototype.buttonPushed = function() {
     console.log("pushed button");
+}
+
+
+/**
+ * exception handler. will be called on every urgent exception.
+ * will stop the drone with warnings end then exit.
+ */
+Drone.prototype.onException = function() {
+
+    try {
+        this.led.blink(100, 100);
+        this.buzzer.blink(5, 100);
+    } catch(error) {
+        console.log("error: can not broadcast exception by led or buzzer because of: " + error.message);
+    }
+
+    this.emergencyLand();
+
 }
 
 
@@ -61,6 +81,10 @@ Drone.prototype.buttonPushed = function() {
  *
  */
 Drone.prototype.emergencyLand = function() {
+
     //TODO: TO BE IMPLEMENTED
+    // stop drone etc.
+
+    process.exit(1);
 }
 
