@@ -5,6 +5,6 @@
 
 var Drone = require('../../main/drone/Drone')
 
-var drone = new Drone();
+var drone = new Drone(5);
 
 console.log("exit");
