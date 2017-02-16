@@ -4,9 +4,9 @@
  * Drone implementation
  */
 
-var Button = require('../../../main/drone/sensors/Button')
-var DistanceSensor = require('../../../main/drone/sensors/DistanceSensor');
-var Buzzer = require('../../../main/drone/sensors/Buzzer')
+var Button = require('sensors/Button')
+var DistanceSensor = require('sensors/DistanceSensor');
+var Buzzer = require('sensors/Buzzer')
 
 module.exports = Drone;
 
