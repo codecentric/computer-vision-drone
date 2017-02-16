@@ -14,6 +14,7 @@ module.exports = Drone;
 
 /**
  * create a drone object. the constructor will set up all required sensors and components
+ * @param flightDurationSec the duration in seconds the flight will last until landing
  * @constructor
  */
 function Drone(flightDurationSec) {
@@ -22,7 +23,7 @@ function Drone(flightDurationSec) {
 
     this.flightDurationSec = flightDurationSec;
     this.readyForTakeoff = false;   // is the drone ready for takeoff?
-    this.isFlying = false;      // is the drone currently flying?
+    this.isFlying = false;          // is the drone currently flying?
 
     try {
         this.led = new Buzzer(26, "led");
