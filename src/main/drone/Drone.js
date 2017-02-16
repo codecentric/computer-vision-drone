@@ -78,7 +78,13 @@ Drone.prototype.buttonPushed = function() {
 
         setTimeout(this.takeoff.bind(this), 4000);
     } else {
-        console.error("drone is not in ready-for-takeoff state");
+        if(this.readyForTakeoff == false) {
+            console.error("drone is not in ready-for-takeoff state");
+        }
+
+        if(this.takingOffNow == true) {
+            console.error("drone is already in takeoff-mode. take your fingers out of the way!!");
+        }
     }
 
 }
@@ -96,6 +102,7 @@ Drone.prototype.takeoff = function() {
 
     //TODO: to be implemented
 
+    this.takingOffNow = false;
 }
 
 
@@ -105,6 +112,7 @@ Drone.prototype.takeoff = function() {
 Drone.prototype.landing = function() {
 
     console.log("LANDING NOW!!!");
+
 
     //TODO: to be implemented
 }
