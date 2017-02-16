@@ -4,6 +4,7 @@
  * Drone implementation
  */
 
+var usonic = require('mmm-usonic');
 var Button = require('./sensors/Button')
 var DistanceSensor = require('./sensors/DistanceSensor');
 var Buzzer = require('./sensors/Buzzer')
@@ -31,9 +32,18 @@ function Drone() {
     this.sensorFront = new DistanceSensor(27, 6, "front", 200);
     this.sensorRight  = new DistanceSensor(22, 13, "right", 200);
 
-    //this.sensorFront.triggerStart();
-    //this.sensorLeft.triggerStart();
-    //this.sensorRight.triggerStart();
+    usonic.init(function (error) {
+        if (error) {
+            //TODO: STOP TAKEOFF AND BRING WARNING ON LED AND BUZZER
+            console.log(error);
+        } else {
+
+        }
+    });
+
+    this.sensorFront.triggerStart();
+    this.sensorLeft.triggerStart();
+    this.sensorRight.triggerStart();
 
     this.led.blink(5, 200);
     console.log("setting up cv-drone finished! ready for takeoff");
