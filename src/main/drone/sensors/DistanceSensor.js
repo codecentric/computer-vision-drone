@@ -4,6 +4,9 @@
  *
  * This class represents a distance sensor of typ HC-SR04 on the drone.
  *
+ * ATTENTION: Before creating a sensor object, call
+ *   usonic.init(function (error) {...} (see the SensorTest.js as an example).
+ *
  * Create a sensor object with the constructor. This will automatically initialize the hardware.
  * After that, call method "triggerStart()" to begin.
  *
