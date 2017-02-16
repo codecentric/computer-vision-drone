@@ -50,6 +50,16 @@ Buzzer.prototype.switch = function(mode) {
 
 
 /**
+ * switch the buzzer/LED on for a given delay in ms
+ * @param delay
+ */
+Buzzer.prototype.onOff = function(delay) {
+    setTimeout(this.switch.bind(this, Buzzer.ON), 0);
+    setTimeout(this.switch.bind(this, Buzzer.OFF), delay);
+}
+
+
+/**
  * let the buzzer or LED blink
  * @param times how often should we blink?
  * @param delay time in ms between two ON states
@@ -60,6 +70,5 @@ Buzzer.prototype.blink = function(times, delay) {
         setTimeout(this.switch.bind(this, Buzzer.ON), (i*delay));
         setTimeout(this.switch.bind(this, Buzzer.OFF), (i*delay)+(delay/2));
     }
-
 }
 
