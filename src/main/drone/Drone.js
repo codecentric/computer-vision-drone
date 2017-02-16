@@ -60,7 +60,25 @@ function Drone() {
  * event handler for the button
  */
 Drone.prototype.buttonPushed = function() {
-    console.log("pushed button");
+    console.log("received starting signal for takeoff.");
+
+    this.led.blink(3, 1000);
+    this.buzzer.blink(3, 1000);
+
+    setTimeout(this.bind.takeoff(this), 4000);
+}
+
+
+/**
+ * this method will tell the drone to takeoff after some warnings
+ */
+Drone.prototype.takeoff = function() {
+    
+    console.log("TAKING OFF!!!");
+    //TODO: to be implemented
+
+
+
 }
 
 
