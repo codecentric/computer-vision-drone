@@ -2,7 +2,7 @@
 
 require("storotype");
 
-var Bebop = require("./bebop");
+var Bebop = require("node-bebop");
 
 module.exports.constants = require("./constants");
 

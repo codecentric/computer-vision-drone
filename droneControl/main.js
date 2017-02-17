@@ -1,12 +1,14 @@
 /**
  * Created by raphael on 06.02.17.
  */
+require("storotype");
 var bebop = require('node-bebop');
 var drone = bebop.createClient();
-var keypress = require('keypress');
-keypress(process.stdin);
-// set drone Settings
-
+const eol = require('os').EOL;
+const readline = require('readline');
+readline.emitKeypressEvents(process.stdin);
+process.stdin.setRawMode(true);
+const MOVEMENT_SPEED = 10;
 var rotate = false;
 
 // Fallback actions for safe landing in case of exit or error
@@ -15,6 +17,10 @@ process.stdin.resume();//so the program will not close instantly
 // forces the drone to land and rhe close the program
 function kill() {
     drone.land();
+
+    for (var i = 0; i <= 10; i++) {
+        drone.land();
+    }
     drone.on("landed", function () {
         process.exit();
     });
@@ -24,6 +30,16 @@ function kill() {
     }, 2000);
 };
 
+const keyMap = new Map();
+keyMap.set('up', drone.takeOff());
+keyMap.set('down', drone.land());
+keyMap.set('left', drone.left(MOVEMENT_SPEED));
+keyMap.set('right', drone.right(MOVEMENT_SPEED));
+keyMap.set('w', drone.up(MOVEMENT_SPEED));
+keyMap.set('s', drone.down(MOVEMENT_SPEED));
+keyMap.set('d', drone.clockwise(MOVEMENT_SPEED));
+keyMap.set('a', drone.counterClockwise(MOVEMENT_SPEED));
+keyMap.set('space', drone.stop());
 
 //do something when app is closing
 process.on('exit', function (){
@@ -36,12 +52,17 @@ process.on('SIGINT', function (){
     kill();
     console.log("Landing due to ctr+c. ");
 });
+//catches kill event
+process.on('SIGTERM', function (){
+    kill();
+    console.log("Landing due to kill. ");
+});
 
 //catches uncaught exceptions
 process.on('uncaughtException', function (err){
     kill();
     console.log(err);
-    console.log("Landing due to Exception. Pressed Space?");
+    console.log("Landing due to Exception.");
 });
 /*
 
@@ -51,55 +72,43 @@ cotrol the user keyboard input
 
 process.stdin.on('keypress', function (ch,key) {
     console.log('got "keypress"', key);
-
-    if (key.name == 'up') {
-        console.log("TakeOff");
-        drone.takeOff();
-    }
-    if (key.name == 'down') {
-        console.log("Landing");
-        drone.land();
-    }
-    if (key.name == 'right') {
-        if (rotate) {
-            drone.stop();
-            rotate = false;
+    if (key.ctrl && key.name === 'c') {
+        process.exit(); // eslint-disable-line no-process-exit
+    } else {
+        switch (key.name) {
+            case 'up':
+                drone.takeOff();
+                console.log("takeOff");
+                break;
+            case 'down':
+                drone.land();
+                break;
+            case 'left':
+                drone.left(MOVEMENT_SPEED);
+                break;
+            case 'right':
+                drone.right(MOVEMENT_SPEED);
+                break;
+            case 'w':
+                drone.up(MOVEMENT_SPEED);
+                break;
+            case 's':
+                drone.down(MOVEMENT_SPEED);
+                break;
+            case 'a':
+                drone.counterClockwise(MOVEMENT_SPEED);
+                break;
+            case 'd':
+                drone.clockwise(MOVEMENT_SPEED);
+                break;
+            case 'space':
+                drone.stop();
+                break;
+            default:
+                console.log(`No symbol defined for "${key.name}" key.`);
         }
-        else {
-            console.log("TurnClockwise");
-            drone.clockwise(15);
-            rotate = true;
-        }
-
-
-    }
-    if (key.name == 'left') {
-        if (rotate) {
-            drone.stop();
-            rotate = false;
-        }
-        else {
-            console.log("TurnCounterClockwise");
-            drone.counterClockwise(15);
-            rotate = true;
-        }
-
-    }
-    if (key.name == 'w') {
-        drone.up(15);
     }
 
-    if (key.name == 's') {
-        drone.down(15);
-    }
-
-    if (key.name == 'd') {
-        drone.stop();
-    }
-    if (key.name == 'space') {
-        throw new Error;
-
-    }
 });
 process.stdin.resume();
 
@@ -107,10 +116,6 @@ process.stdin.resume();
 setup the drone
  */
 drone.connect(function () {
-    var ready = true;
-    setTimeout(function () {
-        ready = false;
-    },4000);
     // activate videostreaming
     drone.MediaStreaming.videoStreamMode(0);
     drone.PictureSettings.videoStabilizationMode(3);
@@ -126,16 +131,11 @@ drone.connect(function () {
     });
 
     drone.on("AltitudeChanged", function (data) {
-        console.log("AltitudeChanged: " + data.altitude);
-        if (ready && data.altitude >= 0.5){
-            if (data.altitude >= 1.5){
-                drone.stop();
-            } else {
-                drone.up(15);
-            }
-        }
+         console.log("AltitudeChanged: " + data.altitude);
     });
     //drone.takeOff();
 
+    //const exec = require('child_process').exec;
+    //const ls = exec('vlc ./bebop.sdp');
 
-});
+    });
