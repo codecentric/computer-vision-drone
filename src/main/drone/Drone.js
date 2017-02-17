@@ -9,6 +9,7 @@ var Button = require('./sensors/Button')
 var DistanceSensor = require('./sensors/DistanceSensor');
 var Buzzer = require('./sensors/Buzzer')
 var Bebop = require("node-bebop");
+var ping = require ("net-ping");
 
 module.exports = Drone;
 
@@ -21,11 +22,12 @@ module.exports = Drone;
 function Drone(flightDurationSec) {
 
     this.minBatteryLevel = 10;
+    this.flightControlId = -1;
 
     console.log("setting up cv-drone...");
 
     this.flightDurationSec = flightDurationSec;
-    this.readyForTakeoff;   // is the drone ready for takeoff? default = undef.
+    this.readyForTakeoff;           // is the drone ready for takeoff? [default = undefined]
     this.isFlying = false;          // is the drone currently flying?
 
     try {
@@ -66,16 +68,38 @@ function Drone(flightDurationSec) {
         process.on('SIGTERM', this.onException.bind(this, "SIGTERM")); // KILL
         process.on('uncaughtException', this.onException.bind(this));    // UNCAUGHT EXCEPTIONS
 
+        var session = ping.createSession();
+
+        session.pingHost (this.bebop.ip, this.pingDrone.bind(this));
+
         this.led.blink(5, 200);
         console.log("setting up cv-drone finished! ready for takeoff");
+
 
         /* if readyForTakeoff was set (from undef) to false while initialising, something is wrong,
            so do not set it to ready! */
         if(this.readyForTakeoff != false) this.readyForTakeoff = true;
 
     } catch(error) {
+        this.readyForTakeoff = false;
         console.log("error setting up drone: " + error.message);
         this.onException();
+    }
+}
+
+
+/**
+ * setup method which checks that the drone is reachable via the network.
+ * @param error
+ */
+Drone.prototype.pingDrone = function(error) {
+
+    if(error) {
+        this.readyForTakeoff = false;
+        throw "drone not reachable. ping failed.";
+    }
+    else {
+        console.log("drone successfully pinged");
     }
 }
 
@@ -142,6 +166,10 @@ Drone.prototype.buttonPushed = function() {
  */
 Drone.prototype.takeoff = function() {
 
+    /* start the flight control loop */
+    this.flightControlId = setInterval(this.flightControl.bind(this), 100);
+
+
     /* automatically land the drone after some time */
     setTimeout(this.landing.bind(this, "flight time over"), (this.flightDurationSec*1000));
 
@@ -160,11 +188,15 @@ Drone.prototype.landing = function(message) {
 
     if (this.isFlying == true) {
 
+        /* stop the flight control loop */
+        clearInterval(this.flightControlId);
+
         console.log("============= LANDING NOW!!!");
 
         this.buzzer.blink(3, 1000);
         this.led.blink(30, 100);
 
+        this.bebop.stop();
         this.bebop.land();
 
         this.isFlying = false;
@@ -173,6 +205,15 @@ Drone.prototype.landing = function(message) {
     }
 }
 
+
+/**
+ * central steering of the dron
+ */
+Drone.prototype.flightControl = function() {
+
+    console.log("distances: " + this.sensorLeft.getDistance());
+
+}
 
 /**
  * exception handler. will be called on every urgent exception.
@@ -202,6 +243,7 @@ Drone.prototype.emergencyLand = function() {
     console.error("============= EMERGENCY LANDING NOW!");
 
     // stop drone etc.
+    this.bebop.stop();
     this.bebop.land();
 
 

@@ -51,6 +51,8 @@ Install the wiring-pi module:
 Install the node-bebop module:
 `npm install node-bebop --save`
 
+Install the net-ping module:
+`npm install net-ping`
   
 
 ## Frameworks
