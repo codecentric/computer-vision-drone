@@ -79,9 +79,8 @@ function Drone(flightDurationSec) {
  *
  */
 Drone.prototype.onConnect = function() {
-    okfpoewkfwpoekfpok
-    try {
 
+    try {
 
         /* battery level check */
         this.bebop.on("battery", this.batteryCheck.bind(this));
