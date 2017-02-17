@@ -8,6 +8,7 @@ var usonic = require('mmm-usonic');
 var Button = require('./sensors/Button')
 var DistanceSensor = require('./sensors/DistanceSensor');
 var Buzzer = require('./sensors/Buzzer')
+var Bebop = require("node-bebop");
 
 module.exports = Drone;
 
@@ -26,6 +27,12 @@ function Drone(flightDurationSec) {
     this.isFlying = false;          // is the drone currently flying?
 
     try {
+
+        this.bebop = Bebop.createClient();
+
+        /* connect to drone and pass a connected handler */
+        this.bebop.connect(this.onConnect.bind(this));
+
         this.led = new Buzzer(26, "led");
         this.led.switch(Buzzer.ON);
 
@@ -55,7 +62,7 @@ function Drone(flightDurationSec) {
         process.on('exit', this.onException.bind(this, "exit"));
         process.on('SIGINT', this.onException.bind(this, "SIGINT"));  // CTRL+C
         process.on('SIGTERM', this.onException.bind(this, "SIGTERM")); // KILL
-        process.on('uncaughtException', this.onException.bind(this, "uncaughtException"));    // UNCAUGHT EXCEPTIONS
+        process.on('uncaughtException', this.onException.bind(this));    // UNCAUGHT EXCEPTIONS
 
         this.led.blink(5, 200);
         console.log("setting up cv-drone finished! ready for takeoff");
@@ -64,6 +71,30 @@ function Drone(flightDurationSec) {
     } catch(error) {
         console.log("error setting up drone: " + error.message);
         this.onException();
+    }
+}
+
+
+/**
+ *
+ */
+Drone.prototype.onConnect = function() {
+    okfpoewkfwpoekfpok
+    try {
+
+
+        /* battery level check */
+        this.bebop.on("battery", this.batteryCheck.bind(this));
+
+    } catch(exception) {
+        console.log(exception);
+    }
+}
+
+
+Drone.prototype.batteryCheck = function(batteryLevel) {
+    if(batteryLevel < 80) {
+        this.landing("battery low");
     }
 }
 
@@ -131,9 +162,9 @@ Drone.prototype.landing = function(message) {
  * exception handler. will be called on every urgent exception.
  * will stop the drone with warnings end then exit.
  */
-Drone.prototype.onException = function(message) {
+Drone.prototype.onException = function(err) {
 
-    console.log("Exception handler called. " + message)
+    console.log("Exception handler called. " + err);
 
     try {
         this.led.blink(100, 100);
