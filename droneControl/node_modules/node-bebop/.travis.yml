@@ -1,0 +1,25 @@
+language: node_js
+sudo: false
+node_js:
+  - '0.10'
+  - '0.12'
+  - '4.0'
+  - '4.1'
+  - '5.0'
+before_install:
+  - "mkdir -p ~/.npm"
+before_script:
+  - npm install -g grunt-cli istanbul codeclimate-test-reporter
+script:
+  - grunt lint
+  - istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -R spec
+  - CODECLIMATE_REPO_TOKEN=cdedf6138cfcd8a16492f5180f36a32789247baada76a55615a252fb04e916d5 codeclimate-test-reporter < coverage/lcov.info
+env:
+  - CXX=g++-4.8
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8
+      - g++-4.8
