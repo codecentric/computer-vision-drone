@@ -126,6 +126,7 @@ Drone.prototype.onConnect = function() {
  * @param batteryLevel
  */
 Drone.prototype.batteryCheck = function(batteryLevel) {
+    console.log("battery level: " + batteryLevel +  "%");
     if(batteryLevel < this.minBatteryLevel) {
         this.readyForTakeoff = false;
         this.landing("battery low");
@@ -211,7 +212,19 @@ Drone.prototype.landing = function(message) {
  */
 Drone.prototype.flightControl = function() {
 
-    console.log("distances: " + this.sensorLeft.getDistance());
+    var dist = this.sensorFront.getDistance();
+
+    console.log("distances: " + dist);
+
+    if(dist < 100) {
+        this.landing("distance low");
+    }
+
+
+
+
+
+
 
 }
 
