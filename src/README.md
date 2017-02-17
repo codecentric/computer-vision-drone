@@ -48,6 +48,9 @@ Install the HC-SR04 sensor module:
 Install the wiring-pi module:
 `npm install wiring-pi --save`
 
+Install the node-bebop module:
+`npm install node-bebop --save`
+
   
 
 ## Frameworks
