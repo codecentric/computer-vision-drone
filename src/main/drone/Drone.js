@@ -8,6 +8,7 @@ var usonic = require('mmm-usonic');
 var Button = require('./sensors/Button')
 var DistanceSensor = require('./sensors/DistanceSensor');
 var Buzzer = require('./sensors/Buzzer')
+var Bebop = require("node-bebop");
 
 module.exports = Drone;
 
@@ -19,13 +20,21 @@ module.exports = Drone;
  */
 function Drone(flightDurationSec) {
 
+    this.minBatteryLevel = 10;
+
     console.log("setting up cv-drone...");
 
     this.flightDurationSec = flightDurationSec;
-    this.readyForTakeoff = false;   // is the drone ready for takeoff?
+    this.readyForTakeoff;   // is the drone ready for takeoff? default = undef.
     this.isFlying = false;          // is the drone currently flying?
 
     try {
+
+        this.bebop = Bebop.createClient();
+
+        /* connect to drone and pass a connected handler */
+        this.bebop.connect(this.onConnect.bind(this));
+
         this.led = new Buzzer(26, "led");
         this.led.switch(Buzzer.ON);
 
@@ -55,15 +64,47 @@ function Drone(flightDurationSec) {
         process.on('exit', this.onException.bind(this, "exit"));
         process.on('SIGINT', this.onException.bind(this, "SIGINT"));  // CTRL+C
         process.on('SIGTERM', this.onException.bind(this, "SIGTERM")); // KILL
-        process.on('uncaughtException', this.onException.bind(this, "uncaughtException"));    // UNCAUGHT EXCEPTIONS
+        process.on('uncaughtException', this.onException.bind(this));    // UNCAUGHT EXCEPTIONS
 
         this.led.blink(5, 200);
         console.log("setting up cv-drone finished! ready for takeoff");
-        this.readyForTakeoff = true;
+
+        /* if readyForTakeoff was set (from undef) to false while initialising, something is wrong,
+           so do not set it to ready! */
+        if(this.readyForTakeoff != false) this.readyForTakeoff = true;
 
     } catch(error) {
         console.log("error setting up drone: " + error.message);
         this.onException();
+    }
+}
+
+
+/**
+ * this method is called when the connection to the drone is established.
+ * we can then add some state listeners.
+ */
+Drone.prototype.onConnect = function() {
+
+    try {
+        /* battery level check */
+        this.bebop.on("battery", this.batteryCheck.bind(this));
+
+    } catch(exception) {
+        console.log(exception);
+    }
+}
+
+
+/**
+ * react on a battery event and perform a check if the battery level is OK.
+ * otherwise, make the drone not ready-for-takeoff and land the drone.
+ * @param batteryLevel
+ */
+Drone.prototype.batteryCheck = function(batteryLevel) {
+    if(batteryLevel < this.minBatteryLevel) {
+        this.readyForTakeoff = false;
+        this.landing("battery low");
     }
 }
 
@@ -93,7 +134,6 @@ Drone.prototype.buttonPushed = function() {
             console.error("drone is already flying. take your fingers out of the way!!");
         }
     }
-
 }
 
 
@@ -103,11 +143,11 @@ Drone.prototype.buttonPushed = function() {
 Drone.prototype.takeoff = function() {
 
     /* automatically land the drone after some time */
-    setTimeout(this.landing.bind(this), (this.flightDurationSec*1000));
+    setTimeout(this.landing.bind(this, "flight time over"), (this.flightDurationSec*1000));
 
-    console.log("TAKING OFF!!! Flight length will be : " + this.flightDurationSec + " sec.");
+    console.log("============= TAKING OFF!!! Flight length will be : " + this.flightDurationSec + " sec.");
 
-    //TODO: to be implemented
+    this.bebop.takeOff();
 }
 
 
@@ -116,14 +156,21 @@ Drone.prototype.takeoff = function() {
  */
 Drone.prototype.landing = function(message) {
 
-    console.log("LANDING NOW!!! " + message);
+    console.log("received landing event: " + message);
 
-    this.buzzer.blink(3, 1000);
-    this.led.blink(30, 100);
+    if (this.isFlying == true) {
 
-    //TODO: to be implemented
+        console.log("============= LANDING NOW!!!");
 
-    this.isFlying = false;
+        this.buzzer.blink(3, 1000);
+        this.led.blink(30, 100);
+
+        this.bebop.land();
+
+        this.isFlying = false;
+    } else {
+        console.log("the drone is not in [flying] state, so no need to land.");
+    }
 }
 
 
@@ -131,9 +178,9 @@ Drone.prototype.landing = function(message) {
  * exception handler. will be called on every urgent exception.
  * will stop the drone with warnings end then exit.
  */
-Drone.prototype.onException = function(message) {
+Drone.prototype.onException = function(err) {
 
-    console.log("Exception handler called. " + message)
+    console.log("Exception handler called. " + err);
 
     try {
         this.led.blink(100, 100);
@@ -152,9 +199,11 @@ Drone.prototype.onException = function(message) {
  */
 Drone.prototype.emergencyLand = function() {
 
-    console.error("EMERGENCY LANDING NOW!");
-    //TODO: TO BE IMPLEMENTED
+    console.error("============= EMERGENCY LANDING NOW!");
+
     // stop drone etc.
+    this.bebop.land();
+
 
     process.exit(1);
 }
