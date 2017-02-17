@@ -51,6 +51,8 @@ function Drone(flightDurationSec) {
         this.sensorLeft.triggerStart();
         this.sensorRight.triggerStart();
 
+        this.registerExitHandlers();
+
         this.led.blink(5, 200);
         console.log("setting up cv-drone finished! ready for takeoff");
         this.readyForTakeoff = true;
@@ -61,6 +63,38 @@ function Drone(flightDurationSec) {
     }
 }
 
+
+/**
+ * register the exit handlers which will land the drone on system exit.
+ */
+Drone.prototype.registerExitHandlers = function() {
+
+
+//do something when app is closing
+    process.on('exit', function (){
+        console.log("Landing due to exit ");
+        this.landing();
+    });
+
+//catches ctrl+c event
+    process.on('SIGINT', function (){
+        console.log("Landing due to ctr+c. ");
+        this.landing();
+    });
+//catches kill event
+    process.on('SIGTERM', function (){
+        console.log("Landing due to kill. ");
+        this.landing();
+    });
+
+//catches uncaught exceptions
+    process.on('uncaughtException', function (err){
+        console.log(err);
+        console.log("Landing due to Exception.");
+        this.landing();
+    });
+
+}
 
 /**
  * event handler for the button. will start the drone after some warnings
