@@ -51,7 +51,11 @@ function Drone(flightDurationSec) {
         this.sensorLeft.triggerStart();
         this.sensorRight.triggerStart();
 
-        this.registerExitHandlers();
+        /* register some handlers for global errors */
+        process.on('exit', this.onException.bind(this, "exit"));
+        process.on('SIGINT', this.onException.bind(this, "SIGINT"));  // CTRL+C
+        process.on('SIGTERM', this.onException.bind(this, "SIGTERM")); // KILL
+        process.on('uncaughtException', this.onException.bind(this, "uncaughtException"));    // UNCAUGHT EXCEPTIONS
 
         this.led.blink(5, 200);
         console.log("setting up cv-drone finished! ready for takeoff");
@@ -63,38 +67,6 @@ function Drone(flightDurationSec) {
     }
 }
 
-
-/**
- * register the exit handlers which will land the drone on system exit.
- */
-Drone.prototype.registerExitHandlers = function() {
-
-
-//do something when app is closing
-    process.on('exit', function (){
-        console.log("Landing due to exit ");
-        this.landing();
-    });
-
-//catches ctrl+c event
-    process.on('SIGINT', function (){
-        console.log("Landing due to ctr+c. ");
-        this.landing();
-    });
-//catches kill event
-    process.on('SIGTERM', function (){
-        console.log("Landing due to kill. ");
-        this.landing();
-    });
-
-//catches uncaught exceptions
-    process.on('uncaughtException', function (err){
-        console.log(err);
-        console.log("Landing due to Exception.");
-        this.landing();
-    });
-
-}
 
 /**
  * event handler for the button. will start the drone after some warnings
@@ -142,9 +114,9 @@ Drone.prototype.takeoff = function() {
 /**
  * this method will let the drone land
  */
-Drone.prototype.landing = function() {
+Drone.prototype.landing = function(message) {
 
-    console.log("LANDING NOW!!!");
+    console.log("LANDING NOW!!! " + message);
 
     this.buzzer.blink(3, 1000);
     this.led.blink(30, 100);
@@ -159,9 +131,9 @@ Drone.prototype.landing = function() {
  * exception handler. will be called on every urgent exception.
  * will stop the drone with warnings end then exit.
  */
-Drone.prototype.onException = function() {
+Drone.prototype.onException = function(message) {
 
-    console.log("EXCEPTION HANDLER STARTING!");
+    console.log("Exception handler called. " + message)
 
     try {
         this.led.blink(100, 100);
