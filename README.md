@@ -31,6 +31,7 @@ We are writing a project diary to document our progress and what we have learned
 * Jan 2017: [Perception of the drones surroundings](doc/research-perceive-surroundings.md)
 * 10.02.2017: [Person tracking with dlib correlation tracker](doc/person-tracking-with-dlib-correlation-tracker.md)
 * 17.02.2017: [Optical Flow Demo with OpenCV](doc/movement-vector-opencv-opticalflow.md)
+* 18.02.2017: [Install OpenCV on AWS Ubuntu with CUDA](doc/install-opencv-on-aws-with-cuda.md)
 
 ## Project Team, communication and Dev Environment
 
