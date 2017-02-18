@@ -30,6 +30,7 @@ We are writing a project diary to document our progress and what we have learned
 * Jan 2017: [First Features and Milestones](doc/cv-drone-features-milestone.md)
 * Jan 2017: [Perception of the drones surroundings](doc/research-perceive-surroundings.md)
 * 10.02.2017: [Person tracking with dlib correlation tracker](doc/person-tracking-with-dlib-correlation-tracker.md)
+* 17.02.2017: [Optical Flow Demo with OpenCV](doc/movement-vector-opencv-opticalflow.md)
 
 ## Project Team, communication and Dev Environment
 
