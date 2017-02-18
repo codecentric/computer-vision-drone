@@ -17,7 +17,7 @@ is a displacement vector showing the movement of points from first frame to seco
 
 Checkout this video for a demo:
 
-![opencv optical flow demo](http://img.youtube.com/vi/tWo1LEBkMjI/0.jpg)](http://www.youtube.com/watch?v=tWo1LEBkMjI)
+[![opencv optical flow demo](http://img.youtube.com/vi/tWo1LEBkMjI/0.jpg)](http://www.youtube.com/watch?v=tWo1LEBkMjI "opencv optical flow demo")
 
 
 ## Conclusion
