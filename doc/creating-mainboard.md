@@ -4,7 +4,7 @@
 
 Besides the acoustic sensors, we need some other components connected to our PI. We created a small mainboard for that.
 
-![header](../media/header_mainboard.jpg)
+![header](../media/header_perfboard.jpg)
 
 ## Required components
 
