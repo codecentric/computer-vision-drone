@@ -38,7 +38,7 @@ We started to prepare the stripboard with a box cutter. We had to be very tender
 
 ![mainboard](../media/mainboard.jpg)
 
-We soldered the 40-pin jack (the one which will be connected with the PI) head first to have the plain layer (without copper) on top, so the mounted parts became visible and easy to reach. After mounting the board to our PI, it looks like this:
+We soldered the 40-pin jack (the one which will be connected with the PI) head first to have the plain layer (without copper) on top, so the mounted parts became visible and easy to reach. After mounting the board on our PI, it looks like this:
 
 ![mounted mainboard](../media/mainboard_mounted.jpg)
 
