@@ -16,7 +16,7 @@ drone if something went wrong, or for testing purposes, for example to indicate 
 why we add an acoustic buzzer to the drone. This buzzer will be improved by an additional diode showing some more specific 
 state information.
 
-As the power supply will directly come from the drone, we also added a switch to enable and disable the current flow.
+As the power supply will directly come from the drone, we also added a switch to enable and disable the current flow. (Please note: This happens on another free area on our board and is thus not contained in the plan below).
 
 Finally, we want to start the drone not only by SSH but also by a simple physical action, so we added a simple button to the top.
 
