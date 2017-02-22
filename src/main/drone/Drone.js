@@ -4,10 +4,12 @@
  * Drone implementation
  */
 
+/** set test mode to true to prevent the drone from really starting */
+
 var usonic = require('mmm-usonic');
-var Button = require('./sensors/Button')
+var Button = require('./sensors/Button');
 var DistanceSensor = require('./sensors/DistanceSensor');
-var Buzzer = require('./sensors/Buzzer')
+var Buzzer = require('./sensors/Buzzer');
 var Bebop = require("node-bebop");
 var ping = require ("net-ping");
 
@@ -17,20 +19,25 @@ module.exports = Drone;
 /**
  * create a drone object. the constructor will set up all required sensors and components
  * @param flightDurationSec the duration in seconds the flight will last until landing
+ * @param if true, the drone will be in test mode and not start the drone
  * @constructor
  */
-function Drone(flightDurationSec) {
+function Drone(flightDurationSec, testMode) {
 
     this.minBatteryLevel = 10;
     this.flightControlId = -1;
 
     console.log("setting up cv-drone...");
 
+    this.testMode = testMode;
     this.flightDurationSec = flightDurationSec;
     this.readyForTakeoff;           // is the drone ready for takeoff? [default = undefined]
     this.isFlying = false;          // is the drone currently flying?
+    this.isConnected = false;       // is the pi connected to the drone?
 
     try {
+
+        this.pingSession = ping.createSession();
 
         this.bebop = Bebop.createClient();
 
@@ -64,13 +71,15 @@ function Drone(flightDurationSec) {
 
         /* register some handlers for global errors */
         process.on('exit', this.onException.bind(this, "exit"));
-        process.on('SIGINT', this.onException.bind(this, "SIGINT"));  // CTRL+C
-        process.on('SIGTERM', this.onException.bind(this, "SIGTERM")); // KILL
-        process.on('uncaughtException', this.onException.bind(this));    // UNCAUGHT EXCEPTIONS
+        process.on('SIGINT', this.onException.bind(this, "SIGINT"));    // CTRL+C
+        process.on('SIGTERM', this.onException.bind(this, "SIGTERM"));  // KILL
+        process.on('uncaughtException', this.onException.bind(this));   // UNCAUGHT EXCEPTIONS
 
-        var session = ping.createSession();
+        /* ping drone once to check if connected */
+        this.pingDrone();
 
-        session.pingHost (this.bebop.ip, this.pingDrone.bind(this));
+        /* recurring ping for live connection check */
+        setInterval(this.pingDrone.bind(this), 350);
 
         this.led.blink(5, 200);
         console.log("setting up cv-drone finished! ready for takeoff");
@@ -92,15 +101,41 @@ function Drone(flightDurationSec) {
  * setup method which checks that the drone is reachable via the network.
  * @param error
  */
-Drone.prototype.pingDrone = function(error) {
+Drone.prototype.pingDrone = function() {
+
+    this.pingSession.pingHost(this.bebop.ip, this.reactOnPing.bind(this));
+
+}
+
+
+/**
+ * reaction on a ping. the reaction depends on whether the ping failed or not.
+ * if it failed and the drone is in flying state, it will beep and blink to warn
+ * all people around.
+ * @param error
+ */
+Drone.prototype.reactOnPing = function(error) {
 
     if(error) {
+        this.isConnected = false;
         this.readyForTakeoff = false;
-        throw "drone not reachable. ping failed.";
+
+        if(this.isFlying == true) {
+            this.buzzer.blink(1, 250);
+            this.led.blink(1, 250);
+
+            // try to reconnect to the drone?
+            //this.bebop = Bebop.createClient();
+            //this.bebop.connect(this.onConnect.bind(this));
+
+        } else {
+            throw "drone not reachable: ping failed. will exit because drone is not in flying state.";
+        }
     }
     else {
-        console.log("drone successfully pinged");
+        this.isConnected = true;
     }
+
 }
 
 
@@ -176,7 +211,11 @@ Drone.prototype.takeoff = function() {
 
     console.log("============= TAKING OFF!!! Flight length will be : " + this.flightDurationSec + " sec.");
 
-    this.bebop.takeOff();
+    if(this.testMode == false) {
+        this.bebop.takeOff();
+    } else {
+        console.log("[[drone is in test mode so will not take off]]");
+    }
 }
 
 
@@ -197,8 +236,12 @@ Drone.prototype.landing = function(message) {
         this.buzzer.blink(3, 1000);
         this.led.blink(30, 100);
 
-        this.bebop.stop();
-        this.bebop.land();
+        if(this.testMode == false) {
+            this.bebop.stop();
+            this.bebop.land();
+        } else {
+            console.log("[[drone is in test mode so will not land}}");
+        }
 
         this.isFlying = false;
     } else {
@@ -208,18 +251,26 @@ Drone.prototype.landing = function(message) {
 
 
 /**
- * central steering of the dron
+ * central steering of the drone
  */
 Drone.prototype.flightControl = function() {
 
-    var dist = this.sensorFront.getDistance();
+    if(this.isConnected == true) {
 
-    console.log("distances: " + dist);
+        var dist = this.sensorFront.getDistance();
 
-    if(dist < 100) {
-        this.landing("distance low");
+        //console.log("distances: " + dist);
+
+        if (dist < 100) {
+            this.landing("distance low");
+        }
+        console.log("flying");
+
+    } else {
+
+        console.log("disconnected...");
+
     }
-
 
 
 
@@ -258,6 +309,7 @@ Drone.prototype.emergencyLand = function() {
     // stop drone etc.
     this.bebop.stop();
     this.bebop.land();
+    this.isFlying = false;
 
 
     process.exit(1);
