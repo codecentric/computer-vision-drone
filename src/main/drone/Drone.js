@@ -29,11 +29,13 @@ function Drone(flightDurationSec, testMode) {
     /* minimal battery level before landing */
     this.minBatteryLevel = 10;
     this.sensorRefreshIntervall = 50;
+    this.flightControlInterval = 100;
 
     /** internal configuration =============================================================================== */
 
     /* internal interval-id of the flight loop */
     this.flightControlId = -1;
+    this.timeOverId = -1;
 
 
 
@@ -241,11 +243,11 @@ Drone.prototype.buttonPushed = function() {
 Drone.prototype.takeoff = function() {
 
     /* start the flight control loop */
-    this.flightControlId = setInterval(this.flightControl.bind(this), 100);
+    this.flightControlId = setInterval(this.flightControl.bind(this), this.flightControlInterval);
 
 
     /* automatically land the drone after some time */
-    setTimeout(this.landing.bind(this, "flight time over"), (this.flightDurationSec*1000));
+    this.timeOverId = setTimeout(this.landing.bind(this, "flight time over"), (this.flightDurationSec*1000));
 
     console.log("============= TAKING OFF!!! Flight length will be : " + this.flightDurationSec + " sec.");
 
@@ -268,6 +270,7 @@ Drone.prototype.landing = function(message) {
 
         /* stop the flight control loop */
         clearInterval(this.flightControlId);
+        clearTimeout(this.timeOverId);
 
         console.log("============= LANDING NOW!!!");
 
