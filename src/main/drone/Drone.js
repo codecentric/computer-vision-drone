@@ -35,6 +35,8 @@ function Drone(flightDurationSec, testMode) {
 
     /* internal interval-id of the flight loop */
     this.flightControlId = -1;
+
+    /* internal timeout-id of remaining time landing */
     this.timeOverId = -1;
 
 
