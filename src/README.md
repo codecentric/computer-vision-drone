@@ -28,6 +28,25 @@ Please do the following to configure your PI:
   `cd /home/pi/`  
   `git clone https://github.com/codecentric/computer-vision-drone.git`
 
+### Network config
+
+sudo nano `/etc/wpa_supplicant/wpa_supplicant_bebop.conf`
+paste the following code
+    `ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+     update_config=1
+     country=GB
+
+     network={
+             ssid="Bebop2-065599"
+             key_mgmt=NONE
+     }`
+- ctrl + x
+- y
+-  make sure that the following code is at the end of `/etc/network/interfaces`
+`iface wlan1 inet manual
+     wpa-conf /etc/wpa_supplicant/wpa_supplicant_bebop.conf
+
+`
 ## Install required frameworks
 
 ### Install node.js
