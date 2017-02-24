@@ -28,7 +28,7 @@ function Drone(flightDurationSec, testMode) {
 
     /* minimal battery level before landing */
     this.minBatteryLevel = 10;
-
+    this.sensorRefreshIntervall = 100;
 
     /** internal configuration =============================================================================== */
 
@@ -74,9 +74,9 @@ function Drone(flightDurationSec, testMode) {
         this.buzzer = new Buzzer(19, "buzzer");
         this.buzzer.onOff(100);
 
-        this.sensorRight = new DistanceSensor(17, 5, "left", 200);
-        this.sensorFront = new DistanceSensor(27, 6, "front", 200);
-        this.sensorLeft = new DistanceSensor(22, 13, "right", 200);
+        this.sensorRight = new DistanceSensor(17, 5, "left", this.sensorRefreshIntervall);
+        this.sensorFront = new DistanceSensor(27, 6, "front", this.sensorRefreshIntervall);
+        this.sensorLeft = new DistanceSensor(22, 13, "right", this.sensorRefreshIntervall);
 
         usonic.init(function (error) {
             if (error) {
@@ -294,14 +294,17 @@ Drone.prototype.flightControl = function() {
 
     if(this.isDroneConnected == true) {
 
-        var dist = this.sensorFront.getDistance();
+        var distFront = this.sensorFront.getDistance();
+        var distLeft = this.sensorLeft.getDistance();
+        var distRight = this.sensorRight.getDistance();
+        var distCrit = 100;
 
         console.log("------------------------------------------------");
         console.log("left  " + this.sensorLeft.getDistance());
         console.log("right " + this.sensorRight.getDistance());
         //console.log("distances: " + dist);
 
-        if (dist < 100) {
+        if ((distFront || distLeft || distRight) < distCrit) {
             this.landing("distance low");
         }
 
