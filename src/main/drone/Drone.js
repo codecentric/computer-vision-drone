@@ -19,25 +19,43 @@ module.exports = Drone;
 /**
  * create a drone object. the constructor will set up all required sensors and components
  * @param flightDurationSec the duration in seconds the flight will last until landing
- * @param if true, the drone will be in test mode and not start the drone
+ * @param testMode if true, the drone will be in test mode and not start the drone
  * @constructor
  */
 function Drone(flightDurationSec, testMode) {
 
+    /** public configuration ================================================================================= */
+
+    /* minimal battery level before landing */
     this.minBatteryLevel = 10;
+
+
+    /** internal configuration =============================================================================== */
+
+    /* internal interval-id of the flight loop */
     this.flightControlId = -1;
+
+
 
     console.log("setting up cv-drone...");
 
     this.testMode = testMode;
     this.flightDurationSec = flightDurationSec;
 
-    /* is the drone ready for takeoff? [default = undefined].
+
+    if(this.testMode == true) {
+        console.log("==================== T E S T M O D E =============");
+    }
+
+    /** flying states ======================================================================================== */
+
+    /* is the drone ready for takeoff?
        setting to "false" in the constructor will prevent the drone from starting up */
-    this.readyForTakeoff;
-    this.isFlying = false;          // is the drone currently flying?
-    this.isWLANConnected = false;   // is the pi connected to WLAN of the drone?
-    this.isDroneConnected = false;  // is the connection to the drone stable?
+    this.readyForTakeoff = undefined;   // setting to false in constructor will prevent from
+    this.isFlying = false;              // is the drone currently flying?
+    this.isWLANConnected = false;       // is the pi connected to WLAN of the drone?
+    this.isDroneConnected = false;      // is the connection to the drone stable?
+    this.isReconnecting = false;        // is the drone currently reconnecting?
 
     try {
 
@@ -56,9 +74,9 @@ function Drone(flightDurationSec, testMode) {
         this.buzzer = new Buzzer(19, "buzzer");
         this.buzzer.onOff(100);
 
-        this.sensorLeft = new DistanceSensor(17, 5, "left", 200);
+        this.sensorRight = new DistanceSensor(17, 5, "left", 200);
         this.sensorFront = new DistanceSensor(27, 6, "front", 200);
-        this.sensorRight = new DistanceSensor(22, 13, "right", 200);
+        this.sensorLeft = new DistanceSensor(22, 13, "right", 200);
 
         usonic.init(function (error) {
             if (error) {
@@ -99,13 +117,12 @@ function Drone(flightDurationSec, testMode) {
 
 /**
  * setup method which checks that the drone is reachable via the network.
- * @param error
  */
 Drone.prototype.pingDrone = function() {
 
     this.pingSession.pingHost(this.bebop.ip, this.reactOnPing.bind(this));
 
-}
+};
 
 
 /**
@@ -132,7 +149,7 @@ Drone.prototype.reactOnPing = function(error) {
         this.isWLANConnected = true;
     }
 
-}
+};
 
 
 /**
@@ -148,10 +165,15 @@ Drone.prototype.onConnect = function() {
         this.bebop.on("battery", this.batteryCheck.bind(this));
         this.bebop.on("ready", this.onDroneReady.bind(this));
 
+        if(this.isReconnecting == true) {
+            console.log("RECONNECTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            this.isReconnecting = false;
+        }
+
     } catch(exception) {
         console.log(exception);
     }
-}
+};
 
 
 /**
@@ -166,7 +188,7 @@ Drone.prototype.onDroneReady = function() {
      so do not set it to ready! */
     if(this.readyForTakeoff != false) this.readyForTakeoff = true;
 
-}
+};
 
 /**
  * react on a battery event and perform a check if the battery level is OK.
@@ -179,7 +201,7 @@ Drone.prototype.batteryCheck = function(batteryLevel) {
         this.readyForTakeoff = false;
         this.landing("battery low");
     }
-}
+};
 
 
 /**
@@ -207,7 +229,7 @@ Drone.prototype.buttonPushed = function() {
             console.error("drone is already flying. take your fingers out of the way!!");
         }
     }
-}
+};
 
 
 /**
@@ -216,7 +238,7 @@ Drone.prototype.buttonPushed = function() {
 Drone.prototype.takeoff = function() {
 
     /* start the flight control loop */
-    this.flightControlId = setInterval(this.flightControl.bind(this), 5000);
+    this.flightControlId = setInterval(this.flightControl.bind(this), 500);
 
 
     /* automatically land the drone after some time */
@@ -229,7 +251,7 @@ Drone.prototype.takeoff = function() {
     } else {
         console.log("[[drone is in test mode so will not take off]]");
     }
-}
+};
 
 
 /**
@@ -260,11 +282,13 @@ Drone.prototype.landing = function(message) {
     } else {
         console.log("the drone is not in [flying] state, so no need to land.");
     }
-}
+};
 
 
 /**
+ * =============================================================================
  * central steering of the drone
+ * =============================================================================
  */
 Drone.prototype.flightControl = function() {
 
@@ -272,6 +296,9 @@ Drone.prototype.flightControl = function() {
 
         var dist = this.sensorFront.getDistance();
 
+        console.log("------------------------------------------------");
+        console.log("left  " + this.sensorLeft.getDistance());
+        console.log("right " + this.sensorRight.getDistance());
         //console.log("distances: " + dist);
 
         if (dist < 100) {
@@ -284,28 +311,31 @@ Drone.prototype.flightControl = function() {
 
         if(this.isWLANConnected == false) {
             console.error("WLAN NOT CONNECTED");
-        }
+        } else {
 
-        if(this.isDroneConnected == false) {
+            /* WLAN connected but drone disconnected */
+            if(this.isDroneConnected == false) {
 
-            console.error("TRYING TO RECONNECT TO DRONE...");
+                /* execute only once per reconnection try */
+                if (this.isReconnecting == false) {
+                    this.isReconnecting = true;
 
-            try {
-                /* connect to drone and pass a connected handler */
-                this.bebop.connect(this.onConnect.bind(this));
-            } catch (error) {
-                console.log(error);
+                    try {
+                        //TODO: TRY TO REMOVE OLD CALLBACK
+
+                        console.error("Adding a new connection listener and waiting for connection.");
+
+                        /* add a new connect handler as the old seems no longer working */
+                        this.bebop.connect(this.onConnect.bind(this));
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
             }
         }
-
     }
+};
 
-
-
-
-
-
-}
 
 /**
  * exception handler. will be called on every urgent exception.
@@ -323,12 +353,11 @@ Drone.prototype.onException = function(err) {
     }
 
     this.emergencyLand();
-}
+};
 
 
 /**
  * react on any exiting event like STRG+C or KILL
- * @param err
  */
 Drone.prototype.onExit = function() {
 
@@ -340,7 +369,7 @@ Drone.prototype.onExit = function() {
 
     process.exit(1);
 
-}
+};
 
 
 /**
@@ -356,5 +385,5 @@ Drone.prototype.emergencyLand = function() {
     this.bebop.land();
     this.isFlying = false;
 
-}
+};
 
