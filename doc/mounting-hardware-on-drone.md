@@ -23,7 +23,7 @@ consist of a simple stilt, whereby the front feet have some space to carry a sma
 
 Our plan was to replace the original stilts with some new ones out of a 3D printer. The front stilts should still include 
 the antenna, but also have some kind of engagement to mount the HC-SR04 distance sensor in a 45° angle. And that is what 
-came out of the printer (left side) in comparison with the original food (right side):
+came out of the printer (left side) in comparison with the original foot (right side):
 
 ![comparison: original and self-print drone foot](../media/3dprint_compare.jpg)
 
