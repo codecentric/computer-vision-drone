@@ -33,6 +33,7 @@ We are writing a project diary to document our progress and what we have learned
 * 17.02.2017: [Optical Flow Demo with OpenCV](doc/movement-vector-opencv-opticalflow.md)
 * 18.02.2017: [Install OpenCV on AWS Ubuntu with CUDA](doc/install-opencv-on-aws-with-cuda.md)
 * 19.02.2017: [Creating a mainboard](doc/creating-mainboard.md)
+* 26.02.2017: [Mounting hardware on the drone](doc/mounting-hardware-on-drone.md)
 
 ## Project Team, communication and Dev Environment
 
