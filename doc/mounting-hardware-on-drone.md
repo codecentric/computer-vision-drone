@@ -59,7 +59,7 @@ kill our PI, we need a way to supply the PI with energy. We will tell you on ano
 
 Especially in the printing direction of the synthetic fibres. 
 
-<< BREAKING PLASTIC IMAGE >>
+![3D parts breaking in fibre direction](../media/3dprint_breaking_fibre.jpg)
 
 We are now searching for other materials or printing 
 technologies to find a more suitable solution.
