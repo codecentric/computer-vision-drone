@@ -25,7 +25,9 @@ module.exports = Drone;
 function Drone(flightDurationSec, testMode) {
 
     /** public configuration ================================================================================= */
-
+    this.opts = {};
+    /* IP address of the drone */
+    this.opts.ip = '192.168.42.1'; // if connected via usb ip must be 192.168.43.1
     /* minimal battery level before landing */
     this.minBatteryLevel = 10;
     this.sensorRefreshIntervall = 100;
@@ -61,7 +63,7 @@ function Drone(flightDurationSec, testMode) {
 
         this.pingSession = ping.createSession();
 
-        this.bebop = Bebop.createClient();
+        this.bebop = Bebop.createClient(this.opts);
 
         /* connect to drone and pass a connected handler */
         this.bebop.connect(this.onConnect.bind(this));
