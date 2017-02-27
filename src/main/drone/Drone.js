@@ -30,12 +30,16 @@ function Drone(flightDurationSec, testMode) {
     this.opts.ip = '192.168.42.1'; // if connected via usb ip must be 192.168.43.1
     /* minimal battery level before landing */
     this.minBatteryLevel = 10;
-    this.sensorRefreshIntervall = 100;
+    this.sensorRefreshIntervall = 50;
+    this.flightControlInterval = 100;
 
     /** internal configuration =============================================================================== */
 
     /* internal interval-id of the flight loop */
     this.flightControlId = -1;
+
+    /* internal timeout-id of remaining time landing */
+    this.timeOverId = -1;
 
 
 
@@ -167,6 +171,9 @@ Drone.prototype.onConnect = function() {
         this.bebop.on("battery", this.batteryCheck.bind(this));
         this.bebop.on("ready", this.onDroneReady.bind(this));
 
+        /* perform landing for emergencies */
+        this.bebop.land();
+
         if(this.isReconnecting == true) {
             console.log("RECONNECTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.isReconnecting = false;
@@ -240,11 +247,11 @@ Drone.prototype.buttonPushed = function() {
 Drone.prototype.takeoff = function() {
 
     /* start the flight control loop */
-    this.flightControlId = setInterval(this.flightControl.bind(this), 500);
+    this.flightControlId = setInterval(this.flightControl.bind(this), this.flightControlInterval);
 
 
     /* automatically land the drone after some time */
-    setTimeout(this.landing.bind(this, "flight time over"), (this.flightDurationSec*1000));
+    this.timeOverId = setTimeout(this.landing.bind(this, "flight time over"), (this.flightDurationSec*1000));
 
     console.log("============= TAKING OFF!!! Flight length will be : " + this.flightDurationSec + " sec.");
 
@@ -267,6 +274,7 @@ Drone.prototype.landing = function(message) {
 
         /* stop the flight control loop */
         clearInterval(this.flightControlId);
+        clearTimeout(this.timeOverId);
 
         console.log("============= LANDING NOW!!!");
 
@@ -282,7 +290,9 @@ Drone.prototype.landing = function(message) {
 
         this.isFlying = false;
     } else {
-        console.log("the drone is not in [flying] state, so no need to land.");
+        console.log("the drone is not in [flying] state. will nevertheless land.");
+        this.bebop.stop();
+        this.bebop.land();
     }
 };
 
@@ -306,7 +316,8 @@ Drone.prototype.flightControl = function() {
         console.log("right " + this.sensorRight.getDistance());
         //console.log("distances: " + dist);
 
-        if ((distFront || distLeft || distRight) < distCrit) {
+        if ((distLeft < distCrit) || (distRight < distCrit)) {
+
             this.landing("distance low");
         }
 
