@@ -3,7 +3,7 @@
 [![IMAGE ALT TEXT](http://img.youtube.com/vi/sUv0HjpVgd8/0.jpg)](http://www.youtube.com/watch?v=sUv0HjpVgd8 "Video Title")
 
 We want to track persons in realtime. To detect a person you have multiple options. 
-We evaluated the following methods:
+We evaluated the following methods, tewst:
 
 * HOG detector (Histogram of oriented Gradients)
 * Haar Cascasde Classifier
