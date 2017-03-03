@@ -104,15 +104,11 @@ function Drone(flightDurationSec, testMode) {
         this.sensorLeft = new DistanceSensor(22, 13, "right", this.sensorRefreshIntervall);
 
         /* register a Voice handler for landing on hotword detection */
-        this.voiceDetector = new Voice().detector.bind(this);
+        this.voice = new Voice("voice/resources/common.res");
+        this.voice.addHotWord("voice/resources/Drohne_Stop.pmdl", "dronestop", 0.5);
+        this.voice.registerHotwordReaction( this.emergencyLand());
+        this.voice.triggerStart();
 
-        this.voiceDetector.on('silence', function () {
-            console.log('silence');
-        });
-        this.voiceDetector.on('hotword', function (index, hotword) {
-            console.log('hotword', index, hotword);
-            this.emergencyLand();
-        });
         usonic.init(function (error) {
             if (error) {
                 console.log("error setting up ultrasonic sensor module: " + error.message);

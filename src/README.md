@@ -63,7 +63,8 @@ There are different ways to install node.js on the PI. Maybe you want to do it l
 For Voice commands install:
 `sudo apt-get install sox`
 `sudo apt-get install libatlas-base-dev`
-
+If having problems with the microphone maybe this command can help:
+`export AUDIODEV=hw:1,0`
 
 ### Install node.js modules
 

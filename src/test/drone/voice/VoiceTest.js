@@ -19,3 +19,4 @@ voice.registerHotwordReaction( function (index, hotword) {
 });
 
 voice.triggerStart();
+
