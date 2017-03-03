@@ -24,13 +24,14 @@ module.exports = Drone;
  */
 function Drone(flightDurationSec, testMode) {
 
+    console.log("setting up cv-drone...");
+
     this.bebopOpts = {};
 
     /** public configuration ================================================================================= */
 
     /* IP address of the drone.
        WLAN: 192.168.42.1, USB is 192.168.43.1 */
-
     this.bebopOpts.ip = '192.168.42.1';
 
     /* minimal battery level before landing */
@@ -50,27 +51,35 @@ function Drone(flightDurationSec, testMode) {
     /* internal timeout-id of remaining time landing */
     this.timeOverId = -1;
 
-
-
-    console.log("setting up cv-drone...");
-
     this.testMode = testMode;
     this.flightDurationSec = flightDurationSec;
 
-
-    if(this.testMode == true) {
-        console.log("==================== T E S T M O D E =============");
-    }
-
     /** flying states ======================================================================================== */
 
+    /* drone movement and speeds */
+    this.speed = {};
+    this.speed.forward  = 0;            // forward speed of the drone
+    this.speed.turning  = 0;            // turning speed of the drone ( > 0 = clockwise)
+    this.speed.strafing = 0;            // strafing speed of the drone ( > 0 = right direction)
+    this.speed.maxForward = 10;         // maximum forward speed
+    this.speed.maxTurning = 10;         // maximum turning speed
+    this.speed.maxStrafing = 10;        // maximum strafing speed
+    this.speed.accVectorForward = 1;    // difference of speed when performing one acceleration step forwards
+    this.speed.accVectorBackward = 1;   // difference of speed when breaking the drone one step
+    this.speed.accVectorTurning = 1;    // difference of speed when accelerating turning speed
+    this.speed.accVectorStrafing = 1;   // difference of speed when accelerating into strafing direction
+
     /* is the drone ready for takeoff?
-       setting to "false" in the constructor will prevent the drone from starting up */
+     setting to "false" in the constructor will prevent the drone from starting up */
     this.readyForTakeoff = undefined;   // setting to false in constructor will prevent from
     this.isFlying = false;              // is the drone currently flying?
     this.isWLANConnected = false;       // is the pi connected to WLAN of the drone?
     this.isDroneConnected = false;      // is the connection to the drone stable?
     this.isReconnecting = false;        // is the drone currently reconnecting?
+
+    if(this.testMode == true) {
+        console.log("==================== T E S T M O D E =============");
+    }
 
     try {
 
@@ -179,6 +188,17 @@ Drone.prototype.onConnect = function() {
         /* battery level check */
         this.bebop.on("battery", this.batteryCheck.bind(this));
         this.bebop.on("ready", this.onDroneReady.bind(this));
+
+        // TODO ONLY FOR TESTING. REMOVE!
+        this.bebop.on("hovering", function() {
+            console.log("hovering");
+        });
+
+        // TODO ONLY FOR TESTING. REMOVE!
+        this.bebop.on("flying", function() {
+            console.log("flying");
+        });
+
 
         /* perform landing for emergencies */
         this.bebop.land();
@@ -306,27 +326,35 @@ Drone.prototype.landing = function(message) {
 
 
 /**
- * =============================================================================
+ * ===========================================================================================================
  * central steering of the drone
- * =============================================================================
+ * ===========================================================================================================
+ *
+ * this is the central steering logic of the drone.
+ * it will be called in a configurable interval (this.flightControlInterval).
  */
 Drone.prototype.flightControl = function() {
 
     if(this.isDroneConnected == true) {
+
+        //TODO: WAIT FOR A GOOD SIGNAL TO START, E.G. IF THE DRONE IS REALLY IN THE AIR AND READY
 
         var distFront = this.sensorFront.getDistance();
         var distLeft = this.sensorLeft.getDistance();
         var distRight = this.sensorRight.getDistance();
         var distCrit = 100;
 
+        var slowDownDistance = 120;
+
         console.log("------------------------------------------------");
         console.log("left  " + this.sensorLeft.getDistance());
         console.log("right " + this.sensorRight.getDistance());
         //console.log("distances: " + dist);
 
-        if ((distLeft < distCrit) || (distRight < distCrit)) {
-
-            this.landing("distance low");
+        if ((distLeft < slowDownDistance) && (distRight < slowDownDistance)) {
+            this.slowDown();
+        } else {
+            this.accelerate();
         }
 
         console.log("flying");
@@ -359,6 +387,40 @@ Drone.prototype.flightControl = function() {
         }
     }
 };
+
+
+/**
+ * accelerate the drone up to a configured maximum speed
+ */
+Drone.prototype.accelerate = function() {
+
+    this.speed.forward = this.speed.forward + this.speed.accVectorForward;
+
+    /* do not exceed maximum speed */
+    if(this.speed.forward > this.speed.maxForward) {
+        this.speed.forward = this.speed.maxForward;
+    }
+
+    console.log("setting forward speed: " + this.speed.forward);
+    this.bebop.forward(this.speed.forward);
+
+}
+
+
+/**
+ * break the drone
+ */
+Drone.prototype.slowDown = function() {
+
+    this.speed.forward = this.speed.forward - this.speed.accVectorBackward;
+
+    if(this.speed.forward < 0) {
+        this.speed.forward = 0;
+    }
+
+    console.log("setting forward speed (breaking): " + this.speed.forward);
+    this.bebop.forward(this.speed.forward);
+}
 
 
 /**
