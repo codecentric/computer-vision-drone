@@ -15,42 +15,57 @@ const record = require('node-record-lpcm16');
 const Detector = require('snowboy').Detector;
 const Models = require('snowboy').Models;
 
-function Voice(debug) {
-    const models = new Models();
 
-    models.add({
-        file: 'resources/Drohne_Stop.pmdl',
-        sensitivity: '0.5',
-        hotwords : 'snowboy'
+/**
+ *
+ * @param resourceFile
+ * @constructor
+ */
+function Voice(resourceFile) {
+    this.models = new Models();
+    this.resourceFile = resourceFile;
+}
+
+
+/**
+ * add a hotword file to the models
+ * @param path path to the hotword file
+ * @param name name of the horword
+ */
+Voice.prototype.addHotWord = function(path, name, sensitivity) {
+
+    this.models.add({
+        file: path,
+        sensitivity: sensitivity,
+        hotwords : name
     });
-
     this.detector = new Detector({
-        resource: "resources/common.res",
-        models: models,
+        resource: this.resourceFile,
+        models: this.models,
         audioGain: 2.0
     });
-    if (debug) {
-        this.detector.on('silence', function () {
-            console.log('silence');
-        });
+}
 
-        this.detector.on('sound', function () {
-            console.log('sound');
-        });
 
-        this.detector.on('error', function () {
-            console.log('error');
-        });
+/**
+ * register a new hotword reaction
+ * @param hotword the hotword to react on
+ * @param callback the callback which will be called on the hotword occurence
+ */
+Voice.prototype.registerHotwordReaction = function(callback) {
+    this.detector.on('hotword', callback);
+}
 
-        this.detector.on('hotword', function (index, hotword) {
-            console.log('hotword', index, hotword);
-        });
 
-    }
-     const mic = record.start({
+/**
+ *
+ */
+Voice.prototype.triggerStart = function()  {
+    const mic = record.start({
         threshold: 0,
         verbose: true
     });
 
     mic.pipe(this.detector);
+
 }

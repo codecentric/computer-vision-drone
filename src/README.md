@@ -62,6 +62,7 @@ There are different ways to install node.js on the PI. Maybe you want to do it l
 
 For Voice commands install:
 `sudo apt-get install sox`
+`sudo apt-get install libatlas-base-dev`
 
 
 ### Install node.js modules
@@ -82,6 +83,7 @@ Install the net-ping module:
   
 Install the snowboy module:
 `npm install --save snowboy`
+`npm install --save node-record-lpcm16`
 ## Frameworks
 
 * opencv
