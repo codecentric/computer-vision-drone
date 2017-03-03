@@ -12,6 +12,7 @@ var DistanceSensor = require('./sensors/DistanceSensor');
 var Buzzer = require('./sensors/Buzzer');
 var Bebop = require("node-bebop");
 var ping = require ("net-ping");
+var Voice = require('./voice/Voice');
 
 module.exports = Drone;
 

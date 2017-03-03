@@ -60,6 +60,9 @@ There are different ways to install node.js on the PI. Maybe you want to do it l
 `curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -`  
 `sudo apt-get install nodejs`
 
+For Voice commands install:
+`sudo apt-get install`
+
 
 ### Install node.js modules
 
@@ -77,7 +80,8 @@ Install the node-bebop module:
 Install the net-ping module:
 `npm install net-ping`
   
-
+Install the snowboy module:
+`npm install --save snowboy`
 ## Frameworks
 
 * opencv
