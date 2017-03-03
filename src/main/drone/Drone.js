@@ -357,9 +357,9 @@ Drone.prototype.flightControl = function() {
         //console.log("distances: " + dist);
 
         if ((distLeft < slowDownDistance) && (distRight < slowDownDistance)) {
-            this.slowDown();
+//            this.slowDown();
         } else {
-            this.accelerate();
+  //          this.accelerate();
         }
 
         console.log("flying");
@@ -489,7 +489,7 @@ Drone.prototype.emergencyLand = function() {
     this.bebop.land(this.cleanUpAfterLanding.bind(this));
     this.isFlying = false;
 
-    if(testMode == true) {
+    if(this.testMode == true) {
         this.cleanUpAfterLanding();
     }
 
