@@ -61,7 +61,7 @@ There are different ways to install node.js on the PI. Maybe you want to do it l
 `sudo apt-get install nodejs`
 
 For Voice commands install:
-`sudo apt-get install`
+`sudo apt-get install sox`
 
 
 ### Install node.js modules
