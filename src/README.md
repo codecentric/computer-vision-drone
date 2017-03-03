@@ -28,6 +28,29 @@ Please do the following to configure your PI:
   `cd /home/pi/`  
   `git clone https://github.com/codecentric/computer-vision-drone.git`
 
+### Network config
+
+Setup the network
+
+- sudo nano `/etc/wpa_supplicant/wpa_supplicant_bebop.conf`
+- paste the following code:
+    ```
+    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+    update_config=1
+    country=GB
+
+    network={
+             ssid="Bebop2-065599"
+             key_mgmt=NONE
+     }
+     ```
+- `ctrl + x` then `y` to save
+-  make sure that the following code is at the end of `/etc/network/interfaces`
+    ```
+    iface wlan1 inet manual
+    wpa-conf /etc/wpa_supplicant/wpa_supplicant_bebop.conf
+    ```
+
 ## Install required frameworks
 
 ### Install node.js
@@ -36,6 +59,10 @@ There are different ways to install node.js on the PI. Maybe you want to do it l
 
 `curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -`  
 `sudo apt-get install nodejs`
+
+For Voice commands install:
+`sudo apt-get install sox`
+`sudo apt-get install libatlas-base-dev`
 
 
 ### Install node.js modules
@@ -54,7 +81,9 @@ Install the node-bebop module:
 Install the net-ping module:
 `npm install net-ping`
   
-
+Install the snowboy module:
+`npm install --save snowboy`
+`npm install --save node-record-lpcm16`
 ## Frameworks
 
 * opencv
