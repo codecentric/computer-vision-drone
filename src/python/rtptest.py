@@ -1,7 +1,6 @@
 import cv2
 
-
-cam = cv2.VideoCapture("http://192.168.42.12:8080/olitest")
+cam = cv2.VideoCapture("./bebop.sdp")
 
 while True:
     ret, frame = cam.read()
