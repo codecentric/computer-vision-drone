@@ -202,7 +202,7 @@ Drone.prototype.onConnect = function() {
 
 
         /* perform landing for emergencies */
-        this.bebop.land();
+        this.bebop.land(this.cleanUpAfterLanding.bind(this));
 
         if(this.isReconnecting == true) {
             console.log("RECONNECTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -301,9 +301,7 @@ Drone.prototype.landing = function(message) {
 
     if (this.isFlying == true) {
 
-        /* stop the flight control loop */
-        clearInterval(this.flightControlId);
-        clearTimeout(this.timeOverId);
+        this.cleanUpAfterLanding();
 
         console.log("============= LANDING NOW!!!");
 
@@ -312,7 +310,7 @@ Drone.prototype.landing = function(message) {
 
         if(this.testMode == false) {
             this.bebop.stop();
-            this.bebop.land();
+            this.bebop.land(this.cleanUpAfterLanding.bind(this));
         } else {
             console.log("[[drone is in test mode so will not land}}");
         }
@@ -321,7 +319,7 @@ Drone.prototype.landing = function(message) {
     } else {
         console.log("the drone is not in [flying] state. will nevertheless land.");
         this.bebop.stop();
-        this.bebop.land();
+        this.bebop.land(this.cleanUpAfterLanding.bind(this));
     }
 };
 
@@ -444,6 +442,19 @@ Drone.prototype.onException = function(err) {
 
 
 /**
+ * will clean up all handlers etc. after landing
+ */
+Drone.prototype.cleanUpAfterLanding = function() {
+
+    console.log("cleaning up after landing");
+
+    /* stop the flight control loop */
+    clearInterval(this.flightControlId);
+    clearTimeout(this.timeOverId);
+}
+
+
+/**
  * react on any exiting event like STRG+C or KILL
  */
 Drone.prototype.onExit = function() {
@@ -469,7 +480,7 @@ Drone.prototype.emergencyLand = function() {
 
     // stop drone etc.
     this.bebop.stop();
-    this.bebop.land();
+    this.bebop.land(this.cleanUpAfterLanding.bind(this));
     this.isFlying = false;
 
 };
