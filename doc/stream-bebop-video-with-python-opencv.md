@@ -30,7 +30,8 @@ print(ctx.call("say", "hello world"))
 >>> hello world
 ```
 
-Then we have this snippet to connect to the drone and enable video streaming:
+Then we have this snippet to connect to the drone and enable video streaming. You have 
+to have node-bebop installed (see https://github.com/hybridgroup/node-bebop):
  
 ```python
 import execjs
