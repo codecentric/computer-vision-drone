@@ -106,7 +106,7 @@ function Drone(flightDurationSec, testMode) {
         /* register a Voice handler for landing on hotword detection */
         this.voice = new Voice("voice/resources/common.res");
         this.voice.addHotWord("voice/resources/Drohne_Stop.pmdl", "dronestop", 0.5);
-        this.voice.registerHotwordReaction( this.emergencyLand());
+        this.voice.registerHotwordReaction( this.emergencyLand.bind(this));
         this.voice.triggerStart();
 
         usonic.init(function (error) {
@@ -357,9 +357,9 @@ Drone.prototype.flightControl = function() {
         //console.log("distances: " + dist);
 
         if ((distLeft < slowDownDistance) && (distRight < slowDownDistance)) {
-            this.slowDown();
+//            this.slowDown();
         } else {
-            this.accelerate();
+  //          this.accelerate();
         }
 
         console.log("flying");
@@ -483,11 +483,15 @@ Drone.prototype.onExit = function() {
 Drone.prototype.emergencyLand = function() {
 
     console.error("============= EMERGENCY LANDING NOW!");
-
     // stop drone etc.
     this.bebop.stop();
+
     this.bebop.land(this.cleanUpAfterLanding.bind(this));
     this.isFlying = false;
+
+    if(this.testMode == true) {
+        this.cleanUpAfterLanding();
+    }
 
 };
 
