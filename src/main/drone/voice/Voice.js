@@ -15,7 +15,7 @@ const record = require('node-record-lpcm16');
 const Detector = require('snowboy').Detector;
 const Models = require('snowboy').Models;
 
-function Voice() {
+function Voice(debug) {
     const models = new Models();
 
     models.add({
@@ -24,32 +24,33 @@ function Voice() {
         hotwords : 'snowboy'
     });
 
-    const detector = new Detector({
+    this.detector = new Detector({
         resource: "resources/common.res",
         models: models,
         audioGain: 2.0
     });
+    if (debug) {
+        this.detector.on('silence', function () {
+            console.log('silence');
+        });
 
-    detector.on('silence', function () {
-        console.log('silence');
-    });
+        this.detector.on('sound', function () {
+            console.log('sound');
+        });
 
-    detector.on('sound', function () {
-        console.log('sound');
-    });
+        this.detector.on('error', function () {
+            console.log('error');
+        });
 
-    detector.on('error', function () {
-        console.log('error');
-    });
+        this.detector.on('hotword', function (index, hotword) {
+            console.log('hotword', index, hotword);
+        });
 
-    detector.on('hotword', function (index, hotword) {
-        console.log('hotword', index, hotword);
-    });
-
-    const mic = record.start({
+    }
+     const mic = record.start({
         threshold: 0,
         verbose: true
     });
 
-    mic.pipe(detector);
+    mic.pipe(this.detector);
 }
