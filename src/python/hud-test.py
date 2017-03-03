@@ -3,6 +3,7 @@ import hud
 import detectors
 
 file = "../../media/drone-video-test.mp4"
+file = "http://192.168.42.12:8080/olitest"
 video = cv2.VideoCapture(file)
 frame_idx = 0
 
@@ -12,17 +13,15 @@ while video.isOpened():
 
     if frame_idx < 100:
         hud.get_hud(frame, action="STARTING DRONE", idx=frame_idx)
-        cv2.imshow("video", frame)
+    else:
+        hud.get_hud(frame, action=None, idx=frame_idx)
 
-    elif 100 < frame_idx < 1000:
-        if frame_idx % 2 == 0:
-            hud.get_hud(frame, action=None, idx=frame_idx)
-            detectors.detect_person(frame)
-            cv2.imshow("video", frame)
+    if frame_idx % 10 == 0:
+        detectors.detect_person(frame)
 
+    cv2.imshow("video", frame)
 
-    #cv2.imshow("video", frame)
-    cv2.moveWindow("video", 10, 10)
-
-    cv2.waitKey(1) & 0xff
+    key = cv2.waitKey(1) & 0xff
+    if key == 27:
+        break
 

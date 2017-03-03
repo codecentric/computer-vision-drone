@@ -2,6 +2,10 @@
 console.log("test");
 
 var cv = require('opencv');
+var async = require('async');
+var SegfaultHandler = require('segfault-handler');
+
+SegfaultHandler.registerHandler("crash.log");
 
 try {
     var camera = new cv.VideoCapture(0);
@@ -14,10 +18,10 @@ try {
 
             if (frame.size()[0] > 0 && frame.size()[1] > 0) {
 
-                frame.detectObject(cv.FACE_CASCADE, {}, function (err, faces) {
+                frame.detectObject("/usr/local/share/OpenCV/haarcascades/haarcascade_upperbody.xml", {}, function (err, faces) {
                     if (err) throw err;
-                    if (!faces.length) return console.log("No Faces");
-                    console.log("found FACES!!!");
+                    if (!faces.length) return ;
+                    //console.log("found FACES!!!");
 
                     for (var i = 0; i < faces.length; i++) {
                         var face = faces[i];

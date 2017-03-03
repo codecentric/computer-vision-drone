@@ -13,7 +13,8 @@ import hud
 
 
 tracker = dlib.correlation_tracker()
-video = cv2.VideoCapture("/home/user/opencv/videos/correlation-tracking.mp4")
+video = cv2.VideoCapture("./bebop.sdp")
+
 #video = cv2.VideoCapture(0)
 
 cv2.namedWindow("video")
@@ -50,7 +51,7 @@ while video.isOpened():
 
     if not person_found:
         # check all 5 frames for new faces
-        if frame_idx % 5 == 0:
+        if frame_idx % 15 == 0:
             rois = detectors.detect_person(frame)
             print("Number of persons detected: {}".format(len(rois)))
             for rect in enumerate(rois):

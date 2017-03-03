@@ -14,5 +14,10 @@ sudo apt-get install imagemagick
 npm install opencv
 ```
 
+## Build native SDK
 
+``` 
+sudo apt-get install autoconf libtool libavahi-client-dev libavcodec-dev libavformat-dev libswscale-dev libncurses5-dev mplayer
+
+```
 
