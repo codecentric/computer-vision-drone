@@ -19,7 +19,7 @@ function Voice(debug) {
     const models = new Models();
 
     models.add({
-        file: 'resources/snowboy.umdl',
+        file: 'resources/Drohne_Stop.pmdl',
         sensitivity: '0.5',
         hotwords : 'snowboy'
     });
