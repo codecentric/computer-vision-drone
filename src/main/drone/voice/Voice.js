@@ -30,7 +30,7 @@ function Voice(resourceFile) {
 /**
  * add a hotword file to the models
  * @param path path to the hotword file
- * @param name name of the horword
+ * @param name name of the hotword
  */
 Voice.prototype.addHotWord = function(path, name, sensitivity) {
 
@@ -44,6 +44,7 @@ Voice.prototype.addHotWord = function(path, name, sensitivity) {
         models: this.models,
         audioGain: 2.0
     });
+
 }
 
 
@@ -61,11 +62,12 @@ Voice.prototype.registerHotwordReaction = function(callback) {
  *
  */
 Voice.prototype.triggerStart = function()  {
-    const mic = record.start({
+    this.mic = record.start({
         threshold: 0,
-        verbose: true
+        device: 'plughw:1,0', // set the deviceID of the mic. use 'arecord -l'
+        verbose: false
     });
 
-    mic.pipe(this.detector);
-
+    this.mic.pipe(this.detector);
+    console.log('listening');
 }
