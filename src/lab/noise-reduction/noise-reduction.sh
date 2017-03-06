@@ -1,15 +1,28 @@
 #!/bin/bash
+# skip checking if noise sample exists (helpful for boot procedure)
+SKIP=false
+
+# length for the audio sample
 time=5
+
+# set the recording device
+mic='plughw:1,0'
+
+# background noise file
+noiseFile=noise.wav
+
+# directory where the audio sample is stored
 workDir='/tmp'
+
 record()
 {
     echo "Recording background noise. Keep quiet for $time seconds."
     sleep 3
-    arecord -D 'plughw:1,0' -f cd noise.wav &
+    arecord -D $mic -f cd $noiseFile &
     PID=$!
     sleep $time
     kill $PID
-    aplay noise.wav
+    aplay $noiseFile
 }
 
 #get pulse audio devices
@@ -21,20 +34,35 @@ fi
 
 cd $workDir
 
-#record noise sample
-record
-while true; do
-    read -p "Do you wish to re-record the noise sample?" yn
-    case $yn in
-        [Yy]* ) record;;
-        [Nn]* ) break;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
+if ["$SKIP" == "false"]; then
+# check if a noise sample exists
+    if [ -a FILE ];
+        then
+            read -p "The noise sample file already exists! Do you want to use it?" yn
+                case $yn in
+                    [Yy]* ) break;;
+                    [Nn]* ) record;;
+                    * ) echo "Please answer yes or no.";;
+                esac
+        else
+            echo "No noise sample found! Start recording one."
+            record;
+            while true; do
+                read -p "Do you wish to re-record the noise sample?" yn
+                case $yn in
+                    [Yy]* ) record;;
+                    [Nn]* ) break;;
+                    * ) echo "Please answer yes or no.";;
+                esac
+            done
+    fi
+fi
+
 
 #create noise profile
-sox noise.wav -n noiseprof noise.prof
+sox $noiseFile -n noiseprof noise.prof
 
+# change *usb to *pci if your microphone is connected to a pci card
 input=`echo "$devices" | grep input.*usb`
 output=`echo "$devices" | grep output.*aloop`
 
