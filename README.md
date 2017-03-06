@@ -35,6 +35,7 @@ We are writing a project diary to document our progress and what we have learned
 * 19.02.2017: [Creating a mainboard](doc/creating-mainboard.md)
 * 26.02.2017: [Mounting hardware on the drone](doc/mounting-hardware-on-drone.md)
 * 03.03.2017: [Stream Bebop video with Python and OpenCV](doc/stream-bebop-video-with-python-opencv.md)
+* 06.03.2017: [Land the drone by voice-command](doc/land-the-drone-by-voice-command.md)
 
 
 ## Project Team, communication and Dev Environment
