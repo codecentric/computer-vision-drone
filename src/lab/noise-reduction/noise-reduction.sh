@@ -9,6 +9,7 @@ time=5
 mic='plughw:1,0'
 
 # background noise file
+# noiseFile=noise_1_base_16.wav
 noiseFile=noise.wav
 
 # directory where the audio sample is stored
@@ -25,7 +26,12 @@ record()
     aplay $noiseFile
 }
 
+# start pulseaudio
+
+pulseaudio --start
+
 #get pulse audio devices
+echo "get pulse audio devices"
 devices=`pactl list | grep -E -A2 '(Source|Sink) #' | grep 'Name: ' | grep -v monitor | cut -d" " -f2`
 if [ `echo "$devices" | grep -c aloop` -lt 1 ]; then
     echo "No loopback device created. Run 'sudo modprobe snd_aloop' first."
@@ -34,9 +40,10 @@ fi
 
 cd $workDir
 
-if ["$SKIP" == "false"]; then
+
 # check if a noise sample exists
-    if [ -a FILE ];
+echo "check if a noise sample exists"
+    if [ -a $noiseFile ];
         then
             read -p "The noise sample file already exists! Do you want to use it?" yn
                 case $yn in
@@ -56,16 +63,18 @@ if ["$SKIP" == "false"]; then
                 esac
             done
     fi
-fi
+
 
 
 #create noise profile
+echo "create noise profile"
 sox $noiseFile -n noiseprof noise.prof
 
 # change *usb to *pci if your microphone is connected to a pci card
 input=`echo "$devices" | grep input.*usb`
 output=`echo "$devices" | grep output.*aloop`
-
+echo $input
+echo $output
 echo "Sending output to loopback device. Change recording port to &lt;Loopback Analog Stereo Monitor&gt; in PulseAudio to apply. Ctrl+C to terminate."
 
 #filter audio from $input to $output

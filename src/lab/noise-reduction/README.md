@@ -11,3 +11,9 @@ record from device 1,0
 list all recoding devices
 
 `arecord -l` 
+
+trim audio file 
+
+```
+ sox noise_2.wav noise_2_trim.wav --show-progress trim 00:00 00:08
+```
