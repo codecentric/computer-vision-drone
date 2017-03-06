@@ -22,7 +22,10 @@ sudo apt-get install sox node-record-lpcm16
 
 On top of that we use a microphone as input device so we need the correct id of the device.
 
-```arecord -l``` will give you all connected recording devices
+```
+arecord -l
+``` 
+will give you all connected recording devices
 for example:
 
 ```
@@ -36,11 +39,15 @@ The import things are the card and device id. So look at the second line.
 Our device is an usb microphone plugged to the raspberry pi. The card Id is 1 and the device id is 0.
 So lets try to record from this this device:
 
-```arecord -D 'plughw:1,0' -d 5 -f cd test.wav``` 
+```
+arecord -D 'plughw:1,0' -d 5 -f cd test.wav
+``` 
 
 this will record 5 seconds and save it to the give filename. After recording you can listen to the file by:
 
-```aplay test.wav```
+```
+aplay test.wav
+```
 
 You should hear the recorded voice. If not make sure your audio is setup correctly.
 
@@ -58,19 +65,27 @@ Both ways built an language-model file which is later used in the program.
 After building your language-model you can easily test your model by using the examples offered by kitt.ai. 
 First clone the official Github repository:
 
-```git clone https://github.com/Kitt-AI/snowboy.git```
+```
+git clone https://github.com/Kitt-AI/snowboy.git
+```
 
 enter the folder
 
-```cd snowboy```
+```
+cd snowboy
+```
 
 copy your genereted language-model to the resource folder
 
-```cp path/language-model.pmdl ./resources```
+```
+cp path/language-model.pmdl ./resources
+```
 
 navigate to the examples folder. In our case we were using the node-js examples.
 
-```cd examples/Node```
+```
+cd examples/Node
+```
 
 now you see two files. The file.js is for testing with an prerecorded audio file and the microphone.js uses the connected microphone as input.
 Open the microphone.js in you editor an change the following lines:
@@ -106,7 +121,9 @@ save and close the file.
 
 Now you can run the hotword detection:
 
-```node microphone.js```
+```
+node microphone.js
+```
 
 and you should see something like:
 
@@ -123,7 +140,9 @@ Recording 4096 bytes
 
 Now we know the hotword-detection works we need to add it to the project.
 
-```npm install --save snowboy```
+```
+npm install --save snowboy
+```
 
 Then we built a class for the voice-interface and added it to the drone class.
 We split up the example file in several methods for better customizing the behavior within the drone initialisation. 
