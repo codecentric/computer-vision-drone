@@ -1,6 +1,47 @@
-theme: jekyll-theme-hacker
+# Site settings
+encoding: UTF-8
+title: "Computer Vision Drone"
+email: info@codecentric.de
+description: 
+baseurl: "cvdrone.de"
+url: "http://cvdrone.de"
+title_description: "Building an interactive computer vision drone."
+title_image: header3.png
+google_analytics:
+disqus_account: 
+github_repository: https://github.com/codecentric/computer-vision-drone
+addthis_id: ra-513c6fa83da6ec67
+post_limit: 3
+collections:
+  posts:
+    output: true
+    permalink: ./:title:output_ext
+    scope:
+      path: ""
+      type: posts
+    values:
+    layout: page
 
-title: Building an interactive computer vision drone
-description: This is a fun project to build an interactive drone with opencv
+# Social usernames/URLs
+twitter_username: 
+github_username:  codecentric
+instagram_username: 
+reddit_username: 
+linkedin_link: 
+google_plus_link:
+stackoverflow_link: 
+xing_link:
+facebook_link:
 
-show_downloads: true
+# Footer
+footer_right: "&lt;/&gt; on <a href=\"https://github.com/codecentric/computer-vision-drone\">Github</a> &nbsp;<i class=\"fa fa-github-alt\"></i>"
+
+# Build settings
+markdown: kramdown
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+permalink: pretty
+exclude: [vendor]

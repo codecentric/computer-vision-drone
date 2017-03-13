@@ -1,56 +1,19 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
-    <title>{{ site.title | default: site.github.repository_name }} by {{ site.github.owner_name }}</title>
-  </head>
 
-  <body>
+    {% include head.html %}
 
-    <header>
-      <div class="container">
-        <img src="/media/header_small2.png" alt="computer vision drone with opencv"/>
+    <body>
 
-        <h2>{{ site.description | default: site.github.project_tagline }}</h2>
+    {% include header.html %}
 
-        <section id="downloads">
-          {% if site.show_downloads %}
-            <a href="/" class="btn">Home</a>
-            <a href="/opencv-python-examples/opencv-cheat-sheet.html" class="btn">opencv cheat sheet</a>
-            <a href="https://www.youtube.com/channel/UC_r-M-0JQZUnOG2gJSL9pfg" class="btn">videos</a>
-            {% endif %}
-          <a href="{{ site.github.repository_url }}" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
+    <div class="page-content">
+      <div class="wrap">
+      {{ content }}
       </div>
-    </header>
-
-    <div class="container">
-      <section id="main_content">
-        {{ content }}
-      </section>
     </div>
 
-    {% if site.google_analytics %}
-      <script type="text/javascript">
-        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-      </script>
-      <script type="text/javascript">
-        try {
-          var pageTracker = _gat._getTracker("{{ site.google_analytics }}");
-        pageTracker._trackPageview();
-        } catch(err) {}
-      </script>
-    {% endif %}
+    {% include footer.html %}
 
-    <br/>
-  <hr/>
-    <br/>
-
-    <div class="container">
-        <a href="https://www.codecentric.de/impressum/">Impressum</a>
-    </div>
-  </body>
+    </body>
 </html>
