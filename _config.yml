@@ -34,6 +34,7 @@ xing_link:
 facebook_link:
 
 # Footer
+footer_left: "<a href=\"https://www.codecentric.de\">Jacob Tomlinson</a>">Impressum</a>"
 footer_right: "&lt;/&gt; on <a href=\"https://github.com/codecentric/computer-vision-drone\">Github</a> &nbsp;<i class=\"fa fa-github-alt\"></i>"
 
 # Build settings
