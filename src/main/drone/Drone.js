@@ -99,9 +99,9 @@ function Drone(flightDurationSec, testMode) {
         this.buzzer = new Buzzer(19, "buzzer");
         this.buzzer.onOff(100);
 
-        this.sensorRight = new DistanceSensor(17, 5, "left", this.sensorRefreshIntervall);
+        this.sensorRight = new DistanceSensor(17, 5, "right", this.sensorRefreshIntervall);
         this.sensorFront = new DistanceSensor(27, 6, "front", this.sensorRefreshIntervall);
-        this.sensorLeft = new DistanceSensor(22, 13, "right", this.sensorRefreshIntervall);
+        this.sensorLeft = new DistanceSensor(22, 13, "left", this.sensorRefreshIntervall);
 
         /* register a Voice handler for landing on hotword detection */
         this.voice = new Voice("voice/resources/common.res");
