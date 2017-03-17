@@ -4,26 +4,46 @@ make-smaller-titles: true
 ---
 
 <div class="container-fluid index">
-  <div class="language-python highlighter-rouge">
+  <div class="content-panel content">
+    <span itemprop="articleBody"><h1 id="opencv-cheat-sheet">opencv cheat sheet</h1>
 
-    <h1 class="header author-header">Opencv Cheat Sheet</h1>
-       <h2 id="getting-started">Getting Started with Images</h2>
-          <p>Import OpenCV and numpy</p>
-            <div class="language-python highlighter-rouge">
-              <pre class="highlight"><code class="hljs sql"><span class="ch">import</span> cv2
-              <span class="ch">import</span> numpy</code></pre>
-            </div>
-          <p>A condensed overview of the following can be found in the <a href="OpenCVCheatSheet.pdf">Cheat Sheet</a></p>
-       <h2 id="basics">Basics</h2>
-          <p><a href="opencv-read-and-save-images.md">read or save image</a> : <code class="hljs sql">cv2.imshow('name of window', img)</code></p>
-          <p><a href="opencv-rotate-image.md">rotate image</a> : <code class="hljs sql">rotated_image = imutils.rotate(image, 90)</code></p>
-          <p><a href="opencv-resize-image.md">resize_image</a> : <code class="hljs sql">img2 = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA)</code></p>
-          <p><a href="opencv-change-parts-of-image.md">change parts of image</a></p>
-          <p><a href="opencv-split-merge-channels.md">split or merge channels</a></p>
-          <p><a href="opencv-add-border.md">Add a border to an image</a></p>
-          <p><a href="opencv-convert-colorspaces.md">Convert colorspaces</a></p>
-          <p><a href="opencv-warp-image.md">Warp image</a></p>
-       <h2 id="image-filtering">Image filtering</h2>
-          <p>Thresholding selects pixels in a gray scale image whose intensity is larger (or smaller) than a threshold and assigns a new value to them:</p>
+      <h2 id="getting-started-with-images">Getting Started with Images</h2>
+       <p>Import OpenCV and numpy</p>
+
+   <div class="highlighter-rouge">
+     <pre class="highlight"><code class="hljs java"><span class="kn"><span class="hljs-keyword">import</span></span> 
+     <span class="nn">cv2</span>
+     <span class="kn"><span class="hljs-keyword">import</span></span> <span class="nn">numpy</span></code></pre>
+      
+   </div>
+
+      <p>A condensed overview of the following can be found in the
+        <a href="OpenCVCheatSheet.pdf">Cheat Sheet</a></p>
+
+      <h2 id="basics">basics</h2>
+
+      <p><a href="./opencv-python-examples/opencv-read-and-save-images.md">read or save image</a></p> : 
+        <div class="highlighter-rouge"><code class="highlighter-rouge">cv2.imshow('name of window', img)</code></div>
+
+      <p><a href="opencv-rotate-image.md">rotate image</a></p> : 
+        <div class="highlighter-rouge"><code class="highlighter-rouge">rotated_image = imutils.rotate(image, 90)</code></div>
+
+      <p><a href="opencv-resize-image.md">resize_image</a></p> : 
+        <div class="highlighter-rouge"><code class="highlighter-rouge">img2 = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA)</code></div>
+
+      <p><a href="opencv-change-parts-of-image.md">change parts of image</a></p>
+
+      <p><a href="opencv-split-merge-channels.md">split or merge channels</a></p>
+
+      <p><a href="opencv-add-border.md">Add a border to an image</a></p>
+
+      <p><a href="opencv-convert-colorspaces.md">Convert colorspaces</a></p>
+
+      <p><a href="opencv-warp-image.md">Warp image</a></p>
+
+          <h3 id="image-filtering">Image filtering</h3>
+      <p>Thresholding selects pixels in a gray scale image whose intensity is larger (or smaller) than a threshold and assigns a new value to them:</p>
+       <!--<p>Add, subtract, blend images, images bitwise operations PCA, SVD.</p>-->   
+    </span>
   </div>
 </div>
