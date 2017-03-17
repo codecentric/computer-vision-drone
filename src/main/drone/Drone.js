@@ -43,7 +43,7 @@ function Drone(flightDurationSec, testMode) {
     this.minBatteryLevel = 10;
 
     /* refresh interval of the distance sensors */
-    this.sensorRefreshIntervall = 50;
+    this.sensorRefreshIntervall = 100;
 
     /* refresh interval of the flight control mechanism */
     this.flightControlInterval = 100;
@@ -66,16 +66,16 @@ function Drone(flightDurationSec, testMode) {
 
     /* drone movement and speeds */
     this.speed = {};
-    this.speed.forward  = 0;            // forward speed of the drone
-    this.speed.turning  = 0;            // turning speed of the drone ( > 0 = clockwise)
-    this.speed.strafing = 0;            // strafing speed of the drone ( > 0 = right direction)
-    this.speed.maxForward = 6;         // maximum forward speed
-    this.speed.maxTurning = 6;         // maximum turning speed
-    this.speed.maxStrafing = 6;        // maximum strafing speed
-    this.speed.accVectorForward = 1;    // difference of speed when performing one acceleration step forwards
-    this.speed.accVectorBackward = 2;   // difference of speed when breaking the drone one step
-    this.speed.accVectorTurning = 1;    // difference of speed when accelerating turning speed
-    this.speed.accVectorStrafing = 1;   // difference of speed when accelerating into strafing direction
+    this.speed.forward  = 0;            // current forward speed of the drone
+    this.speed.turning  = 0;            // current turning speed of the drone ( > 0 = clockwise)
+    this.speed.strafing = 0;            // current strafing speed of the drone ( > 0 = right direction)
+    this.speed.maxForward = 10;         // maximum forward speed
+    this.speed.maxTurning = 0;         // maximum turning speed
+    this.speed.maxStrafing = 0;        // maximum strafing speed
+    this.speed.accVectorForward = 5;    // difference of speed when performing one acceleration step forwards
+    this.speed.accVectorBackward = 5;   // difference of speed when breaking the drone one step
+    this.speed.accVectorTurning = 0;    // difference of speed when accelerating turning speed
+    this.speed.accVectorStrafing = 0;   // difference of speed when accelerating into strafing direction
 
     /* is the drone ready for takeoff?
      setting to "false" in the constructor will prevent the drone from starting up */
@@ -145,7 +145,9 @@ function Drone(flightDurationSec, testMode) {
 
         this.led.blink(5, 200);
         console.log("setting up cv-drone finished! ready for takeoff.");
-
+        console.log("====================================================");
+        console.log("Press [T]akeoff, or [Return] for emergency landing!");
+        console.log("====================================================");
 
     } catch(error) {
         this.readyForTakeoff = false;
@@ -170,6 +172,11 @@ Drone.prototype.initKeyHandler = function(ch, key) {
                 console.log("ENTER");
                 this.emergencyLand();
             break;
+
+            case 't':
+                this.buttonPushed();
+
+                break;
 
             case 'left':
 
@@ -229,9 +236,11 @@ Drone.prototype.onConnect = function() {
     console.log("================================ CONNECTED TO DRONE");
 
     try {
+        this.bebop.PilotingSettings.maxAltitude(1);
         /* battery level check */
         this.bebop.on("battery", this.batteryCheck.bind(this));
         this.bebop.on("ready", this.onDroneReady.bind(this));
+
 
         // TODO ONLY FOR TESTING. REMOVE!
         this.bebop.on("hovering", function() {
@@ -390,19 +399,25 @@ Drone.prototype.flightControl = function() {
         var distFront = this.sensorFront.getDistance();
         var distLeft = this.sensorLeft.getDistance();
         var distRight = this.sensorRight.getDistance();
-        var distCrit = 70;
+        var distCrit = 120;
 
 
-        if(distFront < distCrit || distLeft < distCrit || distRight < distCrit) {
-            console.log(distFront);
-            console.log(distRight);
-            console.log(distLeft);
+        if(distFront < 120 || distLeft < 80|| distRight < 100) {
+            console.log("F " + distFront);
+            console.log("R " + distRight);
+            console.log("L " + distLeft);
             this.landing("came to close to anything");
         }
 
-        var slowDownDistance = 120;
+        var slowDownDistance = 270;
 
-        console.log("F: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | speed: " + this.speed.forward);
+        var speedDisplay = "=";
+        for(i=0; i<this.speed.forward; i++) {
+            speedDisplay = speedDisplay + "=";
+
+        }
+
+        console.log("F: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | speed: " + speedDisplay);
 
         if (distFront < slowDownDistance) {
             this.slowDown();
@@ -445,18 +460,22 @@ Drone.prototype.flightControl = function() {
  */
 Drone.prototype.accelerate = function() {
 
-    this.speed.forward = this.speed.forward + this.speed.accVectorForward;
+    /* max speed not reached? */
+    if (this.speed.forward < this.speed.maxForward) {
+        this.speed.forward = this.speed.forward + this.speed.accVectorForward;
 
-    /* do not exceed maximum speed */
-    if(this.speed.forward > this.speed.maxForward) {
-        this.speed.forward = this.speed.maxForward;
-    } else {
+        if (this.speed.forward >= this.speed.maxForward) {
+            this.speed.forward = this.speed.maxForward;
+        }
+
         console.log("setting forward speed: " + this.speed.forward);
         this.bebop.forward(this.speed.forward);
+
+    } else {
+        /* max speed already reached -> no change for drone */
+        console.log("holding speed..." + this.speed.forward);
     }
-
 }
-
 
 
 /**
@@ -464,14 +483,21 @@ Drone.prototype.accelerate = function() {
  */
 Drone.prototype.slowDown = function() {
 
-    this.speed.forward = this.speed.forward - this.speed.accVectorBackward;
-
-    if(this.speed.forward < 0) {
+    /* already standing still */
+    if(this.speed.forward <= 0) {
         this.speed.forward = 0;
-    }
+        this.bebop.stop();
+    } else {
 
-    console.log("setting forward speed (breaking): " + this.speed.forward);
-    this.bebop.forward(this.speed.forward);
+        this.speed.forward = this.speed.forward - this.speed.accVectorBackward;
+
+        if(this.speed.forward <= 0) {
+            this.speed.forward = 0;
+        }
+
+        console.log("setting forward speed (breaking): " + this.speed.forward);
+        this.bebop.forward(this.speed.forward);
+    }
 }
 
 
