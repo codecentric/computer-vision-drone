@@ -69,12 +69,11 @@ function Drone(flightDurationSec, testMode) {
     this.speed.forward  = 0;            // current forward speed of the drone
     this.speed.turning  = 0;            // current turning speed of the drone ( > 0 = clockwise)
     this.speed.strafing = 0;            // current strafing speed of the drone ( > 0 = right direction)
-    this.speed.maxForward = 10;         // maximum forward speed
-    this.speed.maxTurning = 0;         // maximum turning speed
-    this.speed.maxStrafing = 0;        // maximum strafing speed
-    this.speed.accVectorForward = 5;    // difference of speed when performing one acceleration step forwards
+    this.speed.maxForward = 12;         // maximum forward speed
+    this.speed.maxTurning = 40;         // turning speed if turning is active
+    this.speed.maxStrafing = 0;         // maximum strafing speed
+    this.speed.accVectorForward = 3;    // difference of speed when performing one acceleration step forwards
     this.speed.accVectorBackward = 5;   // difference of speed when breaking the drone one step
-    this.speed.accVectorTurning = 0;    // difference of speed when accelerating turning speed
     this.speed.accVectorStrafing = 0;   // difference of speed when accelerating into strafing direction
 
     /* is the drone ready for takeoff?
@@ -236,7 +235,13 @@ Drone.prototype.onConnect = function() {
     console.log("================================ CONNECTED TO DRONE");
 
     try {
-        this.bebop.PilotingSettings.maxAltitude(1);
+
+        this.bebop.MediaStreaming.videoStreamMode(2);
+        this.bebop.PictureSettings.videoStabilizationMode(3);
+        this.bebop.MediaStreaming.videoEnable(1);
+
+        //this.bebop.PilotingSettings.maxAltitude(2);
+        //this.bebop.PilotingSettings.minAltitude(2);
         /* battery level check */
         this.bebop.on("battery", this.batteryCheck.bind(this));
         this.bebop.on("ready", this.onDroneReady.bind(this));
@@ -310,7 +315,7 @@ Drone.prototype.buttonPushed = function() {
         this.led.blink(30, 100);
         this.buzzer.blink(3, 1000);
 
-        setTimeout(this.takeoff.bind(this), 4000);
+        setTimeout(this.takeoff.bind(this), 3500);
     } else {
         if(this.readyForTakeoff == false) {
             console.error("drone is not in ready-for-takeoff state");
@@ -328,7 +333,7 @@ Drone.prototype.buttonPushed = function() {
  */
 Drone.prototype.takeoff = function() {
 
-    this.triggerFlightControlId = setTimeout(this.triggerFlightControl.bind(this), 3000);
+    this.triggerFlightControlId = setTimeout(this.triggerFlightControl.bind(this), 5000);
 
 
     /* automatically land the drone after some time */
@@ -394,35 +399,30 @@ Drone.prototype.flightControl = function() {
 
     if(this.isDroneConnected == true) {
 
-        //TODO: WAIT FOR A GOOD SIGNAL TO START, E.G. IF THE DRONE IS REALLY IN THE AIR AND READY
-
         var distFront = this.sensorFront.getDistance();
-        var distLeft = this.sensorLeft.getDistance();
+        var distLeft  = this.sensorLeft.getDistance();
         var distRight = this.sensorRight.getDistance();
-        var distCrit = 120;
 
+        this.showHUD(distFront, distLeft, distRight, this.speed.turning);
 
-        if(distFront < 120 || distLeft < 80|| distRight < 100) {
+        if(distFront < 70 || distLeft < 70|| distRight < 70) {
+
             console.log("F " + distFront);
             console.log("R " + distRight);
             console.log("L " + distLeft);
             this.landing("came to close to anything");
         }
 
-        var slowDownDistance = 270;
-
-        var speedDisplay = "=";
-        for(i=0; i<this.speed.forward; i++) {
-            speedDisplay = speedDisplay + "=";
-
-        }
-
-        console.log("F: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | speed: " + speedDisplay);
+        var slowDownDistance = 250;
 
         if (distFront < slowDownDistance) {
             this.slowDown();
+            this.startRotate();
+
         } else {
+            this.stopRotate();
             this.accelerate();
+
         }
 
     } else {
@@ -456,6 +456,57 @@ Drone.prototype.flightControl = function() {
 
 
 /**
+ * stop the drone rotating if it is currently turning
+ */
+Drone.prototype.stopRotate = function() {
+
+    if(this.speed.turning != 0) {
+        this.speed.turning = 0;
+        this.bebop.clockwise(0);
+    }
+
+}
+
+
+/**
+ * print a HUD of the current flight state with basic information like sensor distances, rotating state etc.
+ */
+Drone.prototype.showHUD = function(distFront, distLeft, distRight, speedRotate) {
+
+    // ↺ ↻
+    var rotateIndicator = " ";
+
+    if(speedRotate > 0) {
+        rotateIndicator = "↻";
+    } else {
+        if(speedRotate < 0) {
+            rotateIndicator = "↺";
+        }
+    }
+
+
+    var speedDisplay = "=";
+    for(i=0; i<this.speed.forward; i++) {
+        speedDisplay = speedDisplay + "=";
+    }
+    process.stdout.write("\rF: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
+
+}
+
+
+/**
+ * start the drone rotation if not yet turning
+ */
+Drone.prototype.startRotate = function() {
+
+    if(this.speed.turning == 0) {
+        this.speed.turning = this.speed.maxTurning;
+        this.bebop.clockwise(this.speed.turning);
+    }
+}
+
+
+/**
  * accelerate the drone up to a configured maximum speed
  */
 Drone.prototype.accelerate = function() {
@@ -468,12 +519,12 @@ Drone.prototype.accelerate = function() {
             this.speed.forward = this.speed.maxForward;
         }
 
-        console.log("setting forward speed: " + this.speed.forward);
+        //console.log("setting forward speed: " + this.speed.forward);
         this.bebop.forward(this.speed.forward);
 
     } else {
         /* max speed already reached -> no change for drone */
-        console.log("holding speed..." + this.speed.forward);
+        //console.log("holding speed..." + this.speed.forward);
     }
 }
 
@@ -483,20 +534,25 @@ Drone.prototype.accelerate = function() {
  */
 Drone.prototype.slowDown = function() {
 
-    /* already standing still */
-    if(this.speed.forward <= 0) {
-        this.speed.forward = 0;
-        this.bebop.stop();
+    if(this.speed.forward == 0) {
+
     } else {
 
-        this.speed.forward = this.speed.forward - this.speed.accVectorBackward;
-
-        if(this.speed.forward <= 0) {
+        /* already standing still */
+        if (this.speed.forward <= 0) {
             this.speed.forward = 0;
-        }
+            this.bebop.stop();
+        } else {
 
-        console.log("setting forward speed (breaking): " + this.speed.forward);
-        this.bebop.forward(this.speed.forward);
+            this.speed.forward = this.speed.forward - this.speed.accVectorBackward;
+
+            if (this.speed.forward <= 0) {
+                this.speed.forward = 0;
+            }
+
+            //console.log("setting forward speed (breaking): " + this.speed.forward);
+            this.bebop.forward(this.speed.forward);
+        }
     }
 }
 
