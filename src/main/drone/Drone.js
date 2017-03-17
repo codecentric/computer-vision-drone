@@ -40,7 +40,7 @@ function Drone(flightDurationSec, testMode) {
     this.bebopOpts.ip = '192.168.42.1';
 
     /* minimal battery level before landing */
-    this.minBatteryLevel = 10;
+    this.minBatteryLevel = 5;
 
     /* refresh interval of the distance sensors */
     this.sensorRefreshIntervall = 100;
@@ -405,7 +405,7 @@ Drone.prototype.flightControl = function() {
 
         this.showHUD(distFront, distLeft, distRight, this.speed.turning);
 
-        if(distFront < 70 || distLeft < 70|| distRight < 70) {
+        if(distFront < 100 || distLeft < 100|| distRight < 100) {
 
             console.log("F " + distFront);
             console.log("R " + distRight);
@@ -413,15 +413,21 @@ Drone.prototype.flightControl = function() {
             this.landing("came to close to anything");
         }
 
-        var slowDownDistance = 250;
+        var slowDownDistance = 170;
 
-        if (distFront < slowDownDistance) {
+        // rotate right
+        if (distFront < slowDownDistance || distLeft < slowDownDistance) {
             this.slowDown();
-            this.startRotate();
-
+            this.startRotate(1); // clockwise
         } else {
-            this.stopRotate();
-            this.accelerate();
+            // rotate left
+            if(distFront < slowDownDistance || distRight < slowDownDistance) {
+                this.slowDown();
+                this.startRotate(-1); // counterclockwise
+            } else {
+                this.stopRotate();
+                this.accelerate();
+            }
 
         }
 
@@ -496,12 +502,20 @@ Drone.prototype.showHUD = function(distFront, distLeft, distRight, speedRotate) 
 
 /**
  * start the drone rotation if not yet turning
+ * @param direction 1 = clockwise, -1 = counterclockwise
  */
-Drone.prototype.startRotate = function() {
+Drone.prototype.startRotate = function(direction) {
 
     if(this.speed.turning == 0) {
         this.speed.turning = this.speed.maxTurning;
-        this.bebop.clockwise(this.speed.turning);
+
+        if(direction == 1) {
+            this.bebop.clockwise(this.speed.turning);
+        } else {
+            this.bebop.counterClockwise(this.speed.turning);
+        }
+
+
     }
 }
 
