@@ -10,8 +10,16 @@ FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 
 def prepare_frame(frame):
-    #frame = imutils.resize(frame, width=1024)
+    # frame = imutils.resize(frame, width=1024)
     return frame
+
+
+def canny_filter(frame, sigma=0.33):
+    v = np.median(frame)
+    lower = int(max(0, (1.0 - sigma) * v))
+    upper = int(min(255, (1.0 + sigma) * v))
+    edged = cv2.Canny(frame, lower, upper)
+    return edged
 
 
 def mark_cross(frame, x1, y1, x2, y2):
@@ -43,7 +51,7 @@ def mark_rois(frame, rois):
 
 def apply_hud(frame, mask):
     cv2.addWeighted(frame, 1, mask, 0.5, 1, dst=frame)
-    #mask = cv2.circle(mask, (512, 330), 400, (0, 40, 0), -1)
+    # mask = cv2.circle(mask, (512, 330), 400, (0, 40, 0), -1)
     cv2.addWeighted(frame, 1, mask, 0.5, 1, dst=frame)
 
 
