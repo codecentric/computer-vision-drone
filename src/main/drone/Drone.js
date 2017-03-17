@@ -13,6 +13,10 @@ var Buzzer = require('./sensors/Buzzer');
 var Bebop = require("node-bebop");
 var ping = require ("net-ping");
 var Voice = require('./voice/Voice');
+const readline = require('readline');
+
+readline.emitKeypressEvents(process.stdin);
+process.stdin.setRawMode(true);
 
 module.exports = Drone;
 
@@ -52,6 +56,9 @@ function Drone(flightDurationSec, testMode) {
     /* internal timeout-id of remaining time landing */
     this.timeOverId = -1;
 
+    /* internal timeout id of triggering the flight control */
+    this.triggerFlightControlId = -1;
+
     this.testMode = testMode;
     this.flightDurationSec = flightDurationSec;
 
@@ -62,11 +69,11 @@ function Drone(flightDurationSec, testMode) {
     this.speed.forward  = 0;            // forward speed of the drone
     this.speed.turning  = 0;            // turning speed of the drone ( > 0 = clockwise)
     this.speed.strafing = 0;            // strafing speed of the drone ( > 0 = right direction)
-    this.speed.maxForward = 10;         // maximum forward speed
-    this.speed.maxTurning = 10;         // maximum turning speed
-    this.speed.maxStrafing = 10;        // maximum strafing speed
+    this.speed.maxForward = 6;         // maximum forward speed
+    this.speed.maxTurning = 6;         // maximum turning speed
+    this.speed.maxStrafing = 6;        // maximum strafing speed
     this.speed.accVectorForward = 1;    // difference of speed when performing one acceleration step forwards
-    this.speed.accVectorBackward = 1;   // difference of speed when breaking the drone one step
+    this.speed.accVectorBackward = 2;   // difference of speed when breaking the drone one step
     this.speed.accVectorTurning = 1;    // difference of speed when accelerating turning speed
     this.speed.accVectorStrafing = 1;   // difference of speed when accelerating into strafing direction
 
@@ -85,6 +92,7 @@ function Drone(flightDurationSec, testMode) {
     try {
 
         this.pingSession = ping.createSession();
+
 
         this.bebop = Bebop.createClient(this.bebopOpts);
 
@@ -127,6 +135,7 @@ function Drone(flightDurationSec, testMode) {
         process.on('SIGINT', this.onExit.bind(this, "SIGINT"));    // CTRL+C
         process.on('SIGTERM', this.onExit.bind(this, "SIGTERM"));  // KILL
         process.on('uncaughtException', this.onException.bind(this));   // UNCAUGHT EXCEPTIONS
+        process.stdin.on('keypress', this.initKeyHandler.bind(this));
 
         /* ping drone once to check if connected */
         this.pingDrone();
@@ -145,6 +154,34 @@ function Drone(flightDurationSec, testMode) {
     }
 }
 
+
+/**
+ * init some keyboard handlers for special keys like emergency controlling
+ */
+Drone.prototype.initKeyHandler = function(ch, key) {
+
+
+    if (key.ctrl && key.name === 'c') {
+        console.log("EXIT EVENT");
+        this.onExit("STRG+C");
+    } else {
+        switch (key.name) {
+            case 'return':
+                console.log("ENTER");
+                this.emergencyLand();
+            break;
+
+            case 'left':
+
+                break;
+            case 'right':
+
+                break;
+
+            default:
+        }
+    }
+}
 
 /**
  * setup method which checks that the drone is reachable via the network.
@@ -282,8 +319,8 @@ Drone.prototype.buttonPushed = function() {
  */
 Drone.prototype.takeoff = function() {
 
-    /* start the flight control loop */
-    this.flightControlId = setInterval(this.flightControl.bind(this), this.flightControlInterval);
+    this.triggerFlightControlId = setTimeout(this.triggerFlightControl.bind(this), 3000);
+
 
     /* automatically land the drone after some time */
     this.timeOverId = setTimeout(this.landing.bind(this, "flight time over"), (this.flightDurationSec*1000));
@@ -297,6 +334,12 @@ Drone.prototype.takeoff = function() {
     }
 };
 
+
+Drone.prototype.triggerFlightControl = function() {
+
+    /* start the flight control loop */
+    this.flightControlId = setInterval(this.flightControl.bind(this), this.flightControlInterval);
+}
 
 /**
  * this method will let the drone land
@@ -347,22 +390,25 @@ Drone.prototype.flightControl = function() {
         var distFront = this.sensorFront.getDistance();
         var distLeft = this.sensorLeft.getDistance();
         var distRight = this.sensorRight.getDistance();
-        var distCrit = 100;
+        var distCrit = 70;
+
+
+        if(distFront < distCrit || distLeft < distCrit || distRight < distCrit) {
+            console.log(distFront);
+            console.log(distRight);
+            console.log(distLeft);
+            this.landing("came to close to anything");
+        }
 
         var slowDownDistance = 120;
 
-        console.log("------------------------------------------------");
-        console.log("left  " + this.sensorLeft.getDistance());
-        console.log("right " + this.sensorRight.getDistance());
-        //console.log("distances: " + dist);
+        console.log("F: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | speed: " + this.speed.forward);
 
-        if ((distLeft < slowDownDistance) && (distRight < slowDownDistance)) {
-//            this.slowDown();
+        if (distFront < slowDownDistance) {
+            this.slowDown();
         } else {
-  //          this.accelerate();
+            this.accelerate();
         }
-
-        console.log("flying");
 
     } else {
 
@@ -404,12 +450,13 @@ Drone.prototype.accelerate = function() {
     /* do not exceed maximum speed */
     if(this.speed.forward > this.speed.maxForward) {
         this.speed.forward = this.speed.maxForward;
+    } else {
+        console.log("setting forward speed: " + this.speed.forward);
+        this.bebop.forward(this.speed.forward);
     }
 
-    console.log("setting forward speed: " + this.speed.forward);
-    this.bebop.forward(this.speed.forward);
-
 }
+
 
 
 /**
@@ -457,6 +504,7 @@ Drone.prototype.cleanUpAfterLanding = function() {
     /* stop the flight control loop */
     clearInterval(this.flightControlId);
     clearTimeout(this.timeOverId);
+    clearTimeout(this.triggerFlightControlId);
 }
 
 
