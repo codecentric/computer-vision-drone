@@ -14,7 +14,9 @@ import videowriter
 
 tracker = dlib.correlation_tracker()
 video = cv2.VideoCapture("./bebop.sdp")
-# video = cv2.VideoCapture("/home/user/opencv/videos/object-tracking.mp4")
+video = cv2.VideoCapture("/home/user/opencv/videos/object-tracking.mp4")
+video = cv2.VideoCapture(0)
+
 
 # video = cv2.VideoCapture(0)
 

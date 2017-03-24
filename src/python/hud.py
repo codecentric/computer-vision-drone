@@ -36,14 +36,14 @@ def mark_cross(frame, x1, y1, x2, y2):
     return frame
 
 
-def mark_rois(frame, rois):
+def mark_rois(frame, rois, label="person detected"):
     mask = np.zeros_like(frame, dtype=np.uint8)
 
     for (x, y, w, h) in rois:
         cv2.rectangle(mask, (x, y), (x + w, y + h), HUD_CLIGHT, thickness=1)
         cv2.rectangle(mask, (x - 1, y - 1), (x + w + 1, y + h + 1), HUD_COLOR, thickness=1)
         cv2.rectangle(mask, (x + 1, y + 1), (x + w - 1, y + h - 1), HUD_COLOR, thickness=1)
-        cv2.putText(mask, "person detected", (x, y - 10),
+        cv2.putText(mask, label, (x, y - 10),
                     FONT, FONT_SIZE, HUD_COLOR)
 
     cv2.addWeighted(frame, 1, mask, 0.5, 1, dst=frame)
