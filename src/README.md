@@ -31,7 +31,19 @@ Please do the following to configure your PI:
 ### Network config
 
 Setup the network
+- sudo nano `/etc/network/interfaces`
+- add static address for wlan0:
+    ```
+    auto wlan0
+    allow-hotplug wlan0
+    iface wlan0 inet static
+    address 10.10.58.104
+    netmask 255.255.255.0
+    gateway 10.10.58.1
+    wpa-passphrase ******
+    wpa-ssid SSID
 
+    ```
 - sudo nano `/etc/wpa_supplicant/wpa_supplicant_bebop.conf`
 - paste the following code:
     ```

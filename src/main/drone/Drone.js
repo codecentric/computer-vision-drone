@@ -48,6 +48,10 @@ function Drone(flightDurationSec, testMode) {
     /* refresh interval of the flight control mechanism */
     this.flightControlInterval = 100;
 
+    /* hotWord file for voice commands */
+    this.hotWordFile = "voice/resources/snowboy.umdl"
+
+
     /** internal configuration =============================================================================== */
 
     /* internal interval-id of the flight loop */
@@ -103,6 +107,12 @@ function Drone(flightDurationSec, testMode) {
 
         this.startButton = new Button(23, "startButton", this.buttonPushed.bind(this));
 
+        this.voice = new Voice("voice/resources/common.res");
+        this.voice.addHotWord(this.hotWordFile, "droneTakeOff", 0.4);
+        //this.voice.registerHotwordReaction(console.log("SNOWBOY"));
+        this.voice.registerHotwordReaction(this.buttonPushed.bind(this));
+        this.voice.triggerStart();
+
         this.buzzer = new Buzzer(19, "buzzer");
         this.buzzer.onOff(100);
 
@@ -110,11 +120,6 @@ function Drone(flightDurationSec, testMode) {
         this.sensorFront = new DistanceSensor(27, 6, "front", this.sensorRefreshIntervall);
         this.sensorLeft = new DistanceSensor(22, 13, "left", this.sensorRefreshIntervall);
 
-        /* register a Voice handler for landing on hotword detection */
-        this.voice = new Voice("voice/resources/common.res");
-        this.voice.addHotWord("voice/resources/Drohne_Stop.pmdl", "dronestop", 0.5);
-        this.voice.registerHotwordReaction( this.emergencyLand.bind(this));
-        this.voice.triggerStart();
 
         usonic.init(function (error) {
             if (error) {
@@ -235,7 +240,7 @@ Drone.prototype.onConnect = function() {
     console.log("================================ CONNECTED TO DRONE");
 
     try {
-
+        /* enables video streaming */
         this.bebop.MediaStreaming.videoStreamMode(2);
         this.bebop.PictureSettings.videoStabilizationMode(3);
         this.bebop.MediaStreaming.videoEnable(1);
@@ -280,6 +285,7 @@ Drone.prototype.onDroneReady = function() {
     console.log("received [\"ready\"] event from drone.");
     this.isDroneConnected = true;
 
+
     /* if readyForTakeoff was set (from undef) to false while initialising, something is wrong,
      so do not set it to ready! */
     if(this.readyForTakeoff != false) this.readyForTakeoff = true;
@@ -299,6 +305,12 @@ Drone.prototype.batteryCheck = function(batteryLevel) {
     }
 };
 
+/**
+ * Add the snowboy hotword detection to the drone
+ */
+Drone.prototype.addVoiceHandler = function (hotWordFile, threshold) {
+    /* register a Voice handler for landing on hotword detection */
+};
 
 /**
  * event handler for the button. will start the drone after some warnings
