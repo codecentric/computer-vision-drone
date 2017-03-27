@@ -66,6 +66,7 @@ function Drone(flightDurationSec, testMode) {
     this.testMode = testMode;
     this.flightDurationSec = flightDurationSec;
 
+
     /** flying states ======================================================================================== */
 
     /* drone movement and speeds */
@@ -74,12 +75,13 @@ function Drone(flightDurationSec, testMode) {
     this.speed.turning  = 0;            // current turning speed of the drone ( > 0 = clockwise)
     this.speed.turningDirection = 0;    // -1 =
     this.speed.strafing = 0;            // current strafing speed of the drone ( > 0 = right direction)
-    this.speed.maxForward = 10;         // maximum forward speed
+    this.speed.maxForward = 15;         // maximum forward speed
     this.speed.maxTurning = 40;         // turning speed if turning is active
     this.speed.maxStrafing = 0;         // maximum strafing speed
     this.speed.accVectorForward = 3;    // difference of speed when performing one acceleration step forwards
     this.speed.accVectorBackward = 5;   // difference of speed when breaking the drone one step
     this.speed.accVectorStrafing = 0;   // difference of speed when accelerating into strafing direction
+    this.movementLocked = false;        // checks if further movement orders are accepted
 
     /* is the drone ready for takeoff?
      setting to "false" in the constructor will prevent the drone from starting up */
@@ -418,7 +420,7 @@ Drone.prototype.flightControl = function() {
 
         this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
 
-        if(distFront < 100 || distLeft < 70|| distRight < 70) {
+        if(distFront < 80 || distLeft < 70|| distRight < 70) {
 
             console.log("F " + distFront);
             console.log("R " + distRight);
@@ -426,7 +428,7 @@ Drone.prototype.flightControl = function() {
             this.landing("came to close to anything (F: " + distFront + " R: " + distRight + " L: " + distLeft);
         }
 
-        var stopDistance = 140;
+        var stopDistance = 120;
 
         //TODO add "rotatingPuffer" um nach einem Stop länger nachzudrehen?
 
@@ -435,10 +437,12 @@ Drone.prototype.flightControl = function() {
             this.slowDown();
 
             if((distLeft <= stopDistance) || distFront <= stopDistance) {
+                //setTimeout(this.startRotate.bind(this, 1), 100);
                 this.startRotate(1);
             }
 
             if(distRight <= stopDistance && distLeft >= stopDistance) {
+                //setTimeout(this.startRotate.bind(this, -1), 100);
                 this.startRotate(-1);
             }
 
@@ -446,8 +450,10 @@ Drone.prototype.flightControl = function() {
 
             /* upfront free */
             this.stopRotate();
+            //setTimeout(this.accelerate.bind(this), 500);
             this.accelerate();
         }
+
 
     } else {
 
@@ -478,13 +484,28 @@ Drone.prototype.flightControl = function() {
     }
 };
 
+/**
+ * Lock the drone so no further movement commands will be executed
+ * @param duration time in ms for the lock
+ */
+Drone.prototype.lockMovement = function (duration) {
+       this.movementLocked =  true;
+       setTimeout(this.unlockMovement.bind(this), duration);
+}
+
+/**
+ * unlock the Drone so it can move again
+ */
+Drone.prototype.unlockMovement = function () {
+    this.movementLocked = false;
+}
 
 /**
  * stop the drone rotating if it is currently turning
  */
 Drone.prototype.stopRotate = function() {
 
-    if(this.speed.turning != 0) {
+    if(this.speed.turning != 0 && !this.movementLocked) {
         this.bebop.clockwise(0);
         this.bebop.stop();
         this.speed.turning = 0;
@@ -512,8 +533,8 @@ Drone.prototype.showHUD = function(distFront, distLeft, distRight, speedRotate, 
     for(i=0; i<this.speed.forward; i++) {
         speedDisplay = speedDisplay + "=";
     }
-    //process.stdout.write("\rF: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
-    process.stdout.write("\nF: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
+    process.stdout.write("\rF: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
+    //process.stdout.write("\nF: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
 
 }
 
@@ -527,7 +548,7 @@ Drone.prototype.startRotate = function(direction) {
 
     this.speed.turningDirection = direction;
 
-    if(this.speed.turning == 0) {
+    if(this.speed.turning == 0 && !this.movementLocked) {
         this.bebop.stop();
         this.speed.turning = this.speed.maxTurning;
 
@@ -545,7 +566,7 @@ Drone.prototype.startRotate = function(direction) {
  */
 Drone.prototype.accelerate = function() {
 
-    if(this.speed.forward < this.speed.maxForward) {
+    if(this.speed.forward < this.speed.maxForward && !this.movementLocked) {
         this.bebop.stop();
         this.speed.forward = this.speed.maxForward;
         this.bebop.forward(this.speed.forward);
@@ -558,9 +579,12 @@ Drone.prototype.accelerate = function() {
  */
 Drone.prototype.slowDown = function() {
 
-    if(this.speed.forward != 0) {
+    if(this.speed.forward != 0 && !this.movementLocked) {
+        this.lockMovement(1000);
         this.speed.forward = 0;
         this.bebop.stop();
+        console.log("------------STOP---------------");
+        this.buzzer.blink(1, 500);
     }
 }
 

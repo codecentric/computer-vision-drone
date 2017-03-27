@@ -42,7 +42,7 @@ Voice.prototype.addHotWord = function(path, name, sensitivity) {
     this.detector = new Detector({
         resource: this.resourceFile,
         models: this.models,
-        audioGain: 2.0
+        audioGain: 5.0
     });
 
 }
