@@ -10,10 +10,10 @@ mic='plughw:1,0'
 
 # background noise file
 # noiseFile=noise_1_base_16.wav
-noiseFile=noise.wav
+noiseFile=example_noise_3.wav
 
 # directory where the audio sample is stored
-workDir='/tmp'
+workDir='/dump/'
 
 record()
 {
@@ -35,7 +35,8 @@ echo "get pulse audio devices"
 devices=`pactl list | grep -E -A2 '(Source|Sink) #' | grep 'Name: ' | grep -v monitor | cut -d" " -f2`
 if [ `echo "$devices" | grep -c aloop` -lt 1 ]; then
     echo "No loopback device created. Run 'sudo modprobe snd_aloop' first."
-    exit
+    sudo modprobe snd_aloop
+    #exit
 fi
 
 cd $workDir
