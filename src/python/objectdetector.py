@@ -1,6 +1,15 @@
+import imutils
+
+import videowriter
 from config import *
 import cv2
 import hud
+
+
+cam = cv2.VideoCapture(0)
+cam = cv2.VideoCapture("/home/user/opencv/videos/object-detector.mp4")
+margin_x = 60
+margin_y = 160
 
 
 class ObjectDetector:
@@ -39,13 +48,6 @@ class FaceDetector:
         return rois
 
 
-cam = cv2.VideoCapture(0)
-marker_detector = ObjectDetector()
-face_detector = FaceDetector()
-margin_x = 60
-margin_y = 160
-
-
 def get_region(marker):
     x1, y1, w, h = marker
     x1 -= margin_x
@@ -65,9 +67,16 @@ def in_region(marker, face):
     return False
 
 
+marker_detector = ObjectDetector()
+face_detector = FaceDetector()
+frame_idx = 0
+writer = videowriter.VideoWriter(cam, out_file="/home/user/opencv/videos/object-detection.mp4")
+
+
 while True:
     ret, frame = cam.read()
-
+    frame = imutils.resize(frame, width=1280)
+    frame_idx += 1
     marker = marker_detector.detect(frame)
 
     if marker is not None:
@@ -85,8 +94,9 @@ while True:
 
                 hud.mark_rois(frame, [(p_x1, p_y1, p_x2, p_y2)])
 
-
+    hud.get_hud(frame, None, frame_idx)
     cv2.imshow("frame", frame)
+    writer.write(frame)
     key = cv2.waitKey(1) & 0xff
     if key == 27:
         break
