@@ -39,10 +39,16 @@ footer_right: "&lt;/&gt; on <a href=\"https://github.com/codecentric/computer-vi
 
 # Build settings
 markdown: kramdown
-
 kramdown:
   input: GFM
   syntax_highlighter: rouge
 
 permalink: pretty
+include: ['_pages', '.htaccess']
 exclude: [vendor]
+defaults:
+  - scope:
+      path: '_pages/opencv-python-examples'
+    values:
+      layout: 'python-examples'
+      type: 'opencv-python-examples'
