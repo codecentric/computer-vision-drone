@@ -45,7 +45,7 @@ kramdown:
 
 permalink: pretty
 include: ['_pages', '.htaccess']
-exclude: [vendor]
+exclude: [vendor, src]
 defaults:
   - scope:
       path: '_pages/opencv-python-examples'
