@@ -1,4 +1,4 @@
-Add a border to an image
+# Add a border to an image
 ```python
 img2 = cv2.copyMakeBorder(img, top, bottom, left, right, borderType)
 ```

@@ -1,4 +1,4 @@
-# opencv resize image
+# Resize image
 
 Accessing the properties of an image:
 

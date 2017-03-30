@@ -1,4 +1,4 @@
-# opencv split and merge channels
+# Split and merge channels
 
 In opencv the default color scheme is BGR (Blue, Green, Red) (not RGB!).
 Different channels of an image can be accessed:
