@@ -1,0 +1,45 @@
+---
+layout: default
+make-smaller-titles: true
+---
+
+<!--<div class="gravatar" align="middle">  
+   <img src="./pages/header3.png" height="170" width="690" alt="{{ site.title }}" />
+</div>-->
+
+<div class="container-fluid index">
+  <div class="row index opencv-python-examples">
+
+    <h1 class="header author-header">{{ site.author_name }}</h1>
+    <h2 class="header" itemprop="headline">Opencv Python Examples</h2>
+
+      {% for post in site.pages %}
+      {% capture this_year %}{{ post.date | date: "%Y" }}{% endcapture %} 
+      {% capture next_year %}{{ post.previous.date | date: "%Y" }}{% endcapture %} 
+
+      {% if forloop.first %}
+      <div class="col-md-12 content-panel articles">
+        <h2 id="{{ this_year }}-ref">{{ this_year }}</h2>
+        <ul>
+      {% endif %}
+
+          <li>
+            <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+            <small class="hidden-xs">{{ post.date | date: "%B %-d, %Y" }}</small> <!--post.date | date: "%B %-d, %Y"-->
+          </li>
+      {% if forloop.last %}
+        </ul>
+      </div>
+      {% else %}
+        {% if this_year != next_year %}
+       
+        <div class="col-md-12 content-panel articles">
+          <h2 id="{{ next_year }}-ref">{{next_year}}</h2>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    {% endfor %}
+    </div>
+
+  </div>
