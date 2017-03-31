@@ -7,16 +7,15 @@ make-smaller-titles: true
     <img src="header3.png" height="180" align="center" width="768" alt="{{ site.title }}" />
 </div>
 
-<h1 class="author-header">{{ site.title }}</h1> <!--itemprop="headline"-->
+<div class="author-text">
+    <h1 class="author-header">{{ site.title }}</h1><!--itemprop="headline"-->
+    {{ site.title_description }}
+</div>
 
 <div class="container-fluid index">
     <div class="row">
 
         <div class="col-md-12 main content-panel">
-
-            <div class="author-text">
-                {{ site.title_description }}
-            </div>
         
             <div class="author-text-g">
                  {% include goal.html %}
