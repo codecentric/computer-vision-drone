@@ -98,6 +98,9 @@ Install the net-ping module:
 Install the snowboy module:
 `npm install --save snowboy`
 `npm install --save node-record-lpcm16`
+
+Install the websocket module:
+`npm install --save ws`
 ## Frameworks
 
 * opencv

@@ -13,7 +13,11 @@ var Buzzer = require('./sensors/Buzzer');
 var Bebop = require("node-bebop");
 var ping = require ("net-ping");
 var Voice = require('./voice/Voice');
+var events = require('events');
 const readline = require('readline');
+const eventEmitter = new events.EventEmitter();
+
+
 
 readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
@@ -53,6 +57,8 @@ function Drone(flightDurationSec, testMode) {
 
 
     /** internal configuration =============================================================================== */
+
+    /* internel event emitter for sending messages to the websocket */
 
     /* internal interval-id of the flight loop */
     this.flightControlId = -1;
@@ -98,6 +104,9 @@ function Drone(flightDurationSec, testMode) {
     }
 
     try {
+        this.websocket = this.addWebsocketServer();
+
+
 
         this.pingSession = ping.createSession();
 
@@ -200,6 +209,36 @@ Drone.prototype.initKeyHandler = function(ch, key) {
 }
 
 /**
+ * Add a websocketserver which sent messages to the client
+ */
+
+Drone.prototype.addWebsocketServer = function () {
+    // Websocket-Server
+    var WebSocketServer = require('ws').Server
+    var wss = new WebSocketServer({host: '10.10.58.104',port: 8000});
+
+    wss.on('connection', function(ws)
+    {
+        console.log('client verbunden...');
+        eventEmitter.on('feMessage', function(message)
+        {
+            ws.send(message);
+        });
+
+    });
+};
+
+/**
+ * This method is used to build a message which is sent to the client
+ */
+
+Drone.prototype.newFeMessage = function (fieldId, message) {
+    var message = {'fieldId' : fieldId, 'message' : message};
+    //console.log('new Message build: ' + JSON.stringify(message));
+    eventEmitter.emit('feMessage', JSON.stringify(message));
+};
+
+/**
  * setup method which checks that the drone is reachable via the network.
  */
 Drone.prototype.pingDrone = function() {
@@ -232,6 +271,7 @@ Drone.prototype.reactOnPing = function(error) {
     } else {
         this.isWLANConnected = true;
     }
+    this.newFeMessage('isWLANConnected', this.isWLANConnected);
 
 };
 
@@ -312,12 +352,7 @@ Drone.prototype.batteryCheck = function(batteryLevel) {
     }
 };
 
-/**
- * Add the snowboy hotword detection to the drone
- */
-Drone.prototype.addVoiceHandler = function (hotWordFile, threshold) {
-    /* register a Voice handler for landing on hotword detection */
-};
+
 
 /**
  * event handler for the button. will start the drone after some warnings

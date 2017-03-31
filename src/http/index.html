@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function()
+        {
+            function connect()
+            {
+                // Websocket
+                var socket = new WebSocket("ws://10.10.58.104:8000");
+
+                // Nach dem öffnen des Sockets den Status anzeigen
+                socket.onopen 	= function() 	{ open('Connection '+socket.readyState+' (open)');}
+                // Nach dem empfangen einer Nachricht soll diese angezeigt werden
+                socket.onmessage= function(msg)	{ message(msg.data);}
+
+                socket.onclose = function() 	{ open('Connection (close)');}
+
+
+                // Funktion welche die Nchrichten an das Log anfügt
+                function message(msg)
+                {
+//                    console.log(msg);
+                    var json = JSON.parse(msg);
+//                    var field = '#' + json.fieldId;
+                    //console.log(json.message);
+                    $('#'+JSON.stringify(json.fieldId).slice(1, -1)).replaceWith(JSON.stringify(json.message));
+                }
+                // Funktion welche die Nchrichten an das Log anfügt
+                function open(msg)
+                {
+                    $('#Log').replaceWith(msg);
+                }
+
+            }
+
+            connect();
+
+        });
+    </script>
+</head>
+<body>
+<div id="container">
+    <h3>WebSocket Client 0.1</h3>
+    <div id="Log"></div></br>
+    Connected to the Drone: <div id="isWLANConnected"></div> </br>
+    Eingabe: <input id="text" type="text" />
+</div>
+</body>
+</html>
