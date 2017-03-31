@@ -1,66 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function()
-        {
-            function connect()
-            {
-                // Websocket
-                var socket = new WebSocket("ws://10.10.58.104:8000");
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-                // Nach dem öffnen des Sockets den Status anzeigen
-                socket.onopen 	= function() 	{ message('Connection '+socket.readyState+' (open)');}
-                // Nach dem empfangen einer Nachricht soll diese angezeigt werden
-                socket.onmessage= function(msg)	{ message(msg.data);}
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
-                //socket.onclose = function() 	{ open('Connection (close)');}
+    <!-- Latest compiled and minified JavaScript -->
 
-
-                // Funktion welche die Nchrichten an das Log anfügt
-                function message(msg)
-                {
-//                    console.log(msg);
-                    try {
-                        var json = JSON.parse(msg);
-                        console.log(JSON.stringify(json));
-                        $('#Log').prepend(JSON.stringify(json) + '</br>');
-                        $('#'+JSON.stringify(json.fieldId).slice(1, -1)).replaceWith(JSON.stringify(json.message));
-
-                    } catch (error) {
-                        $('#Log').prepend(msg + '</br>');
-                    }
-                }
-
-            }
-
-            connect();
-
-        });
-    </script>
-    <style>
-        /* Force scrollbars onto browser window */
-        body {
-            margin-bottom: 200%;
-        }
-
-        /* Box styles */
-        .logBox {
-            border: none;
-            padding: 5px;
-            width: 900px;
-            height: 200px;
-            overflow: scroll;
-        }
-    </style>
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-<div id="container">
-    <h3>WebSocket Client 0.1</h3>
-    <div id="Log" class="logBox"></div></br>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Bebop Dashboard</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-left" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Dashboard</a></li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+        <div class="clock collapse navbar-collapse navbar-right">
+            <div id="Date"></div>
+            <ul>
+                <li id="hours"></li>
+                <li id="point">:</li>
+                <li id="min"></li>
+                <li id="point">:</li>
+                <li id="sec"></li>
+            </ul>
+        </div>
+
+    </div><!-- /.container-fluid -->
+</nav>
+
+<div class="container">
+    <div id="status" class="row ">
+        <h2>Status</h2>
+        <span id="status-websocket" class="label label-default">Websocket</span>
+        <span id="status-droneConnected" class="label label-default">Drone connected</span>
+    </div>
+    <div class="row">
+        <h2>Logs</h2>
+        <div id="Log" class="logBox"></div></br>
+    </div>
     Connected to the Drone: <div id="isWLANConnected"></div> </br>
     Eingabe: <input id="text" type="text" />
 </div>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
