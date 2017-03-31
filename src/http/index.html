@@ -11,26 +11,26 @@
                 var socket = new WebSocket("ws://10.10.58.104:8000");
 
                 // Nach dem öffnen des Sockets den Status anzeigen
-                socket.onopen 	= function() 	{ open('Connection '+socket.readyState+' (open)');}
+                socket.onopen 	= function() 	{ message('Connection '+socket.readyState+' (open)');}
                 // Nach dem empfangen einer Nachricht soll diese angezeigt werden
                 socket.onmessage= function(msg)	{ message(msg.data);}
 
-                socket.onclose = function() 	{ open('Connection (close)');}
+                //socket.onclose = function() 	{ open('Connection (close)');}
 
 
                 // Funktion welche die Nchrichten an das Log anfügt
                 function message(msg)
                 {
 //                    console.log(msg);
-                    var json = JSON.parse(msg);
-//                    var field = '#' + json.fieldId;
-                    //console.log(json.message);
-                    $('#'+JSON.stringify(json.fieldId).slice(1, -1)).replaceWith(JSON.stringify(json.message));
-                }
-                // Funktion welche die Nchrichten an das Log anfügt
-                function open(msg)
-                {
-                    $('#Log').replaceWith(msg);
+                    try {
+                        var json = JSON.parse(msg);
+                        console.log(JSON.stringify(json));
+                        $('#Log').prepend(JSON.stringify(json) + '</br>');
+                        $('#'+JSON.stringify(json.fieldId).slice(1, -1)).replaceWith(JSON.stringify(json.message));
+
+                    } catch (error) {
+                        $('#Log').prepend(msg + '</br>');
+                    }
                 }
 
             }
@@ -39,11 +39,26 @@
 
         });
     </script>
+    <style>
+        /* Force scrollbars onto browser window */
+        body {
+            margin-bottom: 200%;
+        }
+
+        /* Box styles */
+        .logBox {
+            border: none;
+            padding: 5px;
+            width: 900px;
+            height: 200px;
+            overflow: scroll;
+        }
+    </style>
 </head>
 <body>
 <div id="container">
     <h3>WebSocket Client 0.1</h3>
-    <div id="Log"></div></br>
+    <div id="Log" class="logBox"></div></br>
     Connected to the Drone: <div id="isWLANConnected"></div> </br>
     Eingabe: <input id="text" type="text" />
 </div>

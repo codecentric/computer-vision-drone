@@ -214,7 +214,7 @@ Drone.prototype.initKeyHandler = function(ch, key) {
 
 Drone.prototype.addWebsocketServer = function () {
     // Websocket-Server
-    var WebSocketServer = require('ws').Server
+    var WebSocketServer = require('ws').Server;
     var wss = new WebSocketServer({host: '10.10.58.104',port: 8000});
 
     wss.on('connection', function(ws)
@@ -223,6 +223,7 @@ Drone.prototype.addWebsocketServer = function () {
         eventEmitter.on('feMessage', function(message)
         {
             ws.send(message);
+
         });
 
     });
