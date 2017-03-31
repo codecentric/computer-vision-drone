@@ -45,7 +45,7 @@ html {
 
 body {
 	font-family: 'Montserrat', sans-serif;
-	font-weight: 300;
+	font-weight: 768;
 	background-color: $dark;
 	color: $white;
 	font-size: 18px;
@@ -237,8 +237,8 @@ ul {
 	padding: 0px;
 
 	@media (min-width: $screen-sm-min) {
-		width: 700px;
-		max-width:700px;
+		width: 768px;
+		max-width:768px;
 	}
 
 	.header {
@@ -291,7 +291,8 @@ ul {
 	.gravatar {
 		width: 100%;
 		margin-top: 0px;
-		text-align: center;
+		padding-bottom: 0px;
+		align: center;
 	}
 
 	.author-text {
