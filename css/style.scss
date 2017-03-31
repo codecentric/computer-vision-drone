@@ -404,7 +404,6 @@ ul {
 .all-posts {
 	margin-left: 0px;
 	margin-right: 0px;
-	margin-bottom: 60px;
 	
 
 	@media (min-width: $screen-sm-min) {
@@ -449,6 +448,59 @@ ul {
 		@media (min-width: $screen-md-min) {
 			padding-left: 30px;
 			padding-right: 30px;
+			margin-bottom: 60px;
+		}
+	}
+}
+
+.opencv-python-examples {
+	margin-left: 0px;
+	margin-right: 0px;
+	
+
+	@media (min-width: $screen-sm-min) {
+		#search-container {
+			padding-top: 75px;
+			padding-bottom: 150px;
+		}
+	}
+
+	@media (min-width: $screen-md-min) {
+		margin-left: -15px;
+		margin-right: -15px;
+
+		#search-container {
+			padding-bottom: 300px;
+		}
+	}
+
+	#search-input {
+		position: relative;
+		width: 100%;
+		padding:6px 15px 6px 30px;
+		margin: 2px;
+		margin-top: 50px;
+
+		color:$dark;
+		background-color:$white;
+
+		border:1px solid #adc5cf;
+		border-radius:15px;
+		-moz-border-radius:15px;
+		-webkit-border-radius:15px;
+	}
+
+	#search-input:focus {
+		border: none;
+  }
+
+	.content-panel {
+		padding-left: 10px;
+		padding-right: 10px;
+		@media (min-width: $screen-md-min) {
+			padding-left: 30px;
+			padding-right: 30px;
+			margin-bottom: 60px;
 		}
 	}
 }
