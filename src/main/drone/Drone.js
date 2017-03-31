@@ -66,6 +66,8 @@ function Drone(flightDurationSec, testMode) {
     this.testMode = testMode;
     this.flightDurationSec = flightDurationSec;
 
+    this.batteryLevel = 0;
+
 
     /** flying states ======================================================================================== */
 
@@ -257,12 +259,12 @@ Drone.prototype.onConnect = function() {
 
         // TODO ONLY FOR TESTING. REMOVE!
         this.bebop.on("hovering", function() {
-            console.log("hovering");
+            //console.log("hovering");
         });
 
         // TODO ONLY FOR TESTING. REMOVE!
         this.bebop.on("flying", function() {
-            console.log("flying");
+            //console.log("flying");
         });
 
 
@@ -301,7 +303,9 @@ Drone.prototype.onDroneReady = function() {
  * @param batteryLevel
  */
 Drone.prototype.batteryCheck = function(batteryLevel) {
-    console.log("battery level: " + batteryLevel +  "%");
+    this.batteryLevel = batteryLevel;
+
+    //console.log("\rbattery level: " + batteryLevel +  "%");
     if(batteryLevel < this.minBatteryLevel) {
         this.readyForTakeoff = false;
         this.landing("battery low");
@@ -533,7 +537,7 @@ Drone.prototype.showHUD = function(distFront, distLeft, distRight, speedRotate, 
     for(i=0; i<this.speed.forward; i++) {
         speedDisplay = speedDisplay + "=";
     }
-    process.stdout.write("\rF: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
+    process.stdout.write("\rBAT: " + this.batteryLevel + " | F: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
     //process.stdout.write("\nF: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
 
 }
@@ -583,7 +587,6 @@ Drone.prototype.slowDown = function() {
         this.lockMovement(1000);
         this.speed.forward = 0;
         this.bebop.stop();
-        console.log("------------STOP---------------");
         this.buzzer.blink(1, 500);
     }
 }
