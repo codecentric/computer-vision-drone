@@ -132,11 +132,12 @@ ul {
 
 .content-panel {
 	background-color: $medium;
-	padding-top: 20px;
+	align: center;
+	padding-top: 0px;
 	padding-bottom: 20px;
 	padding-left: 30px;
 	padding-right: 30px;
-	margin-top: 20px;
+	margin-top: 0px;
 	box-shadow: 0px 0px 0px 0px, 0px 6px 12px rgba(0, 0, 0, 0.2);
 	border-bottom: 5px solid $light-blue;
 }
@@ -233,12 +234,12 @@ ul {
 .index {
 	height: 100%;
 	max-height: 100%;
-	width: 100%;
+	width: 150%;
 	padding: 0px;
 
 	@media (min-width: $screen-sm-min) {
-		width: 700px;
-		max-width:700px;
+		width: 768px;
+		max-width: 768px;
 	}
 
 	.header {
@@ -283,7 +284,8 @@ ul {
 	.row {
 		height: 100%;
 		max-height: 100%;
-		margin-top: 60px;
+		max-width: 768px;
+		margin-top: 0px;
 		margin-left: 0px;
 		margin-right: 0px;
 	}
@@ -291,6 +293,7 @@ ul {
 	.gravatar {
 		width: 100%;
 		margin-top: 0px;
+		padding-bottom: 0px;
 		text-align: center;
 	}
 
@@ -419,7 +422,7 @@ ul {
 	}
 
 	#search-input {
-		position:relative;
+		position: relative;
 		width: 100%;
 		padding:6px 15px 6px 30px;
 		margin: 2px;
