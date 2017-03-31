@@ -14,6 +14,7 @@ var Bebop = require("node-bebop");
 var ping = require ("net-ping");
 var Voice = require('./voice/Voice');
 var events = require('events');
+var WebSocketServer = require('ws').Server;
 const readline = require('readline');
 const eventEmitter = new events.EventEmitter();
 
@@ -33,7 +34,7 @@ module.exports = Drone;
  */
 function Drone(flightDurationSec, testMode) {
 
-    console.log("setting up cv-drone...");
+    this.log("setting up cv-drone...");
 
     this.bebopOpts = {};
 
@@ -100,13 +101,11 @@ function Drone(flightDurationSec, testMode) {
     this.isReconnecting = false;        // is the drone currently reconnecting?
 
     if(this.testMode == true) {
-        console.log("==================== T E S T M O D E =============");
+        this.log("==================== T E S T M O D E =============");
     }
 
     try {
-        this.websocket = this.addWebsocketServer();
-
-
+        this.addWebsocketServer();
 
         this.pingSession = ping.createSession();
 
@@ -137,7 +136,7 @@ function Drone(flightDurationSec, testMode) {
 
         usonic.init(function (error) {
             if (error) {
-                console.log("error setting up ultrasonic sensor module: " + error.message);
+                this.log("error setting up ultrasonic sensor module: " + error.message);
                 this.onException();
             } else {
 
@@ -162,14 +161,14 @@ function Drone(flightDurationSec, testMode) {
         setInterval(this.pingDrone.bind(this), 350);
 
         this.led.blink(5, 200);
-        console.log("setting up cv-drone finished! ready for takeoff.");
-        console.log("====================================================");
-        console.log("Press [T]akeoff, or [Return] for emergency landing!");
-        console.log("====================================================");
+        this.log("setting up cv-drone finished! ready for takeoff.");
+        this.log("====================================================");
+        this.log("Press [T]akeoff, or [Return] for emergency landing!");
+        this.log("====================================================");
 
     } catch(error) {
         this.readyForTakeoff = false;
-        console.log("error setting up drone: " + error.message);
+        this.log("error setting up drone: " + error.message);
         this.onException();
     }
 }
@@ -187,7 +186,7 @@ Drone.prototype.initKeyHandler = function(ch, key) {
     } else {
         switch (key.name) {
             case 'return':
-                console.log("ENTER");
+                this.log("ENTER");
                 this.emergencyLand();
             break;
 
@@ -208,44 +207,51 @@ Drone.prototype.initKeyHandler = function(ch, key) {
     }
 }
 
+
+/**
+ * logs a message and sends it to different listeners like console or web UI
+ * @param message the message to log
+ * @param key (optional). if not provided, "log" will be assumed
+ */
+Drone.prototype.log = function(message, key) {
+
+    /* assume "log" as key if not provided */
+    key = key || "log";
+
+    /* log "log" keys to stdout */
+    if(key == "log") {
+        console.log(message);
+    }
+
+    var message = {'key' : key, 'message' : message};
+
+    /* log to event emitter for web UI */
+    eventEmitter.emit("webHUD", JSON.stringify(message));
+}
+
+
 /**
  * Add a websocketserver which sent messages to the client
  */
-
 Drone.prototype.addWebsocketServer = function () {
-    // Websocket-Server
-    var WebSocketServer = require('ws').Server;
-    var wss = new WebSocketServer({host: '10.10.58.104',port: 8000});
 
-    wss.on('connection', function(ws)
-    {
-        console.log('client verbunden...');
-        eventEmitter.on('feMessage', function(message)
-        {
+    var wss = new WebSocketServer({host: '0.0.0.0',port: 8000});
+
+    wss.on('connection', function(ws) {
+        console.log("websocket server ready");
+        eventEmitter.on('webHUD', function(message) {
             ws.send(message);
-
         });
 
     });
 };
 
-/**
- * This method is used to build a message which is sent to the client
- */
-
-Drone.prototype.newFeMessage = function (fieldId, message) {
-    var message = {'fieldId' : fieldId, 'message' : message};
-    //console.log('new Message build: ' + JSON.stringify(message));
-    eventEmitter.emit('feMessage', JSON.stringify(message));
-};
 
 /**
  * setup method which checks that the drone is reachable via the network.
  */
 Drone.prototype.pingDrone = function() {
-
     this.pingSession.pingHost(this.bebop.ip, this.reactOnPing.bind(this));
-
 };
 
 
@@ -272,7 +278,7 @@ Drone.prototype.reactOnPing = function(error) {
     } else {
         this.isWLANConnected = true;
     }
-    this.newFeMessage('isWLANConnected', this.isWLANConnected);
+    this.log(this.isWLANConnected, 'isWLANConnected');
 
 };
 
@@ -283,7 +289,7 @@ Drone.prototype.reactOnPing = function(error) {
  */
 Drone.prototype.onConnect = function() {
 
-    console.log("================================ CONNECTED TO DRONE");
+    this.log("================================ CONNECTED TO DRONE");
 
     try {
         /* enables video streaming */
@@ -313,12 +319,12 @@ Drone.prototype.onConnect = function() {
         this.bebop.land(this.cleanUpAfterLanding.bind(this));
 
         if(this.isReconnecting == true) {
-            console.log("RECONNECTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            this.log("RECONNECTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.isReconnecting = false;
         }
 
     } catch(exception) {
-        console.log(exception);
+        this.log(exception);
     }
 };
 
@@ -328,7 +334,7 @@ Drone.prototype.onConnect = function() {
  */
 Drone.prototype.onDroneReady = function() {
 
-    console.log("received [\"ready\"] event from drone.");
+    this.log("received [\"ready\"] event from drone.");
     this.isDroneConnected = true;
 
 
@@ -365,7 +371,7 @@ Drone.prototype.buttonPushed = function() {
         /* enter takeoff mode to prevent multiple triggers */
         this.isFlying = true;
 
-        console.log("received starting signal for takeoff.");
+        this.log("received starting signal for takeoff.");
 
         this.led.blink(30, 100);
         this.buzzer.blink(3, 1000);
@@ -394,12 +400,12 @@ Drone.prototype.takeoff = function() {
     /* automatically land the drone after some time */
     this.timeOverId = setTimeout(this.landing.bind(this, "flight time over"), (this.flightDurationSec*1000));
 
-    console.log("============= TAKING OFF!!! Flight length will be : " + this.flightDurationSec + " sec.");
+    this.log("============= TAKING OFF!!! Flight length will be : " + this.flightDurationSec + " sec.");
 
     if(this.testMode == false) {
         this.bebop.takeOff();
     } else {
-        console.log("[[drone is in test mode so will not take off]]");
+        this.log("[[drone is in test mode so will not take off]]");
     }
 };
 
@@ -415,13 +421,13 @@ Drone.prototype.triggerFlightControl = function() {
  */
 Drone.prototype.landing = function(message) {
 
-    console.log("received landing event: " + message);
+    this.log("received landing event: " + message);
 
     if (this.isFlying == true) {
 
         this.cleanUpAfterLanding();
 
-        console.log("============= LANDING NOW!!!");
+        this.log("============= LANDING NOW!!!");
 
         this.buzzer.blink(3, 1000);
         this.led.blink(30, 100);
@@ -430,12 +436,12 @@ Drone.prototype.landing = function(message) {
             this.bebop.stop();
             this.bebop.land(this.cleanUpAfterLanding.bind(this));
         } else {
-            console.log("[[drone is in test mode so will not land}}");
+            this.log("[[drone is in test mode so will not land}}");
         }
 
         this.isFlying = false;
     } else {
-        console.log("the drone is not in [flying] state. will nevertheless land.");
+        this.log("the drone is not in [flying] state. will nevertheless land.");
         this.bebop.stop();
         this.bebop.land(this.cleanUpAfterLanding.bind(this));
     }
@@ -462,9 +468,9 @@ Drone.prototype.flightControl = function() {
 
         if(distFront < 80 || distLeft < 70|| distRight < 70) {
 
-            console.log("F " + distFront);
-            console.log("R " + distRight);
-            console.log("L " + distLeft);
+            this.log("F " + distFront);
+            this.log("R " + distRight);
+            this.log("L " + distLeft);
             this.landing("came to close to anything (F: " + distFront + " R: " + distRight + " L: " + distLeft);
         }
 
@@ -516,7 +522,7 @@ Drone.prototype.flightControl = function() {
                         /* add a new connect handler as the old seems no longer working */
                         this.bebop.connect(this.onConnect.bind(this));
                     } catch (error) {
-                        console.log(error);
+                        this.log(error);
                     }
                 }
             }
@@ -634,7 +640,7 @@ Drone.prototype.slowDown = function() {
  */
 Drone.prototype.onException = function(err) {
 
-    console.log("Exception handler called. " + err);
+    this.log("Exception handler called. " + err);
 
     try {
         this.led.blink(100, 100);
@@ -652,7 +658,7 @@ Drone.prototype.onException = function(err) {
  */
 Drone.prototype.cleanUpAfterLanding = function() {
 
-    console.log("cleaning up after landing");
+    this.log("cleaning up after landing");
 
     /* stop the flight control loop */
     clearInterval(this.flightControlId);
@@ -666,7 +672,7 @@ Drone.prototype.cleanUpAfterLanding = function() {
  */
 Drone.prototype.onExit = function() {
 
-    console.log("Received EXIT command");
+    this.log("Received EXIT command");
 
     if(this.isFlying == true) {
         this.landing("landing on exit event");

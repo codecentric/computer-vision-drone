@@ -234,7 +234,7 @@ ul {
 .index {
 	height: 100%;
 	max-height: 100%;
-	width: 150%;
+	width: 170%;
 	padding: 0px;
 
 	@media (min-width: $screen-sm-min) {
@@ -245,7 +245,7 @@ ul {
 	.header {
 		margin-top: 10px;
 		margin-left: 0%;
-		margin-bottom: 0px;
+		margin-bottom: 10px;
 		font-size: 32px;
 		width: 100%;
 
@@ -266,6 +266,7 @@ ul {
 	.author-header {
 		font-family: 'Montserrat', sans-serif;
 		color: $light-blue;
+		align: center;
 		margin-top: 0px;
 		padding-top: 15px;
 		font-size: 45px;
@@ -313,6 +314,7 @@ ul {
 	.articles {
 		text-align: center;
 		font-size: 20px;
+		margin-top: 60px;
 
 		h2 {
 			margin-bottom: 30px;
@@ -404,6 +406,7 @@ ul {
 .all-posts {
 	margin-left: 0px;
 	margin-right: 0px;
+	
 
 	@media (min-width: $screen-sm-min) {
 		#search-container {
@@ -447,6 +450,61 @@ ul {
 		@media (min-width: $screen-md-min) {
 			padding-left: 30px;
 			padding-right: 30px;
+			margin-bottom: 60px;
+			margin-top: 60px;
+		}
+	}
+}
+
+.opencv-python-examples {
+	margin-left: 0px;
+	margin-right: 0px;
+	
+
+	@media (min-width: $screen-sm-min) {
+		#search-container {
+			padding-top: 75px;
+			padding-bottom: 150px;
+		}
+	}
+
+	@media (min-width: $screen-md-min) {
+		margin-left: -15px;
+		margin-right: -15px;
+
+		#search-container {
+			padding-bottom: 300px;
+		}
+	}
+
+	#search-input {
+		position: relative;
+		width: 100%;
+		padding:6px 15px 6px 30px;
+		margin: 2px;
+		margin-top: 50px;
+
+		color:$dark;
+		background-color:$white;
+
+		border:1px solid #adc5cf;
+		border-radius:15px;
+		-moz-border-radius:15px;
+		-webkit-border-radius:15px;
+	}
+
+	#search-input:focus {
+		border: none;
+  }
+
+	.content-panel {
+		padding-left: 10px;
+		padding-right: 10px;
+		@media (min-width: $screen-md-min) {
+			padding-left: 30px;
+			padding-right: 30px;
+			margin-bottom: 60px;
+			margin-top: 60px;
 		}
 	}
 }
