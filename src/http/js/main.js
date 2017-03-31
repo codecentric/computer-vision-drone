@@ -50,14 +50,19 @@ $(document).ready(function () {
         // Nach dem öffnen des Sockets den Status anzeigen
         socket.onopen = function () {
             message('Connection ' + socket.readyState + ' (open)');
+            setLabelColor('#status-websocket', 'success');
         }
         // Nach dem empfangen einer Nachricht soll diese angezeigt werden
         socket.onmessage = function (msg) {
             message(msg.data);
         }
+        socket.onclose = function() 	{
+            message('Connection (close)');
+            setLabelColor('#status-websocket', 'danger');
+        }
 
-        //socket.onclose = function() 	{ open('Connection (close)');}
-
+        socket.onerror = function () {
+        }
 
         // Funktion welche die Nchrichten an das Log anfügt
         function message(msg) {
@@ -66,13 +71,14 @@ $(document).ready(function () {
                 var json = JSON.parse(msg);
                 console.log(JSON.stringify(json));
                 $('#Log').prepend(JSON.stringify(json) + '</br>');
-                switch (json.type) {
-                    case isWLANConnected:
+                switch (json.key) {
+                    case 'isWLANConnected':
                         if (json.message == true) {
                             setLabelColor('#status-droneConnected', 'success');
+                            console.log('isWLANConnected set to success');
                         } else {
                             setLabelColor('#status-droneConnected', 'danger');
-
+                            console.log('isWLANConnected set to danger');
                         }
                 }
                 $('#' + JSON.stringify(json.fieldId).slice(1, -1)).replaceWith(JSON.stringify(json.message));
