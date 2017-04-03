@@ -642,7 +642,7 @@ Drone.prototype.accelerate = function() {
     if(this.speed.forward < this.speed.maxForward && !this.movementLocked) {
         this.bebop.stop();
         this.speed.forward = this.speed.maxForward;
-        this.log('forward speed set to: ' + this.speed.forward, 'speedChanged', this.speed, 0)
+        this.log('forward speed set to: ' + this.speed.forward, 'forwardSpeed', this.speed.forward, 0)
         this.bebop.forward(this.speed.forward);
     }
 }
@@ -656,7 +656,7 @@ Drone.prototype.slowDown = function() {
     if(this.speed.forward != 0 && !this.movementLocked) {
         this.lockMovement(1000);
         this.speed.forward = 0;
-        this.log('forward speed set to: ' + this.speed.turning, 'speedChanged', this.speed, 0)
+        this.log('forward speed set to: ' + this.speed.turning, 'forwardSpeed', this.speed.forward, 0)
         this.bebop.stop();
         this.buzzer.blink(1, 500);
     }

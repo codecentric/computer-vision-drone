@@ -45,7 +45,7 @@ $(document).ready(function () {
      */
     function connect() {
         // Websocket
-        var socket = new WebSocket("ws://10.10.58.104:8000");
+        var socket = new WebSocket("ws://localhost:8000");
 
         // Nach dem öffnen des Sockets den Status anzeigen
         socket.onopen = function () {
@@ -69,7 +69,7 @@ $(document).ready(function () {
             try {
                 var json = JSON.parse(msg);
                 console.log(JSON.stringify(json));
-                $('#Log').prepend(JSON.stringify(json) + '</br>');
+                $('#Log').prepend(JSON.stringify(json.key).slice(1,-1) + ' : ' + JSON.stringify(json.message).slice(1,-1) + '</br>');
                 
                 switch (json.key) {
                     case 'isWLANConnected':
@@ -88,16 +88,16 @@ $(document).ready(function () {
                         setLabelColor('#status-testmode', json.value);
                         break;
                     case 'distLeft' :
-                        updateProgressBar('#leftSensor > div.progress-bar', Math.round(json.value / 320));
+                        updateProgressBar('#leftSensor > div.progress-bar', Math.round(json.value / 320 * 100), 'cm');
                         break;
                     case 'distFront' :
-                        updateProgressBar('#frontSensor > div.progress-bar', Math.round(json.value / 320));
+                        updateProgressBar('#frontSensor > div', Math.round(json.value / 320 * 100), 'cm');
                         break;
                     case 'distRight' :
-                        updateProgressBar('#rightSensor > div.progress-bar', Math.round(json.value / 320));
+                        updateProgressBar('#rightSensor > div', Math.round(json.value / 320 * 100), 'cm');
                         break;
                     case 'batteryLevel' :
-                        updateProgressBar('#batteryLevel > div.progress-bar', json.value);
+                        updateProgressBar('#batteryLevel > div', json.value, '%');
                         break;
                     case 'turningDirection' :
                         updateTurning('#turningDirection > span', json.value);
@@ -133,9 +133,11 @@ $(document).ready(function () {
             $(selector).addClass('label-' + color);
         }
 
-        function updateProgressBar(selector, data) {
+        function updateProgressBar(selector, data, unit) {
+            var unit = unit || '';
             var value = Math.round(data / 320);
-            $(selector).css('width', value+'%').attr('aria-valuenow', value).text(data + ' cm');
+            console.log(data + value);
+            $(selector).css('min-width', data+'%').attr('aria-valuenow', data).text(data + unit);
         }
 
         function updateTurning(selector, direction) {
