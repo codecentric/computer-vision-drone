@@ -47,6 +47,9 @@ $(document).ready(function () {
         // Websocket
         // add the correct IP
         var socket = new WebSocket("ws://localhost:8000");
+        var first = true;
+        console.log(socket.readyState);
+
 
         // Nach dem öffnen des Sockets den Status anzeigen
         socket.onopen = function () {
@@ -63,10 +66,26 @@ $(document).ready(function () {
         }
 
         socket.onerror = function () {
+
         }
 
         var progressBarLevelsSensors = [80, 120, 320];
         var progressBarLevelsBattery = [10, 25, 100];
+
+        var leftChart = new CanvasJS.Chart('leftChart',
+            {
+                title:{
+                    text: "Left Sensor Data"
+                },
+                data: [
+                    {
+                        type: "line",
+
+                        dataPoints: [
+                        ]
+                    }
+                ]
+            });
         // Funktion welche die Nchrichten an das Log anfügt
         function message(msg) {
             try {
@@ -92,6 +111,7 @@ $(document).ready(function () {
                         break;
                     case 'distLeft' :
                         updateProgressBar('#leftSensor > div.progress-bar', Math.round(json.value / 320 * 100), 'cm', progressBarLevelsSensors);
+                        updateSensorChart(leftChart, json.value);
                         break;
                     case 'distFront' :
                         updateProgressBar('#frontSensor > div', Math.round(json.value / 320 * 100), 'cm', progressBarLevelsSensors);
@@ -171,6 +191,15 @@ $(document).ready(function () {
             $(selector).text(speed);
         }
 
+        function updateSensorChart(selector, data) {
+            selector.render();
+            var d = new Date();
+            var n = d.getTime();
+            selector.data[0].addTo('dataPoints', {x: d, y: data});
+            if (selector.data[0]['dataPoints'].length > 100) {
+                selector.data[0]['dataPoints'].shift();
+            }
+        }
     }
 
     connect();

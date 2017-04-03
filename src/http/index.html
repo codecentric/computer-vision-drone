@@ -10,6 +10,7 @@
     <!-- Latest compiled and minified JavaScript -->
 
     <link rel="stylesheet" href="css/main.css">
+    <script src="js/jquery.canvasjs.min.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-inverse">
@@ -62,9 +63,14 @@
         <h2>Sensors</h2>
         <div class="col-md-4">
             <h3>Left Sensor</h3>
-            <div id="leftSensor" class="progress">
+            <div id="leftSensor" class="progress row">
                 <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
                     0%
+                </div>
+            </div>
+            <div class="row">
+                <div id="leftChart" style="width:100%; height:300px;">
+
                 </div>
             </div>
         </div>
@@ -113,6 +119,7 @@
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="js/jquery.canvasjs.min.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
