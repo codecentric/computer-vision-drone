@@ -21,9 +21,9 @@ wss.on('connection', function(ws) {
         log("received starting signal for takeoff.");
     }, 2000);
     setInterval(function () {
-        var distFront = Math.floor(Math.random() * 230) + 1
-        var distLeft = Math.floor(Math.random() * 230) + 1
-        var distRight = Math.floor(Math.random() * 230) + 1
+        var distFront = Math.floor(Math.random() * 320) + 1
+        var distLeft = Math.floor(Math.random() * 320) + 1
+        var distRight = Math.floor(Math.random() * 320) + 1
         log('Distance Front: ' + distFront, 'distFront', distFront, 0);
         log('Distance Left: ' + distLeft, 'distLeft', distLeft, 0);
         log('Distance Right: ' + distRight, 'distRight', distRight, 0);

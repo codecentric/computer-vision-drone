@@ -65,6 +65,8 @@ $(document).ready(function () {
         socket.onerror = function () {
         }
 
+        var progressBarLevelsSensors = [80, 120, 320];
+        var progressBarLevelsBattery = [10, 25, 100];
         // Funktion welche die Nchrichten an das Log anfügt
         function message(msg) {
             try {
@@ -89,16 +91,16 @@ $(document).ready(function () {
                         setLabelColor('#status-testmode', json.value);
                         break;
                     case 'distLeft' :
-                        updateProgressBar('#leftSensor > div.progress-bar', Math.round(json.value / 320 * 100), 'cm');
+                        updateProgressBar('#leftSensor > div.progress-bar', Math.round(json.value / 320 * 100), 'cm', progressBarLevelsSensors);
                         break;
                     case 'distFront' :
-                        updateProgressBar('#frontSensor > div', Math.round(json.value / 320 * 100), 'cm');
+                        updateProgressBar('#frontSensor > div', Math.round(json.value / 320 * 100), 'cm', progressBarLevelsSensors);
                         break;
                     case 'distRight' :
-                        updateProgressBar('#rightSensor > div', Math.round(json.value / 320 * 100), 'cm');
+                        updateProgressBar('#rightSensor > div', Math.round(json.value / 320 * 100), 'cm', progressBarLevelsSensors);
                         break;
                     case 'batteryLevel' :
-                        updateProgressBar('#batteryLevel > div', json.value, '%');
+                        updateProgressBar('#batteryLevel > div', json.value, '%', progressBarLevelsBattery);
                         break;
                     case 'turningDirection' :
                         updateTurning('#turningDirection > span', json.value);
@@ -134,11 +136,25 @@ $(document).ready(function () {
             $(selector).addClass('label-' + color);
         }
 
-        function updateProgressBar(selector, data, unit) {
+        function updateProgressBar(selector, data, unit, steps) {
+            var steps = steps || [15, 25, 100];
+            var percentage = Math.round(data / steps[2] * 100);
             var unit = unit || '';
-            var value = Math.round(data / 320);
-            console.log(data + value);
-            $(selector).css('min-width', data+'%').attr('aria-valuenow', data).text(data + unit);
+            var color;
+            console.log(data);
+            console.log(steps[0]);
+            if (data < steps[0]) {
+                color = 'danger';
+            } else if (data < steps[1]) {
+                color = 'warning';
+            }else if (data < steps[2]) {
+                color = 'success';
+            }else {
+                color =  'info'
+            }
+
+            $(selector).removeClass('progress-bar-success progress-bar-warning progress-bar-danger progress-bar-info');
+            $(selector).addClass('progress-bar-' + color).css('min-width', percentage+'%').attr('aria-valuenow', percentage).text(data + unit);
         }
 
         function updateTurning(selector, direction) {
