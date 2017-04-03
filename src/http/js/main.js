@@ -50,7 +50,7 @@ $(document).ready(function () {
         // Nach dem öffnen des Sockets den Status anzeigen
         socket.onopen = function () {
             message('Connection ' + socket.readyState + ' (open)');
-            setLabelColor('#status-websocket', 'success');
+            setLabelColor('#status-websocket', true);
         }
         // Nach dem empfangen einer Nachricht soll diese angezeigt werden
         socket.onmessage = function (msg) {
@@ -70,27 +70,86 @@ $(document).ready(function () {
                 var json = JSON.parse(msg);
                 console.log(JSON.stringify(json));
                 $('#Log').prepend(JSON.stringify(json) + '</br>');
+                
                 switch (json.key) {
                     case 'isWLANConnected':
-                        if (json.message == true) {
-                            setLabelColor('#status-droneConnected', 'success');
-                            console.log('isWLANConnected set to success');
-                        } else {
-                            setLabelColor('#status-droneConnected', 'danger');
-                            console.log('isWLANConnected set to danger');
-                        }
+                        setLabelColor('#status-droneWlanConnected', json.value);
+                        break;
+                    case 'isDroneConnected':
+                        setLabelColor('#status-droneConnected', json.value);
+                        break;
+                    case 'isFlying' :
+                        setLabelColor('#status-isFlying', json.value);
+                        break;
+                    case 'movementLocked' :
+                        setLabelColor('#status-movementLocked', json.value);
+                        break;
+                    case 'testmode' :
+                        setLabelColor('#status-testmode', json.value);
+                        break;
+                    case 'distLeft' :
+                        updateProgressBar('#leftSensor > div.progress-bar', Math.round(json.value / 320));
+                        break;
+                    case 'distFront' :
+                        updateProgressBar('#frontSensor > div.progress-bar', Math.round(json.value / 320));
+                        break;
+                    case 'distRight' :
+                        updateProgressBar('#rightSensor > div.progress-bar', Math.round(json.value / 320));
+                        break;
+                    case 'batteryLevel' :
+                        updateProgressBar('#batteryLevel > div.progress-bar', json.value);
+                        break;
+                    case 'turningDirection' :
+                        updateTurning('#turningDirection > span', json.value);
+                        break;
+                    case 'turningSpeed' :
+                        updateSpeed('#turningSpeed > span', json.value);
+                        break;
+                    case 'forwardSpeed' :
+                        updateSpeed('#forwardSpeed > span', json.value);
+                        break;
+
                 }
-                $('#' + JSON.stringify(json.fieldId).slice(1, -1)).replaceWith(JSON.stringify(json.message));
+                //$('#' + JSON.stringify(json.fieldId).slice(1, -1)).replaceWith(JSON.stringify(json.message));
 
             } catch (error) {
                 $('#Log').prepend(msg + '</br>');
             }
         }
-        function setLabelColor (selector, color) {
+        
+
+        function setLabelColor (selector, boolean) {
+            var colorSelector = {
+                true: 'success',
+                'true': 'success',
+                false: 'danger',
+                'false': 'danger',
+                null : 'default'
+            };
+            var color =  colorSelector[boolean] || colorSelector[null];
             $(selector).removeClass('label-default');
             $(selector).removeClass('label-danger');
             $(selector).removeClass('label-success');
             $(selector).addClass('label-' + color);
+        }
+
+        function updateProgressBar(selector, data) {
+            var value = Math.round(data / 320);
+            $(selector).css('width', value+'%').attr('aria-valuenow', value).text(data + ' cm');
+        }
+
+        function updateTurning(selector, direction) {
+            var icon = {
+                '0' : 'glyphicon-minus',
+                '1' : 'glyphicon-repeat',
+                '-1' : 'glyphicon-repeat icon-flipped'
+            };
+
+            $(selector).removeClass();
+            $(selector).addClass('glyphicon ' + icon[direction]);
+        }
+        function updateSpeed(selector, speed) {
+            $(selector).text(speed);
         }
 
     }

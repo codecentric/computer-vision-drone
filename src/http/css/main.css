@@ -90,3 +90,11 @@ ul li {
         text-shadow: 0 0 20px #00c6ff;
     };
 }
+
+/* Flip Icons */
+.icon-flipped {
+    transform: scaleX(-1);
+    -moz-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    -ms-transform: scaleX(-1);
+}

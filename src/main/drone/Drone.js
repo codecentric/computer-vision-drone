@@ -101,7 +101,7 @@ function Drone(flightDurationSec, testMode) {
     this.isReconnecting = false;        // is the drone currently reconnecting?
 
     if(this.testMode == true) {
-        this.log("==================== T E S T M O D E =============");
+        this.log("==================== T E S T M O D E =============", 'testmode', this.testMode, 0);
     }
 
     try {
@@ -623,7 +623,7 @@ Drone.prototype.startRotate = function(direction) {
     if(this.speed.turning == 0 && !this.movementLocked) {
         this.bebop.stop();
         this.speed.turning = this.speed.maxTurning;
-        this.log('turning speed set to: ' + this.speed.turning, 'speedChanged', this.speed, 0)
+        this.log('turning speed set to: ' + this.speed.turning, 'turningSpeed', this.speed.turning, 0)
 
         if(direction == 1) {
             this.bebop.clockwise(this.speed.turning);

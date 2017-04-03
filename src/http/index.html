@@ -40,21 +40,83 @@
 </nav>
 
 <div class="container">
-    <div id="status" class="row ">
+    <div id="status" class="row col-md-12">
         <h2>Status</h2>
-        <span id="status-websocket" class="label label-default">Websocket</span>
-        <span id="status-droneConnected" class="label label-default">Drone connected</span>
+        <div id="statusBoolean" class="row">
+            <div id="status-websocket" class="label label-default">Websocket</div>
+            <div id="status-droneWlanConnected" class="label label-default">DroneWlan connected</div>
+            <div id="status-droneConnected" class="label label-default">Drone connected</div>
+            <div id="status-isFlying" class="label label-default">Drone flying</div>
+            <div id="status-movementLocked" class="label label-default">Movement Locked</div>
+            <span id="status-testmode" class="label label-default">Testmode</span>
+        </div>
+        <div id="statusNumeric" class="row col-md-12">
+            <div class="col-md-4">
+                <span style="padding-right: 1em; float:left; font-size: 1em">Battery level:</span>
+                <div id="batteryLevel" class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
+                        0%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="sensors" class="row ">
+        <h2>Sensors</h2>
+        <div class="col-md-4">
+            <h3>Left Sensor</h3>
+            <div id="leftSensor" class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
+                    0%
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h3>Front Sensor</h3>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
+                    0%
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h3>Right Sensor</h3>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
+                    0%
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="movements" class="row">
+        <h2>Movements</h2>
+        <div id="turning" class="col-md-6">
+            <div id="turningSpeed" class="col-md-6">
+                <h3>Turning Speed</h3>
+                <span style="font-size: 5em">0</span>
+            </div>
+
+            <div id="turningDirection" class="col-md-6">
+                <h3>Turning Direction</h3>
+                <span class="glyphicon glyphicon-minus" aria-hidden="true" style="font-size: 5em"></span>
+            </div>
+        </div>
+        <div id="moving" class="col-md-6">
+            <div id="forwardSpeed">
+                <h3>Forward Speed</h3>
+                <span style="font-size: 5em">0</span>
+            </div>
+        </div>
     </div>
     <div class="row">
         <h2>Logs</h2>
-        <div id="Log" class="logBox"></div></br>
+        <div id="Log" class="logBox"></div>
     </div>
-    Connected to the Drone: <div id="isWLANConnected"></div> </br>
-    Eingabe: <input id="text" type="text" />
 </div>
 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
