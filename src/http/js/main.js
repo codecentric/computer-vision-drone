@@ -7,15 +7,15 @@ $(document).ready(function () {
     /**
      * Clock
      */
-// Create two variable with the names of the months and days in an array
+    // Create two variable with the names of the months and days in an array
     var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     var dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
-// Create a newDate() object
+    // Create a newDate() object
     var newDate = new Date();
-// Extract the current date from Date object
+    // Extract the current date from Date object
     newDate.setDate(newDate.getDate());
-// Output the day, date, month and year
+    // Output the day, date, month and year
     $('#Date').html(dayNames[newDate.getDay()] + " " + newDate.getDate() + ' ' + monthNames[newDate.getMonth()] + ' ' + newDate.getFullYear());
 
     setInterval(function () {
@@ -66,7 +66,6 @@ $(document).ready(function () {
 
         // Funktion welche die Nchrichten an das Log anfügt
         function message(msg) {
-//                    console.log(msg);
             try {
                 var json = JSON.parse(msg);
                 console.log(JSON.stringify(json));
