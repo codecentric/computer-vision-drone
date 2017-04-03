@@ -45,6 +45,7 @@ $(document).ready(function () {
      */
     function connect() {
         // Websocket
+        // add the correct IP
         var socket = new WebSocket("ws://localhost:8000");
 
         // Nach dem öffnen des Sockets den Status anzeigen
