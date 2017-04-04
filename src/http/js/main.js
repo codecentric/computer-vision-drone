@@ -72,20 +72,25 @@ $(document).ready(function () {
         var progressBarLevelsSensors = [80, 120, 320];
         var progressBarLevelsBattery = [10, 25, 100];
 
-        var leftChart = new CanvasJS.Chart('leftChart',
-            {
-                title:{
-                    text: "Left Sensor Data"
-                },
-                data: [
-                    {
-                        type: "line",
+        var leftChart = initChart('leftChart', "Left Sensor Data");
+        var frontChart = initChart('frontChart', "Front Sensor Data");
+        var rightChart = initChart('rightChart', "Right Sensor Data");
+        function initChart(selector, title) {
+            return new CanvasJS.Chart(selector,
+                {
+                    title:{
+                        text: title
+                    },
+                    data: [
+                        {
+                            type: "line",
 
-                        dataPoints: [
-                        ]
-                    }
-                ]
-            });
+                            dataPoints: [
+                            ]
+                        }
+                    ]
+                });
+        }
         // Funktion welche die Nchrichten an das Log anfügt
         function message(msg) {
             try {
@@ -115,9 +120,11 @@ $(document).ready(function () {
                         break;
                     case 'distFront' :
                         updateProgressBar('#frontSensor > div', Math.round(json.value / 320 * 100), 'cm', progressBarLevelsSensors);
+                        updateSensorChart(frontChart, json.value);
                         break;
                     case 'distRight' :
                         updateProgressBar('#rightSensor > div', Math.round(json.value / 320 * 100), 'cm', progressBarLevelsSensors);
+                        updateSensorChart(rightChart, json.value);
                         break;
                     case 'batteryLevel' :
                         updateProgressBar('#batteryLevel > div', json.value, '%', progressBarLevelsBattery);
