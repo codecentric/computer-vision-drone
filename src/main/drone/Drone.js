@@ -247,7 +247,13 @@ Drone.prototype.addWebsocketServer = function () {
     wss.on('connection', function(ws) {
         console.log("websocket server ready");
         eventEmitter.on('webHUD', function(message) {
-            ws.send(message);
+            try {
+                ws.send(message);
+            }catch(err) {
+                if (err != 'Error: not opened') {
+                    console.log('Websocket error: %s', err);
+                }
+            }
         });
 
     });

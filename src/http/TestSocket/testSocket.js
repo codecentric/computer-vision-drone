@@ -9,18 +9,40 @@ const eventEmitter = new events.EventEmitter();
 wss.on('connection', function(ws) {
     console.log("websocket server ready");
     eventEmitter.on('webHUD', function(message) {
-        ws.send(message);
+        try {
+            ws.send(message);
+        }   catch (error) {
+            if (error != 'Error: not opened') {
+                console.log('Websocket error: %s', error);
+            }
+            clearTimeout(test1);
+            clearTimeout(test2);
+            clearInterval(test3);
+            clearInterval(test4);
+            clearInterval(test5);
+            clearInterval(test6);
+            clearInterval(test7);
+            ws.close();
+
+        }
+    });
+    ws.on('close', function () {
+        console.log('disconnecting client ');
+    });
+    ws.on('error', function () {
+        console.log('Error');
+        ws.close();
     });
 
-    setTimeout(function () {
+    var test1 = setTimeout(function () {
         log("==================== T E S T M O D E =============", 'testmode', this.testMode, 0);
     }, 2000);
-    setTimeout(function () {
+    var test2 = setTimeout(function () {
         log('changed flying state to: ' + true, 'isFlying', true, 0);
 
         log("received starting signal for takeoff.");
     }, 2000);
-    setInterval(function () {
+    var test3 = setInterval(function () {
         var distFront = Math.floor(Math.random() * 320) + 1
         var distLeft = Math.floor(Math.random() * 320) + 1
         var distRight = Math.floor(Math.random() * 320) + 1
@@ -28,22 +50,22 @@ wss.on('connection', function(ws) {
         log('Distance Left: ' + distLeft, 'distLeft', distLeft, 0);
         log('Distance Right: ' + distRight, 'distRight', distRight, 0);
     }, 200);
-    setInterval(function () {
+    var test4 = setInterval(function () {
         var turningSpeed = Math.floor(Math.random() * 100) + 1
         log('turning speed set to: ' + turningSpeed, 'turningSpeed', turningSpeed, 0)
     }, 1000);
 
-    setInterval(function () {
+    var test5 = setInterval(function () {
         var forwardSpeed = Math.floor(Math.random() * 100) + 1
         log('forward speed set to: ' + forwardSpeed, 'forwardSpeed', forwardSpeed, 0)
     }, 1000);
 
-    setInterval(function () {
+    var test6 = setInterval(function () {
         var batteryLevel = Math.floor(Math.random() * 100) + 1
         log("\rbattery level: " + batteryLevel +  "%", 'batteryLevel', batteryLevel);
     }, 1000);
 
-    setInterval(function () {
+    var test7 = setInterval(function () {
         var boolean = Math.floor(Math.random() * 100) +1;
         var direction = 0
         if (boolean < 33) {
@@ -59,6 +81,7 @@ wss.on('connection', function(ws) {
     }, 2000);
 
 });
+
 
 function log(message, key, value, debugLevel) {
 

@@ -3,7 +3,7 @@
  */
 
 
-$(document).ready(function () {
+$(window).load(function () {
     /**
      * Clock
      */
@@ -43,6 +43,7 @@ $(document).ready(function () {
     /**
      * Everything that has to do with the Websocket
      */
+
     function connect() {
         // Websocket
         // add the correct IP
@@ -68,6 +69,7 @@ $(document).ready(function () {
         socket.onerror = function () {
 
         }
+
 
         var progressBarLevelsSensors = [80, 120, 320];
         var progressBarLevelsBattery = [10, 25, 100];
