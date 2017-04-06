@@ -3,7 +3,7 @@
 dlib is an excellent library for computer vision. with the following code 
 you can detect landmarks in a face:
 
-![dlib facial landmarks](../media/dlib-facial-landmark-detection.png)
+![dlib facial landmarks](./media/dlib-facial-landmark-detection.png)
 
 ```python
 import os
