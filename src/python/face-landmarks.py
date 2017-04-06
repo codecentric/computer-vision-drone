@@ -1,15 +1,3 @@
-# dlib facial landmark detection
-
-dlib (http://dlib.net) is an excellent library for computer vision. with the following code 
-you can detect landmarks in a face:
-
-![dlib facial landmarks](../media/dlib-facial-landmark-detection.png)
-
-The red circle in that image marks the tip of the nose, scaled to the 
-width of the nose. The numbers mark the parts that are detected by the dlib 
-detector. 
-
-```python
 import os
 import dlib
 import glob
@@ -51,4 +39,3 @@ for f in glob.glob(os.path.join(faces_folder_path, "*oser*")):
 
     if key == 27:
         break
-```
