@@ -99,7 +99,7 @@ $(window).load(function () {
                 var json = JSON.parse(msg);
                 console.log(JSON.stringify(json));
                 $('#Log').prepend(JSON.stringify(json.key).slice(1,-1) + ' : ' + JSON.stringify(json.message).slice(1,-1) + '</br>');
-                
+
                 switch (json.key) {
                     case 'isWLANConnected':
                         setLabelColor('#status-droneWlanConnected', json.value);
@@ -148,7 +148,7 @@ $(window).load(function () {
                 $('#Log').prepend(msg + '</br>');
             }
         }
-        
+
 
         function setLabelColor (selector, boolean) {
             var colorSelector = {
