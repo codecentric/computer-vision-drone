@@ -15,9 +15,16 @@ var ping = require ("net-ping");
 var Voice = require('./voice/Voice');
 var events = require('events');
 var WebSocketServer = require('ws').Server;
+
+var WatchJS = require("melanke-watchjs")
+var watch = WatchJS.watch;
+var unwatch = WatchJS.unwatch;
+var callWatchers = WatchJS.callWatchers;
+
+
 const readline = require('readline');
 const eventEmitter = new events.EventEmitter();
-
+const globalDebugLevel = 1;
 
 
 readline.emitKeypressEvents(process.stdin);
@@ -37,7 +44,8 @@ function Drone(flightDurationSec, testMode) {
     this.log("setting up cv-drone...");
 
     this.bebopOpts = {};
-
+    this.state = {};
+    this.config = {};
     /** public configuration ================================================================================= */
 
     /* IP address of the drone.
@@ -45,16 +53,16 @@ function Drone(flightDurationSec, testMode) {
     this.bebopOpts.ip = '192.168.42.1';
 
     /* minimal battery level before landing */
-    this.minBatteryLevel = 5;
+    this.config.minBatteryLevel = 5;
 
     /* refresh interval of the distance sensors */
-    this.sensorRefreshIntervall = 40;
+    this.config.sensorRefreshIntervall = 40;
 
     /* refresh interval of the flight control mechanism */
-    this.flightControlInterval = 100;
+    this.config.flightControlInterval = 100;
 
     /* hotWord file for voice commands */
-    this.hotWordFile = "voice/resources/snowboy.umdl"
+    this.config.hotWordFile = "voice/resources/snowboy.umdl"
 
 
     /** internal configuration =============================================================================== */
@@ -70,10 +78,10 @@ function Drone(flightDurationSec, testMode) {
     /* internal timeout id of triggering the flight control */
     this.triggerFlightControlId = -1;
 
-    this.testMode = testMode;
-    this.flightDurationSec = flightDurationSec;
+    this.config.testMode = testMode;
+    this.config.flightDurationSec = flightDurationSec;
 
-    this.batteryLevel = 0;
+    this.state.batteryLevel = 0;
 
 
     /** flying states ======================================================================================== */
@@ -90,23 +98,23 @@ function Drone(flightDurationSec, testMode) {
     this.speed.accVectorForward = 3;    // difference of speed when performing one acceleration step forwards
     this.speed.accVectorBackward = 5;   // difference of speed when breaking the drone one step
     this.speed.accVectorStrafing = 0;   // difference of speed when accelerating into strafing direction
-    this.movementLocked = false;        // checks if further movement orders are accepted
+    this.state.movementLocked = false;        // checks if further movement orders are accepted
 
     /* is the drone ready for takeoff?
      setting to "false" in the constructor will prevent the drone from starting up */
-    this.readyForTakeoff = undefined;   // setting to false in constructor will prevent from
-    this.isFlying = false;              // is the drone currently flying?
-    this.isWLANConnected = false;       // is the pi connected to WLAN of the drone?
-    this.isDroneConnected = false;      // is the connection to the drone stable?
-    this.isReconnecting = false;        // is the drone currently reconnecting?
+    this.state.readyForTakeoff = undefined;   // setting to false in constructor will prevent from
+    this.state.isFlying = false;              // is the drone currently flying?
+    this.state.isWLANConnected = false;       // is the pi connected to WLAN of the drone?
+    this.state.isDroneConnected = false;      // is the connection to the drone stable?
+    this.state.isReconnecting = false;        // is the drone currently reconnecting?
 
-    if(this.testMode == true) {
-        this.log("==================== T E S T M O D E =============", 'testmode', this.testMode, 0);
+    if(this.state.testMode == true) {
+        this.log("==================== T E S T M O D E =============");
     }
 
     try {
         this.addWebsocketServer();
-
+        this.addHttpServer();
         this.pingSession = ping.createSession();
 
 
@@ -121,7 +129,7 @@ function Drone(flightDurationSec, testMode) {
         this.startButton = new Button(23, "startButton", this.buttonPushed.bind(this));
 
         this.voice = new Voice("voice/resources/common.res");
-        this.voice.addHotWord(this.hotWordFile, "droneTakeOff", 0.4);
+        this.voice.addHotWord(this.config.hotWordFile, "droneTakeOff", 0.4);
         //this.voice.registerHotwordReaction(console.log("SNOWBOY"));
         this.voice.registerHotwordReaction(this.buttonPushed.bind(this));
         this.voice.triggerStart();
@@ -129,9 +137,13 @@ function Drone(flightDurationSec, testMode) {
         this.buzzer = new Buzzer(19, "buzzer");
         this.buzzer.onOff(100);
 
-        this.sensorRight = new DistanceSensor(17, 5, "right", this.sensorRefreshIntervall);
-        this.sensorFront = new DistanceSensor(27, 6, "front", this.sensorRefreshIntervall);
-        this.sensorLeft = new DistanceSensor(22, 13, "left", this.sensorRefreshIntervall);
+        this.state.sensorRight = new DistanceSensor(17, 5, "right", this.config.sensorRefreshIntervall);
+        this.state.sensorFront = new DistanceSensor(27, 6, "front", this.config.sensorRefreshIntervall);
+        this.state.sensorLeft = new DistanceSensor(22, 13, "left", this.config.sensorRefreshIntervall);
+
+        this.state.distFront;
+        this.state.distLeft;
+        this.state.distRight;
 
 
         usonic.init(function (error) {
@@ -143,9 +155,20 @@ function Drone(flightDurationSec, testMode) {
             }
         });
 
-        this.sensorFront.triggerStart();
-        this.sensorLeft.triggerStart();
-        this.sensorRight.triggerStart();
+        this.state.sensorFront.triggerStart();
+        this.state.sensorLeft.triggerStart();
+        this.state.sensorRight.triggerStart();
+
+        // add watcher for trigger events on change of attributes
+        watch(this.state, function (prop, action, newvalue, oldvalue) {
+            /* log to event emitter for web UI */
+            eventEmitter.emit("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
+            //console.log("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
+        });
+        watch(this.speed, function (prop, action, newvalue, oldvalue) {
+            /* log to event emitter for web UI */
+            eventEmitter.emit("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
+        });
 
         /* register some handlers for global errors */
         process.on('exit', this.onExit.bind(this, "exit"));
@@ -167,7 +190,7 @@ function Drone(flightDurationSec, testMode) {
         this.log("====================================================");
 
     } catch(error) {
-        this.readyForTakeoff = false;
+        this.state.readyForTakeoff = false;
         this.log("error setting up drone: " + error.message);
         this.onException();
     }
@@ -213,7 +236,7 @@ Drone.prototype.initKeyHandler = function(ch, key) {
  * @param message the message to log
  * @param key (optional). if not provided, "log" will be assumed
  * @param value (optional). useful for the WebHUD if not provided, "null" will be assumed
- * @param debugLevel (optional). Control how much infos are displayed in the LOG. if not provided, "log" will be assumed
+ * @param debugLevel (optional). Control how much infos are displayed in the LOG. 0 shows all messages. An increasing Number shows less messages.
  *
  */
 Drone.prototype.log = function(message, key, value, debugLevel) {
@@ -225,12 +248,15 @@ Drone.prototype.log = function(message, key, value, debugLevel) {
     /* assume "1" as debugLevel if not provided */
     value = value || 1;
 
-    /* log "log" keys to stdout */
-    if(key == "log") {
-        console.log(message);
-    }
+    /* assume global Loglevel if not set */
+    debugLevel = debugLevel || globalDebugLevel ;
+    var message = {'key' : key, 'message' : message, 'value' : value, 'debugLevel' : debugLevel};
 
-    var message = {'key' : key, 'message' : message, 'value' : value};
+    /* log "log" keys to stdout */
+    //if(key == "log") {
+        console.log(message.message);
+    //}
+
 
     /* log to event emitter for web UI */
     eventEmitter.emit("webHUD", JSON.stringify(message));
@@ -258,6 +284,39 @@ Drone.prototype.addWebsocketServer = function () {
 
     });
 };
+/**
+ * Add a static http server which sent messages to the client
+ */
+Drone.prototype.addHttpServer = function () {
+
+    var fs = require('fs');
+    var path = require('path');
+    var http = require('http');
+
+    var staticBasePath = './http/static';
+
+    var staticServe = function(req, res) {
+        var fileLoc = path.resolve(staticBasePath);
+        fileLoc = path.join(fileLoc, req.url);
+
+        fs.readFile(fileLoc, function(err, data) {
+            if (err) {
+                res.writeHead(404, 'Not Found');
+                res.write('404: File Not Found!');
+                return res.end();
+            }
+
+            res.statusCode = 200;
+
+            res.write(data);
+            return res.end();
+        });
+    };
+
+    var httpServer = http.createServer(staticServe);
+
+    httpServer.listen(8080);
+};
 
 
 /**
@@ -277,24 +336,24 @@ Drone.prototype.pingDrone = function() {
 Drone.prototype.reactOnPing = function(error) {
 
     if(error) {
-        this.isWLANConnected = false;
-        this.log('wlan not connected', 'isWLANConnected', this.isWLANConnected);
-        this.isDroneConnected = false;
-        this.log('drone not connected', 'isDroneConnected', this.isDroneConnected);
-        this.readyForTakeoff = false;
-        this.log('Not ready for Takeoff', 'readyForTakeoff', this.readyForTakeoff);
+        this.state.isWLANConnected = false;
+        this.log('wlan not connected');
+        this.state.isDroneConnected = false;
+        this.log('drone not connected');
+        this.state.readyForTakeoff = false;
+        this.log('Not ready for Takeoff');
 
-        if(this.isFlying == true) {
+        if(this.state.isFlying == true) {
             this.log('WARNING Ping failed but Object is in flying Mode', 'connectionLost', true);
             /* warn blinking */
             this.buzzer.blink(1, 250);
             this.led.blink(1, 250);
         } else {
-            this.log("drone not reachable: ping failed.", 'pingFailed');
+            this.log("drone not reachable: ping failed.");
         }
     } else {
-        this.isWLANConnected = true;
-        this.log("wlan connected", 'isWLANConnected', this.isWLANConnected);
+        this.state.isWLANConnected = true;
+        //this.log("wlan connected");
     }
 
 
@@ -307,7 +366,7 @@ Drone.prototype.reactOnPing = function(error) {
  */
 Drone.prototype.onConnect = function() {
 
-    this.log("================================ CONNECTED TO DRONE", '');
+    this.log("================================ CONNECTED TO DRONE");
 
     try {
         /* enables video streaming */
@@ -336,9 +395,9 @@ Drone.prototype.onConnect = function() {
         /* perform landing for emergencies */
         this.bebop.land(this.cleanUpAfterLanding.bind(this));
 
-        if(this.isReconnecting == true) {
+        if(this.state.isReconnecting == true) {
             this.log("RECONNECTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            this.isReconnecting = false;
+            this.state.isReconnecting = false;
         }
 
     } catch(exception) {
@@ -352,16 +411,16 @@ Drone.prototype.onConnect = function() {
  */
 Drone.prototype.onDroneReady = function() {
 
-    this.isDroneConnected = true;
-    this.log("received [\"ready\"] event from drone.", 'isDroneConnected', this.isDroneConnected);
+    this.state.isDroneConnected = true;
+    this.log("received [\"ready\"] event from drone.", 'isDroneConnected', this.state.isDroneConnected);
 
     /* if readyForTakeoff was set (from undef) to false while initialising, something is wrong,
      so do not set it to ready! */
-    if(this.readyForTakeoff != false) {
-        this.readyForTakeoff = true;
-        this.log('Ready for Takeoff set', 'readyForTakeoff', this.readyForTakeoff);
+    if(this.state.readyForTakeoff != false) {
+        this.state.readyForTakeoff = true;
+        this.log('Ready for Takeoff set', 'readyForTakeoff', this.state.readyForTakeoff);
     } else {
-        this.log('Something ist wrong with the Takeoff state. It is: ' + this.readyForTakeoff, 'readyForTakeoff', this.readyForTakeoff );
+        this.log('Something ist wrong with the Takeoff state. It is: ' + this.state.readyForTakeoff, 'readyForTakeoff', this.state.readyForTakeoff );
     }
 
 
@@ -373,12 +432,12 @@ Drone.prototype.onDroneReady = function() {
  * @param batteryLevel
  */
 Drone.prototype.batteryCheck = function(batteryLevel) {
-    this.batteryLevel = batteryLevel;
-    this.log("\rbattery level: " + batteryLevel +  "%", 'batteryLevel', this.batteryLevel);
+    this.state.batteryLevel = batteryLevel;
+    this.log("\rbattery level: " + batteryLevel +  "%", 'batteryLevel', this.state.batteryLevel);
 
-    if(batteryLevel < this.minBatteryLevel) {
-        this.readyForTakeoff = false;
-        this.log('readyForTakeoff changed to false due to battery low', 'readyForTakeoff', this.readyForTakeoff, 0);
+    if(batteryLevel < this.config.minBatteryLevel) {
+        this.state.readyForTakeoff = false;
+        this.log('readyForTakeoff changed to false due to battery low', 'readyForTakeoff', this.state.readyForTakeoff, 0);
         this.landing("battery low");
     }
 };
@@ -390,11 +449,11 @@ Drone.prototype.batteryCheck = function(batteryLevel) {
  */
 Drone.prototype.buttonPushed = function() {
 
-    if(this.readyForTakeoff == true && this.isFlying == false) {
+    if(this.state.readyForTakeoff == true && this.state.isFlying == false) {
 
         /* enter takeoff mode to prevent multiple triggers */
-        this.isFlying = true;
-        this.log('changed flying state to: ' + this.isFlying, 'isFlying', this.isFlying, 0);
+        this.state.isFlying = true;
+        //this.log('changed flying state to: ' + this.state.isFlying, 'isFlying', this.state.isFlying, 0);
 
         this.log("received starting signal for takeoff.");
 
@@ -403,11 +462,11 @@ Drone.prototype.buttonPushed = function() {
 
         setTimeout(this.takeoff.bind(this), 3500);
     } else {
-        if(this.readyForTakeoff == false) {
+        if(this.state.readyForTakeoff == false) {
             this.log("drone is not in ready-for-takeoff state");
         }
 
-        if(this.isFlying == true) {
+        if(this.state.isFlying == true) {
             this.log("drone is already flying. take your fingers out of the way!!");
         }
     }
@@ -423,12 +482,12 @@ Drone.prototype.takeoff = function() {
 
 
     /* automatically land the drone after some time */
-    this.timeOverId = setTimeout(this.landing.bind(this, "flight time over"), (this.flightDurationSec*1000));
+    this.timeOverId = setTimeout(this.landing.bind(this, "flight time over"), (this.config.flightDurationSec*1000));
 
 
     if(this.testMode == false) {
         this.bebop.takeOff();
-        this.log("============= TAKING OFF!!! Flight length will be : " + this.flightDurationSec + " sec.", 'takeOff', this.flightDurationSec);
+        this.log("============= TAKING OFF!!! Flight length will be : " + this.config.flightDurationSec + " sec.", 'takeOff', this.config.flightDurationSec);
     } else {
         this.log("[[drone is in test mode so will not take off]]", 'takeOff', 0);
     }
@@ -438,7 +497,7 @@ Drone.prototype.takeoff = function() {
 Drone.prototype.triggerFlightControl = function() {
 
     /* start the flight control loop */
-    this.flightControlId = setInterval(this.flightControl.bind(this), this.flightControlInterval);
+    this.flightControlId = setInterval(this.flightControl.bind(this), this.config.flightControlInterval);
 }
 
 /**
@@ -448,7 +507,7 @@ Drone.prototype.landing = function(message) {
 
     this.log("received landing event: " + message, 'landing');
 
-    if (this.isFlying == true) {
+    if (this.state.isFlying == true) {
 
         this.cleanUpAfterLanding();
 
@@ -464,8 +523,8 @@ Drone.prototype.landing = function(message) {
             this.log("[[drone is in test mode so will not land}}", 'landing');
         }
 
-        this.isFlying = false;
-        this.log('changed flying state to: ' + this.isFlying, 'isFlying', this.isFlying, 0);
+        this.state.isFlying = false;
+        this.log('changed flying state to: ' + this.state.isFlying, 'isFlying', this.state.isFlying, 0);
     } else {
         this.log("the drone is not in [flying] state. will nevertheless land.", 'landing');
         this.bebop.stop();
@@ -480,15 +539,18 @@ Drone.prototype.landing = function(message) {
  * ===========================================================================================================
  *
  * this is the central steering logic of the drone.
- * it will be called in a configurable interval (this.flightControlInterval).
+ * it will be called in a configurable interval (this.config.flightControlInterval).
  */
 Drone.prototype.flightControl = function() {
 
-    if(this.isDroneConnected == true) {
+    if(this.state.isDroneConnected == true) {
 
-        var distFront = this.sensorFront.getDistance();
-        var distLeft  = this.sensorLeft.getDistance();
-        var distRight = this.sensorRight.getDistance();
+        var distFront = this.state.sensorFront.getDistance();
+        var distLeft  = this.state.sensorLeft.getDistance();
+        var distRight = this.state.sensorRight.getDistance();
+        this.state.distFront = distFront;
+        this.state.distLeft = distLeft;
+        this.state.distRight = distRight;
 
         this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
 
@@ -529,16 +591,16 @@ Drone.prototype.flightControl = function() {
 
     } else {
 
-        if(this.isWLANConnected == false) {
+        if(this.state.isWLANConnected == false) {
             this.log("WLAN NOT CONNECTED");
         } else {
 
             /* WLAN connected but drone disconnected */
-            if(this.isDroneConnected == false) {
+            if(this.state.isDroneConnected == false) {
 
                 /* execute only once per reconnection try */
-                if (this.isReconnecting == false) {
-                    this.isReconnecting = true;
+                if (this.state.isReconnecting == false) {
+                    this.state.isReconnecting = true;
 
                     try {
                         //TODO: TRY TO REMOVE OLD CALLBACK
@@ -561,8 +623,8 @@ Drone.prototype.flightControl = function() {
  * @param duration time in ms for the lock
  */
 Drone.prototype.lockMovement = function (duration) {
-       this.movementLocked =  true;
-       this.log('movements locked', 'movementLocked', this.movementLocked, 0);
+       this.state.movementLocked =  true;
+       this.log('movements locked', 'movementLocked', this.state.movementLocked, 0);
        setTimeout(this.unlockMovement.bind(this), duration);
 }
 
@@ -570,8 +632,8 @@ Drone.prototype.lockMovement = function (duration) {
  * unlock the Drone so it can move again
  */
 Drone.prototype.unlockMovement = function () {
-    this.movementLocked = false;
-    this.log('movements unlocked', 'movementLocked', this.movementLocked, 0);
+    this.state.movementLocked = false;
+    this.log('movements unlocked', 'movementLocked', this.state.movementLocked, 0);
 }
 
 /**
@@ -579,7 +641,7 @@ Drone.prototype.unlockMovement = function () {
  */
 Drone.prototype.stopRotate = function() {
 
-    if(this.speed.turning != 0 && !this.movementLocked) {
+    if(this.speed.turning != 0 && !this.state.movementLocked) {
         this.bebop.clockwise(0);
         this.bebop.stop();
         this.speed.turning = 0;
@@ -608,11 +670,11 @@ Drone.prototype.showHUD = function(distFront, distLeft, distRight, speedRotate, 
     for(i=0; i<this.speed.forward; i++) {
         speedDisplay = speedDisplay + "=";
     }
-    process.stdout.write("\rBAT: " + this.batteryLevel + " | F: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
+    process.stdout.write("\rBAT: " + this.state.batteryLevel + " | F: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
     //process.stdout.write("\nF: " + distFront + " | L: " + distLeft + " | R: " + distRight + " | " + rotateIndicator + " | speed: " + speedDisplay);
-    this.log('Distance Front: ' + distFront, 'distFront', distFront, 0);
-    this.log('Distance Left: ' + distLeft, 'distLeft', distLeft, 0);
-    this.log('Distance Right: ' + distRight, 'distRight', distRight, 0);
+    //this.log('Distance Front: ' + distFront, 'distFront', distFront, 0);
+    //this.log('Distance Left: ' + distLeft, 'distLeft', distLeft, 0);
+    //this.log('Distance Right: ' + distRight, 'distRight', distRight, 0);
 }
 
 
@@ -624,12 +686,12 @@ Drone.prototype.showHUD = function(distFront, distLeft, distRight, speedRotate, 
 Drone.prototype.startRotate = function(direction) {
 
     this.speed.turningDirection = direction;
-    this.log('Turning Direction changed: ' + direction, 'turningDirection', direction, 0);
+    //this.log('Turning Direction changed: ' + direction, 'turningDirection', direction, 0);
 
-    if(this.speed.turning == 0 && !this.movementLocked) {
+    if(this.speed.turning == 0 && !this.state.movementLocked) {
         this.bebop.stop();
         this.speed.turning = this.speed.maxTurning;
-        this.log('turning speed set to: ' + this.speed.turning, 'turningSpeed', this.speed.turning, 0)
+        //this.log('turning speed set to: ' + this.speed.turning, 'turningSpeed', this.speed.turning, 0)
 
         if(direction == 1) {
             this.bebop.clockwise(this.speed.turning);
@@ -645,10 +707,10 @@ Drone.prototype.startRotate = function(direction) {
  */
 Drone.prototype.accelerate = function() {
 
-    if(this.speed.forward < this.speed.maxForward && !this.movementLocked) {
+    if(this.speed.forward < this.speed.maxForward && !this.state.movementLocked) {
         this.bebop.stop();
         this.speed.forward = this.speed.maxForward;
-        this.log('forward speed set to: ' + this.speed.forward, 'forwardSpeed', this.speed.forward, 0)
+        //this.log('forward speed set to: ' + this.speed.forward, 'forwardSpeed', this.speed.forward, 0)
         this.bebop.forward(this.speed.forward);
     }
 }
@@ -659,10 +721,10 @@ Drone.prototype.accelerate = function() {
  */
 Drone.prototype.slowDown = function() {
 
-    if(this.speed.forward != 0 && !this.movementLocked) {
+    if(this.speed.forward != 0 && !this.state.movementLocked) {
         this.lockMovement(1000);
         this.speed.forward = 0;
-        this.log('forward speed set to: ' + this.speed.turning, 'forwardSpeed', this.speed.forward, 0)
+        //this.log('forward speed set to: ' + this.speed.turning, 'forwardSpeed', this.speed.forward, 0)
         this.bebop.stop();
         this.buzzer.blink(1, 500);
     }
@@ -709,7 +771,7 @@ Drone.prototype.onExit = function() {
 
     this.log("Received EXIT command");
 
-    if(this.isFlying == true) {
+    if(this.state.isFlying == true) {
         this.landing("landing on exit event");
     }
 
@@ -729,8 +791,8 @@ Drone.prototype.emergencyLand = function() {
     this.bebop.stop();
 
     this.bebop.land(this.cleanUpAfterLanding.bind(this));
-    this.isFlying = false;
-    this.log('changed flying state to: ' + this.isFlying, 'isFlying', this.isFlying, 0);
+    this.state.isFlying = false;
+    //this.log('changed flying state to: ' + this.state.isFlying, 'isFlying', this.state.isFlying, 0);
 
     if(this.testMode == true) {
         this.cleanUpAfterLanding();

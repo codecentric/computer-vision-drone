@@ -68,26 +68,26 @@ wss.on('connection', function(ws) {
         log("==================== T E S T M O D E =============", 'testmode', this.testMode, 0);
     }, 2000);
     var test2 = setTimeout(function () {
-        log('changed flying state to: ' + true, 'isFlying', true, 0);
+        log('changed flying state to: ' + true, 'isFlying', true);
 
-        log("received starting signal for takeoff.");
+        log("received starting signal for takeoff.", debuglevel=0);
     }, 2000);
     var test3 = setInterval(function () {
         var distFront = Math.floor(Math.random() * 320) + 1
         var distLeft = Math.floor(Math.random() * 320) + 1
         var distRight = Math.floor(Math.random() * 320) + 1
-        log('Distance Front: ' + distFront, 'distFront', distFront, 0);
+        log('Distance Front: ' + distFront, 'distFront', distFront);
         log('Distance Left: ' + distLeft, 'distLeft', distLeft, 0);
         log('Distance Right: ' + distRight, 'distRight', distRight, 0);
     }, 200);
     var test4 = setInterval(function () {
         var turningSpeed = Math.floor(Math.random() * 100) + 1
-        log('turning speed set to: ' + turningSpeed, 'turningSpeed', turningSpeed, 0)
+        log('turning speed set to: ' + turningSpeed, 'turningSpeed', turningSpeed, 1)
     }, 1000);
 
     var test5 = setInterval(function () {
         var forwardSpeed = Math.floor(Math.random() * 100) + 1
-        log('forward speed set to: ' + forwardSpeed, 'forwardSpeed', forwardSpeed, 0)
+        log('forward speed set to: ' + forwardSpeed, 'forwardSpeed', forwardSpeed, 1)
     }, 1000);
 
     var test6 = setInterval(function () {
@@ -116,18 +116,18 @@ wss.on('connection', function(ws) {
 function log(message, key, value, debugLevel) {
 
     /* assume "log" as key if not provided */
-    key = key || "log";
+    this.key = key || "log";
     /* assume "NULL" as value if not provided */
-    value = value || null;
+    this.value = value || null;
     /* assume "1" as debugLevel if not provided */
-    value = value || 1;
+    this.debugLevel = debugLevel || 1;
 
     /* log "log" keys to stdout */
     if(key == "log") {
         console.log(message);
     }
 
-    var message = {'key' : key, 'message' : message, 'value' : value};
+    var message = {'key' : key, 'message' : message, 'value' : value, 'debugLevel' : debugLevel};
 
     /* log to event emitter for web UI */
     eventEmitter.emit("webHUD", JSON.stringify(message));

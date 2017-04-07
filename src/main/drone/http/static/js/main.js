@@ -47,7 +47,7 @@ $(window).load(function () {
     function connect() {
         // Websocket
         // add the correct IP
-        var socket = new WebSocket("ws://localhost:8000");
+        var socket = new WebSocket("ws://10.10.58.104:8000");
         var first = true;
         console.log(socket.readyState);
 
@@ -98,7 +98,9 @@ $(window).load(function () {
             try {
                 var json = JSON.parse(msg);
                 console.log(JSON.stringify(json));
-                $('#Log').prepend(JSON.stringify(json.key).slice(1,-1) + ' : ' + JSON.stringify(json.message).slice(1,-1) + '</br>');
+                if (json.debugLevel >= 1) {
+                    $('#Log').prepend(JSON.stringify(json.key).slice(1,-1) + ' : ' + JSON.stringify(json.message).slice(1,-1) + '</br>');
+                }
 
                 switch (json.key) {
                     case 'isWLANConnected':

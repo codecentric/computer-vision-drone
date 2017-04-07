@@ -101,6 +101,9 @@ Install the snowboy module:
 
 Install the websocket module:
 `npm install --save ws`
+
+Install the WatchJs module:
+`npm install --save melanke-watchjs`
 ## Frameworks
 
 * opencv
