@@ -4,36 +4,64 @@
 var WebSocketServer = require('ws').Server;
 var wss = new WebSocketServer({host: '0.0.0.0',port: 8000});
 var events = require('events');
+var filepath = require('filepath');
+var WatchJS = require("melanke-watchjs");
+var watch = WatchJS.watch;
+var unwatch = WatchJS.unwatch;
+var callWatchers = WatchJS.callWatchers;
+
 const eventEmitter = new events.EventEmitter();
+const fork = require('child_process').fork;
 
 
 var fs = require('fs');
 var path = require('path');
 var http = require('http');
+var httpServer = fork(filepath.create(__dirname, '../httpServer.js'));
 
-var staticBasePath = '../static';
+var speed = {};
+var state = {};
+speed.forward  = 0;            // current forward speed of the drone
+speed.turning  = 0;            // current turning speed of the drone ( > 0 = clockwise)
+speed.turningDirection = 0;    // -1 =
+speed.strafing = 0;            // current strafing speed of the drone ( > 0 = right direction)
+speed.maxForward = 15;         // maximum forward speed
+speed.maxTurning = 40;         // turning speed if turning is active
+speed.maxStrafing = 0;         // maximum strafing speed
+speed.accVectorForward = 3;    // difference of speed when performing one acceleration step forwards
+speed.accVectorBackward = 5;   // difference of speed when breaking the drone one step
+speed.accVectorStrafing = 0;   // difference of speed when accelerating into strafing direction
+state.movementLocked = false;        // checks if further movement orders are accepted
 
-var staticServe = function(req, res) {
-    var fileLoc = path.resolve(staticBasePath);
-    fileLoc = path.join(fileLoc, req.url);
+/* is the drone ready for takeoff?
+ setting to "false" in the constructor will prevent the drone from starting up */
+state.readyForTakeoff = undefined;   // setting to false in constructor will prevent from
+state.isFlying = false;              // is the drone currently flying?
+state.isWLANConnected = false;       // is the pi connected to WLAN of the drone?
+state.isDroneConnected = false;      // is the connection to the drone stable?
+state.isReconnecting = false;        // is the drone currently reconnecting?
+state.distFront = 999;
+state.distLeft = 999;
+state.distRight = 999;
 
-    fs.readFile(fileLoc, function(err, data) {
-        if (err) {
-            res.writeHead(404, 'Not Found');
-            res.write('404: File Not Found!');
-            return res.end();
-        }
+//process.on('exit', onExit());
+//process.on('SIGINT', onExit());    // CTRL+C
+//process.on('SIGTERM', onExit());  // KILL
+//process.on('uncaughtException', onExit());   // UNCAUGHT EXCEPTIONS
 
-        res.statusCode = 200;
-
-        res.write(data);
-        return res.end();
-    });
-};
-
-var httpServer = http.createServer(staticServe);
-
-httpServer.listen(8080);
+function onExit() {
+    httpServer.kill('SIGINT');
+    process.exit(1);
+}
+watch(state, function (prop, action, newvalue, oldvalue) {
+    /* log to event emitter for web UI */
+    eventEmitter.emit("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
+    //console.log("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
+},0);
+watch(speed, function (prop, action, newvalue, oldvalue) {
+    /* log to event emitter for web UI */
+    eventEmitter.emit("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
+},0);
 
 
 wss.on('connection', function(ws) {
@@ -65,51 +93,54 @@ wss.on('connection', function(ws) {
     });
 
     var test1 = setTimeout(function () {
-        log("==================== T E S T M O D E =============", 'testmode', this.testMode, 0);
+        log("==================== T E S T M O D E =============");
     }, 2000);
     var test2 = setTimeout(function () {
-        log('changed flying state to: ' + true, 'isFlying', true);
+        state.isFlying = true;
+        //log('changed flying state to: ' + true, 'isFlying', true);
 
-        log("received starting signal for takeoff.", debuglevel=0);
+        //log("received starting signal for takeoff.", debuglevel=0);
     }, 2000);
     var test3 = setInterval(function () {
-        var distFront = Math.floor(Math.random() * 320) + 1
-        var distLeft = Math.floor(Math.random() * 320) + 1
-        var distRight = Math.floor(Math.random() * 320) + 1
-        log('Distance Front: ' + distFront, 'distFront', distFront);
-        log('Distance Left: ' + distLeft, 'distLeft', distLeft, 0);
-        log('Distance Right: ' + distRight, 'distRight', distRight, 0);
+        state.distFront = Math.floor(Math.random() * 320) + 1;
+        state.distLeft = Math.floor(Math.random() * 320) + 1;
+        state.distRight = Math.floor(Math.random() * 320) + 1;
+        ////log('Distance Front: ' + distFront, 'distFront', distFront);
+        ////log('Distance Left: ' + distLeft, 'distLeft', distLeft, 0);
+        ////log('Distance Right: ' + distRight, 'distRight', distRight, 0);
     }, 200);
     var test4 = setInterval(function () {
-        var turningSpeed = Math.floor(Math.random() * 100) + 1
-        log('turning speed set to: ' + turningSpeed, 'turningSpeed', turningSpeed, 1)
+        speed.turning = Math.floor(Math.random() * 100) + 1;
+        //log('turning speed set to: ' + turningSpeed, 'turningSpeed', turningSpeed, 1)
     }, 1000);
 
     var test5 = setInterval(function () {
-        var forwardSpeed = Math.floor(Math.random() * 100) + 1
-        log('forward speed set to: ' + forwardSpeed, 'forwardSpeed', forwardSpeed, 1)
+        speed.forward = Math.floor(Math.random() * 100) + 1;
+        //log('forward speed set to: ' + forwardSpeed, 'forwardSpeed', forwardSpeed, 1)
     }, 1000);
 
     var test6 = setInterval(function () {
-        var batteryLevel = Math.floor(Math.random() * 100) + 1
-        log("\rbattery level: " + batteryLevel +  "%", 'batteryLevel', batteryLevel);
+        state.batteryLevel = Math.floor(Math.random() * 100) + 1;
+        //log("\rbattery level: " + batteryLevel +  "%", 'batteryLevel', batteryLevel);
     }, 1000);
 
     var test7 = setInterval(function () {
         var boolean = Math.floor(Math.random() * 100) +1;
         var direction = 0
         if (boolean < 33) {
-            direction = -1;
+            speed.turningDirection = -1;
         } else  {
             if (boolean > 66) {
-                direction = 1;
+                speed.turningDirection = 1;
             } else {
-                direction = 0;
+                speed.turningDirection = 0;
             }
         }
-        log('Turning Direction changed: ' + direction, 'turningDirection', direction, 0);
+        //log('Turning Direction changed: ' + direction, 'turningDirection', direction, 0);
     }, 2000);
-
+    setTimeout(function () {
+        eventEmitter.emit("webHUD", JSON.stringify({'key' : 'ABC', 'value' : 'TEST'}));
+    },5000);
 });
 
 
@@ -127,9 +158,9 @@ function log(message, key, value, debugLevel) {
         console.log(message);
     }
 
-    var message = {'key' : key, 'message' : message, 'value' : value, 'debugLevel' : debugLevel};
+    var message = {'key' : key, 'value' : value};
 
     /* log to event emitter for web UI */
-    eventEmitter.emit("webHUD", JSON.stringify(message));
+    //eventEmitter.emit("webHUD", JSON.stringify(message));
 }
 

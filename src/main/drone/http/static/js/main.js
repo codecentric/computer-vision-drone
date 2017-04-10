@@ -47,9 +47,12 @@ $(window).load(function () {
     function connect() {
         // Websocket
         // add the correct IP
-        var socket = new WebSocket("ws://10.10.58.104:8000");
+
+        var socket = new WebSocket("ws://" + window.location.hostname + ":8000");
+        //var socket = new WebSocket("ws://10.10.58.104:8000");
+        //var socket = new WebSocket("ws://localhost:8000");
         var first = true;
-        console.log(socket.readyState);
+        //console.log(socket.readyState);
 
 
         // Nach dem öffnen des Sockets den Status anzeigen
@@ -67,7 +70,7 @@ $(window).load(function () {
         }
 
         socket.onerror = function () {
-
+            socket = new WebSocket("ws://localhost:8000");
         }
 
 
@@ -93,11 +96,37 @@ $(window).load(function () {
                     ]
                 });
         }
+        function initNewChart(selector, title) {
+            var canvas = document.getElementById(selector),
+                ctx = canvas.getContext('2d'),
+                startingData = {
+                    labels: [1],
+                    datasets: [
+                        {
+                            fillColor: "rgba(220,220,220,0.2)",
+                            strokeColor: "rgba(220,220,220,1)",
+                            pointColor: "rgba(220,220,220,1)",
+                            pointStrokeColor: "#fff",
+                            data: [0]
+                        }
+                    ]
+                },
+                latestLabel = 1;
+
+            //Reduce the animation steps for demo clarity.
+            var chart = new Chart(ctx).Line(startingData, {
+                animationSteps: 15,
+                scaleOverride : true,
+                scaleSteps : 22,
+                scaleStepWidth : 15,
+                scaleStartValue : 0 });
+            return {'latestLabel' : latestLabel, 'chart' : chart};
+        }
         // Funktion welche die Nchrichten an das Log anfügt
         function message(msg) {
             try {
                 var json = JSON.parse(msg);
-                console.log(JSON.stringify(json));
+                //console.log(JSON.stringify(json));
                 if (json.debugLevel >= 1) {
                     $('#Log').prepend(JSON.stringify(json.key).slice(1,-1) + ' : ' + JSON.stringify(json.message).slice(1,-1) + '</br>');
                 }
@@ -115,19 +144,19 @@ $(window).load(function () {
                     case 'movementLocked' :
                         setLabelColor('#status-movementLocked', json.value);
                         break;
-                    case 'testmode' :
+                    case 'testMode' :
                         setLabelColor('#status-testmode', json.value);
                         break;
                     case 'distLeft' :
-                        updateProgressBar('#leftSensor > div.progress-bar', Math.round(json.value / 320 * 100), 'cm', progressBarLevelsSensors);
+                        updateProgressBar('#leftSensor > div.progress-bar', json.value, 'cm', progressBarLevelsSensors);
                         updateSensorChart(leftChart, json.value);
                         break;
                     case 'distFront' :
-                        updateProgressBar('#frontSensor > div', Math.round(json.value / 320 * 100), 'cm', progressBarLevelsSensors);
+                        updateProgressBar('#frontSensor > div', json.value, 'cm', progressBarLevelsSensors);
                         updateSensorChart(frontChart, json.value);
                         break;
                     case 'distRight' :
-                        updateProgressBar('#rightSensor > div', Math.round(json.value / 320 * 100), 'cm', progressBarLevelsSensors);
+                        updateProgressBar('#rightSensor > div', json.value , 'cm', progressBarLevelsSensors);
                         updateSensorChart(rightChart, json.value);
                         break;
                     case 'batteryLevel' :
@@ -136,12 +165,14 @@ $(window).load(function () {
                     case 'turningDirection' :
                         updateTurning('#turningDirection > span', json.value);
                         break;
-                    case 'turningSpeed' :
+                    case 'turning' :
                         updateSpeed('#turningSpeed > span', json.value);
                         break;
-                    case 'forwardSpeed' :
+                    case 'forward' :
                         updateSpeed('#forwardSpeed > span', json.value);
                         break;
+                    default:
+                        console.log('undefined key: ' + json.key + ' with the value: ' + json.value);
 
                 }
                 //$('#' + JSON.stringify(json.fieldId).slice(1, -1)).replaceWith(JSON.stringify(json.message));
@@ -172,8 +203,8 @@ $(window).load(function () {
             var percentage = Math.round(data / steps[2] * 100);
             var unit = unit || '';
             var color;
-            console.log(data);
-            console.log(steps[0]);
+            //console.log(data);
+            //console.log(steps[0]);
             if (data < steps[0]) {
                 color = 'danger';
             } else if (data < steps[1]) {
@@ -206,9 +237,18 @@ $(window).load(function () {
             selector.render();
             var d = new Date();
             var n = d.getTime();
-            selector.data[0].addTo('dataPoints', {x: d, y: data});
+            selector.data[0].addTo('dataPoints', {x: d, y: Math.round(data)});
             if (selector.data[0]['dataPoints'].length > 100) {
                 selector.data[0]['dataPoints'].shift();
+            }
+        }
+        function updateNewSensorChart(chart, data) {
+            let value = data;
+            chart.latestLabel = chart.latestLabel + 1;
+            //console.log(chart);
+            chart.chart.addData([value], chart.latestLabel);
+            if (chart.latestLabel > 10) {
+                chart.chart.removeData();
             }
         }
     }

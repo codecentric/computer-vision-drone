@@ -15,13 +15,17 @@ var ping = require ("net-ping");
 var Voice = require('./voice/Voice');
 var events = require('events');
 var WebSocketServer = require('ws').Server;
-
-var WatchJS = require("melanke-watchjs")
+var WatchJS = require("melanke-watchjs");
 var watch = WatchJS.watch;
 var unwatch = WatchJS.unwatch;
 var callWatchers = WatchJS.callWatchers;
+var filepath = require('filepath');
 
 
+//const spawn = require('child_process').spawn;
+const execFile = require('child_process').execFile;
+const fork = require('child_process').fork;
+const fs = require('fs');
 const readline = require('readline');
 const eventEmitter = new events.EventEmitter();
 const globalDebugLevel = 1;
@@ -56,13 +60,13 @@ function Drone(flightDurationSec, testMode) {
     this.config.minBatteryLevel = 5;
 
     /* refresh interval of the distance sensors */
-    this.config.sensorRefreshIntervall = 40;
+    this.config.sensorRefreshIntervall = 80;
 
     /* refresh interval of the flight control mechanism */
     this.config.flightControlInterval = 100;
 
     /* hotWord file for voice commands */
-    this.config.hotWordFile = "voice/resources/snowboy.umdl"
+    this.config.hotWordFile = "voice/resources/snowboy.umdl";
 
 
     /** internal configuration =============================================================================== */
@@ -108,13 +112,16 @@ function Drone(flightDurationSec, testMode) {
     this.state.isDroneConnected = false;      // is the connection to the drone stable?
     this.state.isReconnecting = false;        // is the drone currently reconnecting?
 
-    if(this.state.testMode == true) {
+    if(this.config.testMode == true) {
         this.log("==================== T E S T M O D E =============");
     }
 
     try {
         this.addWebsocketServer();
         this.addHttpServer();
+        //var command = filepath.create(__dirname, 'foo', 'bar');
+
+
         this.pingSession = ping.createSession();
 
 
@@ -137,15 +144,6 @@ function Drone(flightDurationSec, testMode) {
         this.buzzer = new Buzzer(19, "buzzer");
         this.buzzer.onOff(100);
 
-        this.state.sensorRight = new DistanceSensor(17, 5, "right", this.config.sensorRefreshIntervall);
-        this.state.sensorFront = new DistanceSensor(27, 6, "front", this.config.sensorRefreshIntervall);
-        this.state.sensorLeft = new DistanceSensor(22, 13, "left", this.config.sensorRefreshIntervall);
-
-        this.state.distFront;
-        this.state.distLeft;
-        this.state.distRight;
-
-
         usonic.init(function (error) {
             if (error) {
                 this.log("error setting up ultrasonic sensor module: " + error.message);
@@ -154,6 +152,19 @@ function Drone(flightDurationSec, testMode) {
 
             }
         });
+
+
+        //this.addSensor(this.config);
+        this.state.sensorRight = new DistanceSensor(17, 5, "right", this.config.sensorRefreshIntervall);
+        this.state.sensorFront = new DistanceSensor(27, 6, "front", this.config.sensorRefreshIntervall);
+        this.state.sensorLeft = new DistanceSensor(22, 13, "left", this.config.sensorRefreshIntervall);
+
+
+        this.state.distFront = 999;
+        this.state.distLeft = 999;
+        this.state.distRight = 999;
+
+
 
         this.state.sensorFront.triggerStart();
         this.state.sensorLeft.triggerStart();
@@ -164,11 +175,11 @@ function Drone(flightDurationSec, testMode) {
             /* log to event emitter for web UI */
             eventEmitter.emit("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
             //console.log("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
-        });
+        },0);
         watch(this.speed, function (prop, action, newvalue, oldvalue) {
             /* log to event emitter for web UI */
             eventEmitter.emit("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
-        });
+        },0);
 
         /* register some handlers for global errors */
         process.on('exit', this.onExit.bind(this, "exit"));
@@ -281,14 +292,18 @@ Drone.prototype.addWebsocketServer = function () {
                 }
             }
         });
-
     });
 };
+/**
+ * Add a Sensor
+ */
+
 /**
  * Add a static http server which sent messages to the client
  */
 Drone.prototype.addHttpServer = function () {
-
+    this.httpServer = fork(filepath.create(__dirname, '/http/httpServer.js'));
+    /*
     var fs = require('fs');
     var path = require('path');
     var http = require('http');
@@ -316,6 +331,7 @@ Drone.prototype.addHttpServer = function () {
     var httpServer = http.createServer(staticServe);
 
     httpServer.listen(8080);
+    */
 };
 
 
@@ -485,7 +501,7 @@ Drone.prototype.takeoff = function() {
     this.timeOverId = setTimeout(this.landing.bind(this, "flight time over"), (this.config.flightDurationSec*1000));
 
 
-    if(this.testMode == false) {
+    if(this.config.testMode == false) {
         this.bebop.takeOff();
         this.log("============= TAKING OFF!!! Flight length will be : " + this.config.flightDurationSec + " sec.", 'takeOff', this.config.flightDurationSec);
     } else {
@@ -516,7 +532,7 @@ Drone.prototype.landing = function(message) {
         this.buzzer.blink(3, 1000);
         this.led.blink(30, 100);
 
-        if(this.testMode == false) {
+        if(this.config.testMode == false) {
             this.bebop.stop();
             this.bebop.land(this.cleanUpAfterLanding.bind(this));
         } else {
@@ -556,9 +572,9 @@ Drone.prototype.flightControl = function() {
 
         if(distFront < 80 || distLeft < 70|| distRight < 70) {
 
-            this.log("F " + distFront);
-            this.log("R " + distRight);
-            this.log("L " + distLeft);
+            //this.log("F " + distFront);
+            //this.log("R " + distRight);
+            //this.log("L " + distLeft);
             this.landing("came to close to anything (F: " + distFront + " R: " + distRight + " L: " + distLeft);
         }
 
@@ -624,17 +640,17 @@ Drone.prototype.flightControl = function() {
  */
 Drone.prototype.lockMovement = function (duration) {
        this.state.movementLocked =  true;
-       this.log('movements locked', 'movementLocked', this.state.movementLocked, 0);
+       //this.log('movements locked', 'movementLocked', this.state.movementLocked, 0);
        setTimeout(this.unlockMovement.bind(this), duration);
-}
+};
 
 /**
  * unlock the Drone so it can move again
  */
 Drone.prototype.unlockMovement = function () {
     this.state.movementLocked = false;
-    this.log('movements unlocked', 'movementLocked', this.state.movementLocked, 0);
-}
+    //this.log('movements unlocked', 'movementLocked', this.state.movementLocked, 0);
+};
 
 /**
  * stop the drone rotating if it is currently turning
@@ -645,9 +661,9 @@ Drone.prototype.stopRotate = function() {
         this.bebop.clockwise(0);
         this.bebop.stop();
         this.speed.turning = 0;
-        this.log('turning speed set to: ' + this.speed.turning, 'speedChanged', this.speed, 0)
+        //this.log('turning speed set to: ' + this.speed.turning, 'speedChanged', this.speed, 0)
     }
-}
+};
 
 
 /**
@@ -675,7 +691,7 @@ Drone.prototype.showHUD = function(distFront, distLeft, distRight, speedRotate, 
     //this.log('Distance Front: ' + distFront, 'distFront', distFront, 0);
     //this.log('Distance Left: ' + distLeft, 'distLeft', distLeft, 0);
     //this.log('Distance Right: ' + distRight, 'distRight', distRight, 0);
-}
+};
 
 
 
@@ -699,7 +715,7 @@ Drone.prototype.startRotate = function(direction) {
             this.bebop.counterClockwise(this.speed.turning);
         }
     }
-}
+};
 
 
 /**
@@ -713,7 +729,7 @@ Drone.prototype.accelerate = function() {
         //this.log('forward speed set to: ' + this.speed.forward, 'forwardSpeed', this.speed.forward, 0)
         this.bebop.forward(this.speed.forward);
     }
-}
+};
 
 
 /**
@@ -728,7 +744,7 @@ Drone.prototype.slowDown = function() {
         this.bebop.stop();
         this.buzzer.blink(1, 500);
     }
-}
+};
 
 
 /**
@@ -761,7 +777,7 @@ Drone.prototype.cleanUpAfterLanding = function() {
     clearInterval(this.flightControlId);
     clearTimeout(this.timeOverId);
     clearTimeout(this.triggerFlightControlId);
-}
+};
 
 
 /**
@@ -774,7 +790,7 @@ Drone.prototype.onExit = function() {
     if(this.state.isFlying == true) {
         this.landing("landing on exit event");
     }
-
+    this.httpServer.kill();
     process.exit(1);
 
 };
@@ -794,7 +810,7 @@ Drone.prototype.emergencyLand = function() {
     this.state.isFlying = false;
     //this.log('changed flying state to: ' + this.state.isFlying, 'isFlying', this.state.isFlying, 0);
 
-    if(this.testMode == true) {
+    if(this.config.testMode == true) {
         this.cleanUpAfterLanding();
     }
 

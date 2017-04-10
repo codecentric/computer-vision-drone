@@ -104,6 +104,9 @@ Install the websocket module:
 
 Install the WatchJs module:
 `npm install --save melanke-watchjs`
+
+Install the filepath module:
+`npm install --save filepath`
 ## Frameworks
 
 * opencv

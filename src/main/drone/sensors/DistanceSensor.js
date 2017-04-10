@@ -45,7 +45,7 @@ function DistanceSensor(pinTrigger, pinEcho, name, refreshInterval) {
     this.pinEcho = pinEcho;
     this.name = name;
     this.distances = [0, 0, 0 ,0 ,0, 0, 0]; // last X measurements
-    this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 750, true);
+    this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 1000, true);
 }
 
 
@@ -64,7 +64,7 @@ DistanceSensor.prototype.refresh = function() {
     /* add a new measurement and remove the oldest */
     this.distances.push(newMeasured);
     this.distances.shift();
-}
+};
 
 
 /**
@@ -73,7 +73,7 @@ DistanceSensor.prototype.refresh = function() {
 DistanceSensor.prototype.triggerStart = function() {
     console.log("sensor [" + this.name + " ] is beginning with scanning.");
     setInterval(this.refresh.bind(this), this.refreshInterval);
-}
+};
 
 
 /**
@@ -93,4 +93,4 @@ DistanceSensor.prototype.getDistance = function() {
 
     return cleanDist;
 
-}
+};
