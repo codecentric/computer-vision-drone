@@ -2,7 +2,6 @@
  * Created by raphael on 31.03.17.
  */
 
-
 $(window).load(function () {
     /**
      * Clock
@@ -53,12 +52,30 @@ $(window).load(function () {
         //var socket = new WebSocket("ws://localhost:8000");
         var first = true;
         //console.log(socket.readyState);
+        var distInterval;
+        /*
+         var leftChart = initChart('leftChart', "Left Sensor Data");
+         var frontChart = initChart('frontChart', "Front Sensor Data");
+         var rightChart = initChart('rightChart', "Right Sensor Data");
+         */
+        var leftChart = initHighchart('leftChart', "Left Sensor Data");
+        var frontChart = initHighchart('frontChart', "Front Sensor Data");
+        var rightChart = initHighchart('rightChart', "Right Sensor Data");
 
 
         // Nach dem öffnen des Sockets den Status anzeigen
         socket.onopen = function () {
             message('Connection ' + socket.readyState + ' (open)');
             setLabelColor('#status-websocket', true);
+            setTimeout(function () {
+                distInterval = setInterval(function () {
+                    updateDistanceView('#leftSensor > div.progress-bar', leftChart, distances.left);
+                    updateDistanceView('#frontSensor > div.progress-bar', frontChart, distances.front);
+                    updateDistanceView('#rightSensor > div.progress-bar', rightChart, distances.right);
+                }, 200);
+
+            }, 400);
+
         }
         // Nach dem empfangen einer Nachricht soll diese angezeigt werden
         socket.onmessage = function (msg) {
@@ -67,19 +84,18 @@ $(window).load(function () {
         socket.onclose = function() 	{
             message('Connection (close)');
             setLabelColor('#status-websocket', 'danger');
+            clearInterval(distInterval);
         }
 
         socket.onerror = function () {
             socket = new WebSocket("ws://localhost:8000");
+            clearInterval(distInterval);
         }
 
 
         var progressBarLevelsSensors = [80, 120, 320];
         var progressBarLevelsBattery = [10, 25, 100];
-
-        var leftChart = initChart('leftChart', "Left Sensor Data");
-        var frontChart = initChart('frontChart', "Front Sensor Data");
-        var rightChart = initChart('rightChart', "Right Sensor Data");
+        var distances = {'left' : 0, 'front' : 0, 'right' : 0};
         function initChart(selector, title) {
             return new CanvasJS.Chart(selector,
                 {
@@ -95,6 +111,7 @@ $(window).load(function () {
                         }
                     ]
                 });
+
         }
         function initNewChart(selector, title) {
             var canvas = document.getElementById(selector),
@@ -122,6 +139,25 @@ $(window).load(function () {
                 scaleStartValue : 0 });
             return {'latestLabel' : latestLabel, 'chart' : chart};
         }
+        function initHighchart(selector, title) {
+            let chart = Highcharts.chart(selector, {
+                yAxis: {
+                    title: {
+                        text: title
+                    },
+                    max: 320,
+                    min: 0,
+                },
+                series: [{
+                    data: []
+                }]
+
+            });
+            for (var i = 0; i <= 20; i++) {
+                chart.series[0].addPoint(0, false);
+            };
+            return chart;
+        }
         // Funktion welche die Nchrichten an das Log anfügt
         function message(msg) {
             try {
@@ -148,16 +184,13 @@ $(window).load(function () {
                         setLabelColor('#status-testmode', json.value);
                         break;
                     case 'distLeft' :
-                        updateProgressBar('#leftSensor > div.progress-bar', json.value, 'cm', progressBarLevelsSensors);
-                        updateSensorChart(leftChart, json.value);
+                        distances.left = json.value;
                         break;
                     case 'distFront' :
-                        updateProgressBar('#frontSensor > div', json.value, 'cm', progressBarLevelsSensors);
-                        updateSensorChart(frontChart, json.value);
+                        distances.front = json.value;
                         break;
                     case 'distRight' :
-                        updateProgressBar('#rightSensor > div', json.value , 'cm', progressBarLevelsSensors);
-                        updateSensorChart(rightChart, json.value);
+                        distances.right = json.value;
                         break;
                     case 'batteryLevel' :
                         updateProgressBar('#batteryLevel > div', json.value, '%', progressBarLevelsBattery);
@@ -183,6 +216,7 @@ $(window).load(function () {
         }
 
 
+
         function setLabelColor (selector, boolean) {
             var colorSelector = {
                 true: 'success',
@@ -196,6 +230,12 @@ $(window).load(function () {
             $(selector).removeClass('label-danger');
             $(selector).removeClass('label-success');
             $(selector).addClass('label-' + color);
+        }
+
+        function updateDistanceView(selector,chart, value) {
+            updateProgressBar(selector, value , 'cm', progressBarLevelsSensors);
+            //updateSensorChart(chart, value);
+            updatehighcharts(chart, value);
         }
 
         function updateProgressBar(selector, data, unit, steps) {
@@ -250,6 +290,9 @@ $(window).load(function () {
             if (chart.latestLabel > 10) {
                 chart.chart.removeData();
             }
+        }
+        function updatehighcharts (chart, data) {
+            chart.series[0].addPoint(Math.round(data), true, true, false);
         }
     }
 

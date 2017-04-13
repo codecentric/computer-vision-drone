@@ -60,7 +60,7 @@ function Drone(flightDurationSec, testMode) {
     this.config.minBatteryLevel = 5;
 
     /* refresh interval of the distance sensors */
-    this.config.sensorRefreshIntervall = 80;
+    this.config.sensorRefreshIntervall = 20;
 
     /* refresh interval of the flight control mechanism */
     this.config.flightControlInterval = 100;
@@ -144,21 +144,23 @@ function Drone(flightDurationSec, testMode) {
         this.buzzer = new Buzzer(19, "buzzer");
         this.buzzer.onOff(100);
 
-        usonic.init(function (error) {
-            if (error) {
-                this.log("error setting up ultrasonic sensor module: " + error.message);
-                this.onException();
-            } else {
+        function initSensor(state, config) {
+            usonic.init(function (error) {
+                if (error) {
+                    this.log("error setting up ultrasonic sensor module: " + error.message);
+                    this.onException();
+                } else {
+                    state.sensorRight = new DistanceSensor(17, 5, "right", config.sensorRefreshIntervall);
+                    state.sensorFront = new DistanceSensor(27, 6, "front", config.sensorRefreshIntervall);
+                    state.sensorLeft = new DistanceSensor(22, 13, "left", config.sensorRefreshIntervall);
+                    state.sensorFront.triggerStart();
+                    state.sensorLeft.triggerStart();
+                    state.sensorRight.triggerStart();
+                }
+            });
+        }
 
-            }
-        });
-
-
-        //this.addSensor(this.config);
-        this.state.sensorRight = new DistanceSensor(17, 5, "right", this.config.sensorRefreshIntervall);
-        this.state.sensorFront = new DistanceSensor(27, 6, "front", this.config.sensorRefreshIntervall);
-        this.state.sensorLeft = new DistanceSensor(22, 13, "left", this.config.sensorRefreshIntervall);
-
+        initSensor(this.state, this.config);
 
         this.state.distFront = 999;
         this.state.distLeft = 999;
@@ -166,9 +168,6 @@ function Drone(flightDurationSec, testMode) {
 
 
 
-        this.state.sensorFront.triggerStart();
-        this.state.sensorLeft.triggerStart();
-        this.state.sensorRight.triggerStart();
 
         // add watcher for trigger events on change of attributes
         watch(this.state, function (prop, action, newvalue, oldvalue) {
@@ -761,6 +760,7 @@ Drone.prototype.onException = function(err) {
     } catch(error) {
         this.log("error: can not broadcast exception by led or buzzer because of: " + error.message);
     }
+    this.httpServer.kill();
 
     this.emergencyLand();
 };

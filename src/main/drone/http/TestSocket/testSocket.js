@@ -108,7 +108,7 @@ wss.on('connection', function(ws) {
         ////log('Distance Front: ' + distFront, 'distFront', distFront);
         ////log('Distance Left: ' + distLeft, 'distLeft', distLeft, 0);
         ////log('Distance Right: ' + distRight, 'distRight', distRight, 0);
-    }, 200);
+    }, 600);
     var test4 = setInterval(function () {
         speed.turning = Math.floor(Math.random() * 100) + 1;
         //log('turning speed set to: ' + turningSpeed, 'turningSpeed', turningSpeed, 1)
