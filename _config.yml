@@ -7,7 +7,7 @@ baseurl: "http://cvdrone.de"
 url: "/"
 title_description: "Building an interactive computer vision drone."
 title_image: header3.png
-google_analytics:
+google_analytics: UA-93925099-1
 disqus_account: 
 github_repository: https://github.com/codecentric/computer-vision-drone
 addthis_id: ra-513c6fa83da6ec67
