@@ -44,7 +44,8 @@ kramdown:
   syntax_highlighter: rouge
 
 permalink: pretty
-gems: ['jekyll-sitemap']
+gems:
+  - jekyll-sitemap
 include: ['_pages', '.htaccess']
 exclude: [vendor, src]
 defaults:
