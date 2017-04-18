@@ -51,17 +51,67 @@ $(window).load(function () {
         //var socket = new WebSocket("ws://10.10.58.104:8000");
         //var socket = new WebSocket("ws://localhost:8000");
         var first = true;
-        //console.log(socket.readyState);
         var distInterval;
-        /*
-         var leftChart = initChart('leftChart', "Left Sensor Data");
-         var frontChart = initChart('frontChart', "Front Sensor Data");
-         var rightChart = initChart('rightChart', "Right Sensor Data");
-         */
         var leftChart = initHighchart('leftChart', "Left Sensor Data");
         var frontChart = initHighchart('frontChart', "Front Sensor Data");
         var rightChart = initHighchart('rightChart', "Right Sensor Data");
 
+        var radar = Highcharts.chart('radar', {
+
+            chart: {
+                polar: true,
+                //width: 300
+                height: 400
+
+            },
+            legend: {
+                enabled: false
+            },
+
+            title: {
+                text: ''
+            },
+
+            pane: {
+                startAngle: -45,
+                endAngle: 45
+            },
+
+            xAxis: {
+                tickInterval: 15,
+                min: 0,
+                max: 90,
+                labels: {
+                    formatter: function () {
+                        return this.value - 45;
+                    }
+                }
+            },
+
+            yAxis: {
+                min: 0,
+                max: 320,
+                tickInterval: 15,
+            },
+
+            plotOptions: {
+                series: {
+                    pointStart: 0,
+                    pointInterval: 30
+                },
+                column: {
+                    pointPadding: 1,
+                    groupPadding: 1
+                }
+            },
+
+            series: [{
+                type: 'column',
+                name: 'Column',
+                data: [120, 320, 200],
+                pointPlacement: 'between'
+            }]
+        });
 
         // Nach dem öffnen des Sockets den Status anzeigen
         socket.onopen = function () {
@@ -69,9 +119,9 @@ $(window).load(function () {
             setLabelColor('#status-websocket', true);
             setTimeout(function () {
                 distInterval = setInterval(function () {
-                    updateDistanceView('#leftSensor > div.progress-bar', leftChart, distances.left);
-                    updateDistanceView('#frontSensor > div.progress-bar', frontChart, distances.front);
-                    updateDistanceView('#rightSensor > div.progress-bar', rightChart, distances.right);
+                    updateDistanceView('#leftSensor > div.progress-bar', leftChart, distances.left, 0);
+                    updateDistanceView('#frontSensor > div.progress-bar', frontChart, distances.front, 1);
+                    updateDistanceView('#rightSensor > div.progress-bar', rightChart, distances.right, 2);
                 }, 200);
 
             }, 400);
@@ -96,55 +146,18 @@ $(window).load(function () {
         var progressBarLevelsSensors = [80, 120, 320];
         var progressBarLevelsBattery = [10, 25, 100];
         var distances = {'left' : 0, 'front' : 0, 'right' : 0};
-        function initChart(selector, title) {
-            return new CanvasJS.Chart(selector,
-                {
-                    title:{
-                        text: title
-                    },
-                    data: [
-                        {
-                            type: "line",
-
-                            dataPoints: [
-                            ]
-                        }
-                    ]
-                });
-
-        }
-        function initNewChart(selector, title) {
-            var canvas = document.getElementById(selector),
-                ctx = canvas.getContext('2d'),
-                startingData = {
-                    labels: [1],
-                    datasets: [
-                        {
-                            fillColor: "rgba(220,220,220,0.2)",
-                            strokeColor: "rgba(220,220,220,1)",
-                            pointColor: "rgba(220,220,220,1)",
-                            pointStrokeColor: "#fff",
-                            data: [0]
-                        }
-                    ]
-                },
-                latestLabel = 1;
-
-            //Reduce the animation steps for demo clarity.
-            var chart = new Chart(ctx).Line(startingData, {
-                animationSteps: 15,
-                scaleOverride : true,
-                scaleSteps : 22,
-                scaleStepWidth : 15,
-                scaleStartValue : 0 });
-            return {'latestLabel' : latestLabel, 'chart' : chart};
-        }
         function initHighchart(selector, title) {
             let chart = Highcharts.chart(selector, {
+                title: {
+                    text: ''
+                },
+                subTitle:{
+                    text:''
+                },
+                legend: {
+                    enabled: false
+                },
                 yAxis: {
-                    title: {
-                        text: title
-                    },
                     max: 320,
                     min: 0,
                 },
@@ -155,7 +168,7 @@ $(window).load(function () {
             });
             for (var i = 0; i <= 20; i++) {
                 chart.series[0].addPoint(0, false);
-            };
+            }
             return chart;
         }
         // Funktion welche die Nchrichten an das Log anfügt
@@ -232,12 +245,30 @@ $(window).load(function () {
             $(selector).addClass('label-' + color);
         }
 
-        function updateDistanceView(selector,chart, value) {
+            function updateDistanceView(selector,chart, value, radarIndex) {
             updateProgressBar(selector, value , 'cm', progressBarLevelsSensors);
             //updateSensorChart(chart, value);
             updatehighcharts(chart, value);
+            updateRadarValue(value, radarIndex);
         }
 
+        function updateRadarValue(value, dataIndex, steps) {
+            var color;
+            var steps = steps || [70, 140, 320];
+
+            //console.log(data);
+            //console.log(steps[0]);
+            if (value < steps[0]) {
+                color = '#d9534f'; // red
+            } else if (value < steps[1]) {
+                color = '#f0ad4e'; // orange
+            }else if (value < steps[2]) {
+                color = '#5cb85c'; // green
+            }else {
+                color =  '#337ab7' // blue
+            }
+            radar.series[0].data[dataIndex].update({y: value, color: color}, true, false);
+        }
         function updateProgressBar(selector, data, unit, steps) {
             var steps = steps || [15, 25, 100];
             var percentage = Math.round(data / steps[2] * 100);
@@ -273,24 +304,6 @@ $(window).load(function () {
             $(selector).text(speed);
         }
 
-        function updateSensorChart(selector, data) {
-            selector.render();
-            var d = new Date();
-            var n = d.getTime();
-            selector.data[0].addTo('dataPoints', {x: d, y: Math.round(data)});
-            if (selector.data[0]['dataPoints'].length > 100) {
-                selector.data[0]['dataPoints'].shift();
-            }
-        }
-        function updateNewSensorChart(chart, data) {
-            let value = data;
-            chart.latestLabel = chart.latestLabel + 1;
-            //console.log(chart);
-            chart.chart.addData([value], chart.latestLabel);
-            if (chart.latestLabel > 10) {
-                chart.chart.removeData();
-            }
-        }
         function updatehighcharts (chart, data) {
             chart.series[0].addPoint(Math.round(data), true, true, false);
         }

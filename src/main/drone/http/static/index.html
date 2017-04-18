@@ -10,8 +10,6 @@
     <!-- Latest compiled and minified JavaScript -->
 
     <link rel="stylesheet" href="css/main.css">
-    <script src="js/jquery.canvasjs.min.js"></script>
-    <script src="js/Chart.bundle.min.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-inverse">
@@ -62,7 +60,7 @@
     </div>
     <div id="sensors" class="row ">
         <h2>Sensors</h2>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h3>Left Sensor</h3>
             <div id="leftSensor" class="progress row">
                 <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
@@ -72,7 +70,7 @@
                 <div id="leftChart" style="width:100%; height:300px;">
                 </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h3>Front Sensor</h3>
             <div id="frontSensor" class="progress">
                 <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
@@ -82,7 +80,7 @@
 
             <div id="frontChart" style="width:100%; height:300px;"></div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h3>Right Sensor</h3>
             <div id="rightSensor" class="progress">
                 <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
@@ -91,6 +89,7 @@
             </div>
             <div id="rightChart" style="width:100%; height:300px;"></div>
         </div>
+        <div id="radar" class="col-md-3"></div>
     </div>
     <div id="movements" class="row">
         <h2>Movements</h2>
@@ -112,17 +111,23 @@
             </div>
         </div>
     </div>
+
     <div class="row">
-        <h2>Logs</h2>
-        <div id="Log" class="logBox"></div>
+        <div class="col-md-12">
+            <h2>Logs</h2>
+            <div id="Log" class="logBox"></div>
+        </div>
     </div>
 </div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<script src="js/canvasjs.min.js"></script>
-<script src="//www.chartjs.org/assets/Chart.min.js"></script>
 <script src="js/highcharts.src.js"></script>
+<script src="js/highcharts-more.src.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+
+
 <script src="js/main.js"></script>
 </body>
 </html>
