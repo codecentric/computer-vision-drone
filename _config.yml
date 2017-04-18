@@ -2,10 +2,10 @@
 encoding: UTF-8
 title: "Computer Vision Drone"
 email: info@codecentric.de
-description: 
+description: "Building an interactive computer vision drone."
 baseurl: "http://cvdrone.de"
 url: "/"
-title_description: "Building an interactive computer vision drone."
+title_description: 
 title_image: header3.png
 google_analytics: UA-93925099-1
 disqus_account: 
