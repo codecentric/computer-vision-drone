@@ -12,6 +12,8 @@ disqus_account:
 github_repository: https://github.com/codecentric/computer-vision-drone
 addthis_id: ra-513c6fa83da6ec67
 post_limit: 3
+gems:
+  - jekyll-sitemap
 collections:
   posts:
     output: true
@@ -44,8 +46,6 @@ kramdown:
   syntax_highlighter: rouge
 
 permalink: pretty
-gems:
-  - jekyll-sitemap
 include: ['_pages', '.htaccess']
 exclude: [vendor, src]
 defaults:
