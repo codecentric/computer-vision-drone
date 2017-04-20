@@ -2,12 +2,12 @@ import imutils
 
 import videowriter
 from config import *
-import cv2
+
 import hud
 
+import cv2
 
 cam = cv2.VideoCapture(0)
-cam = cv2.VideoCapture("/home/user/opencv/videos/object-detector.mp4")
 margin_x = 60
 margin_y = 160
 
@@ -24,7 +24,8 @@ class ObjectDetector:
         mask = cv2.erode(mask, None, iterations=2)
         mask = cv2.dilate(mask, None, iterations=2)
 
-        _, contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        _, contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
+                                          cv2.CHAIN_APPROX_SIMPLE)
 
         try:
             contour = sorted(contours, key=cv2.contourArea, reverse=True)[0]
@@ -32,6 +33,8 @@ class ObjectDetector:
                 contour = None
         except IndexError:
             contour = None
+
+        cv2.imshow("ojbect", mask)
 
         return contour
 
@@ -75,7 +78,7 @@ writer = videowriter.VideoWriter(cam, out_file="/home/user/opencv/videos/object-
 
 while True:
     ret, frame = cam.read()
-    frame = imutils.resize(frame, width=1280)
+    frame = imutils.resize(frame, width=640)
     frame_idx += 1
     marker = marker_detector.detect(frame)
 
@@ -84,7 +87,7 @@ while True:
         faces = face_detector.detect(frame)
         for face in faces:
             if in_region(marker, face):
-                #hud.mark_rois(frame, [face], label="face")
+                hud.mark_rois(frame, [face], label="face")
                 x1, y1, w, h = face
 
                 p_x1 = x1 - w
