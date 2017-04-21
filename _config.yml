@@ -23,6 +23,13 @@ collections:
       type: posts
     values:
     layout: page
+  pages:
+    permalink: ./:title:output_ext
+    scope:
+      path: ""
+      type: pages
+    values:
+    layout: page
 
 # Social usernames/URLs
 twitter_username: 
@@ -48,9 +55,3 @@ kramdown:
 permalink: pretty
 include: ['_pages', '.htaccess']
 exclude: [vendor, src]
-defaults:
-  - scope:
-      path: '_pages/opencv-python-examples'
-    values:
-      layout: 'python-examples'
-      type: 'opencv-python-examples'
