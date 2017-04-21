@@ -13,7 +13,7 @@ A condensed overview of the following can be found in the
 
 ## Basics
 
-[Read or save image](opencv-read-and-save-images.md) : ```cv2.imshow('name of window', img)```
+[Read or save image](/_pages/opencv-python-examples/opencv-read-and-save-images.md) : ```cv2.imshow('name of window', img)```
 
 [Rotate image](opencv-rotate-image.md) : ```rotated_image = imutils.rotate(image, 90)```  
 
