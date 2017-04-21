@@ -13,8 +13,8 @@ make-smaller-titles: true
     <h1 class="header author-header">{{ site.author_name }}</h1>
     <h2 class="header" itemprop="headline">Opencv Python Examples</h2>
 
-      {% for post in site.pages %}
-      {{ post.title }}
+     <!-- {% for post in site.pages %}-->
+      {% for post in site.pages limit: 10 %}
       {% capture this_year %}{{ post.date | date: "%Y" }}{% endcapture %} 
       {% capture next_year %}{{ post.previous.date | date: "%Y" }}{% endcapture %} 
 
