@@ -9,7 +9,7 @@ import numpy
 ```
 
 A condensed overview of the following can be found in the
-[Cheat Sheet](./opencv-python-examples/OpenCVCheatSheet.pdf)
+[Cheat Sheet](OpenCVCheatSheet.pdf)
 
 ## Basics
 
