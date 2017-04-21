@@ -90,10 +90,11 @@ Install the wiring-pi module:
 
 Install the node-bebop module:
 `npm install node-bebop --save`
-`npm install git://github.com/hybridgroup/node-bebop/feature/firmware-4.0 --save`
+or
+`npm install git://github.com/hybridgroup/node-bebop#feature/firmware-4.0 --save`
 
 Install the net-ping module:
-`npm install net-ping`
+`npm install net-ping --save`
   
 Install the snowboy module:
 `npm install --save snowboy`
