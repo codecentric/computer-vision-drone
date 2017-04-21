@@ -14,6 +14,7 @@ make-smaller-titles: true
     <h2 class="header" itemprop="headline">Opencv Python Examples</h2>
 
       {% for post in site.pages %}
+      {{ post.title }}
       {% capture this_year %}{{ post.date | date: "%Y" }}{% endcapture %} 
       {% capture next_year %}{{ post.previous.date | date: "%Y" }}{% endcapture %} 
 
@@ -24,7 +25,6 @@ make-smaller-titles: true
       {% endif %}
 
           <li>
-             blabla
             <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
             <small class="hidden-xs">{{ post.date | date: "%B %-d, %Y" }}</small> <!--post.date | date: "%B %-d, %Y"-->
           </li>
