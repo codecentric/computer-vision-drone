@@ -158,9 +158,9 @@ class Drone {
             });
 
             /* register some handlers for global errors */
-            process.on('exit', this.onExit.bind(this, "exit"));
-            process.on('SIGINT', this.onExit.bind(this, "SIGINT"));    // CTRL+C
-            process.on('SIGTERM', this.onExit.bind(this, "SIGTERM"));  // KILL
+            process.on('exit', this.onExit("exit"));
+            process.on('SIGINT', this.onExit("SIGINT"));    // CTRL+C
+            process.on('SIGTERM', this.onExit("SIGTERM"));  // KILL
             process.on('uncaughtException', this.onException());   // UNCAUGHT EXCEPTIONS
             process.stdin.on('keypress', this.initKeyHandler());
 
@@ -550,12 +550,12 @@ class Drone {
                 this.slowDown();
 
                 if ((distLeft <= stopDistance) || distFront <= stopDistance) {
-                    //setTimeout(this.startRotate.bind(this, 1), 100);
+                    //setTimeout(this.startRotate(1), 100);
                     this.startRotate(1);
                 }
 
                 if (distRight <= stopDistance && distLeft >= stopDistance) {
-                    //setTimeout(this.startRotate.bind(this, -1), 100);
+                    //setTimeout(this.startRotate(-1), 100);
                     this.startRotate(-1);
                 }
 
