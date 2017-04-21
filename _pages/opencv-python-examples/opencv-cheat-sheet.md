@@ -15,19 +15,19 @@ A condensed overview of the following can be found in the
 
 [Read or save image](http://cvdrone.de/_pages/opencv-python-examples/opencv-read-and-save-images/) : ```cv2.imshow('name of window', img)```
 
-[Rotate image](computer-vision-drone/_pages/opencv-rotate-image.md) : ```rotated_image = imutils.rotate(image, 90)```  
+[Rotate image](http://cvdrone.de/_pages/opencv-python-examples/opencv-rotate-image/) : ```rotated_image = imutils.rotate(image, 90)```  
 
-[Resize_image](computer-vision-drone/_pages/opencv-resize-image.md) : ```img2 = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA)```
+[Resize_image](http://cvdrone.de/_pages/opencv-python-examples/opencv-resize-image/) : ```img2 = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA)```
 
-[Change parts of image](computer-vision-drone/_pages/opencv-change-parts-of-image.md)
+[Change parts of image](http://cvdrone.de/_pages/opencv-python-examples/opencv-change-parts-of-image/)
 
-[Split or merge channels](computer-vision-drone/_pages/opencv-split-merge-channels.md)
+[Split or merge channels](http://cvdrone.de/_pages/opencv-python-examples/opencv-split-merge-channels/)
 
-[Add a border to an image](computer-vision-drone/_pages/opencv-add-border.md)
+[Add a border to an image](http://cvdrone.de/_pages/opencv-python-examples/opencv-add-border/)
 
-[Convert colorspaces](computer-vision-drone/_pages/opencv-convert-colorspaces.md)
+[Convert colorspaces](http://cvdrone.de/_pages/opencv-python-examples/opencv-convert-colorspaces/)
 
-[Warp image](computer-vision-drone/_pages/opencv-warp-image.md)
+[Warp image](http://cvdrone.de/_pages/opencv-python-examples/opencv-warp-image/)
 
 ### Image filtering
 Thresholding selects pixels in a gray scale image whose intensity is larger (or smaller) than a threshold and assigns a new value to them.
