@@ -27,7 +27,7 @@ collections:
     permalink: ./:title:output_ext
     scope:
       path: ""
-      type: pages
+      type: opencv-python-examples
     values:
     layout: page
 
