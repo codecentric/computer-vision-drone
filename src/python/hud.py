@@ -9,6 +9,30 @@ FONT_SIZE = 0.5
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 
+class HudStatus:
+    def __init__(self, blink_rate=5):
+        self.status_msg = ""
+        self.frame_idx = 0
+        self.counter = 0
+        self.blink_rate = blink_rate
+
+    def set_status(self, msg, count=50):
+        self.status_msg = msg
+        self.counter = count
+
+    def update(self):
+        self.counter -= 1
+        self.frame_idx += 1
+        if self.counter <= 0:
+            self.status_msg = ""
+
+    def get_status(self):
+        if self.frame_idx % self.blink_rate == 0:
+            return ""
+        else:
+            return self.status_msg
+
+
 def prepare_frame(frame):
     # frame = imutils.resize(frame, width=1024)
     return frame
@@ -75,7 +99,7 @@ def get_hud(frame, action=None, idx=None):
                 FONT, FONT_SIZE, HUD_COLOR)
 
     if action:
-        cv2.putText(mask, "... {0} ...".format(action), (xc - (len(action) * 7), yc + 50),
+        cv2.putText(mask, "... {0} ...".format(action), (xc - (len(action) * 6), yc + 30),
                     FONT, FONT_SIZE, HUD_COLOR)
 
     m = {-1: HUD_COLOR, 0: HUD_CLIGHT, 1: HUD_COLOR}
