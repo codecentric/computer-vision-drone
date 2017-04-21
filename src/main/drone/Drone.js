@@ -146,13 +146,13 @@ class Drone {
             this.initSensor();
 
             // add watcher for trigger events on change of attributes
-            watch(this.state, function (prop, action, newvalue, oldvalue) {
+            watch(this.state, function (prop, action, newvalue) {
                 /* log to event emitter for web UI */
                 eventEmitter.emit("webHUD", JSON.stringify({'key': prop, 'value': newvalue}));
                 //console.log("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
             });
 
-            watch(this.speed, function (prop, action, newvalue, oldvalue) {
+            watch(this.speed, function (prop, action, newvalue) {
                 /* log to event emitter for web UI */
                 eventEmitter.emit("webHUD", JSON.stringify({'key': prop, 'value': newvalue}));
             });
@@ -193,7 +193,7 @@ class Drone {
                 try {
                     ws.send(message);
                 } catch (err) {
-                    if (err != 'Error: not opened') {
+                    if (err !== 'Error: not opened') {
                         console.log('Websocket error: %s', err);
                     }
                 }
@@ -524,9 +524,9 @@ class Drone {
 
         if (this.state.isDroneConnected === true) {
 
-            var distFront = this.state.sensorFront.getDistance();
-            var distLeft = this.state.sensorLeft.getDistance();
-            var distRight = this.state.sensorRight.getDistance();
+            let distFront = this.state.sensorFront.getDistance();
+            let distLeft = this.state.sensorLeft.getDistance();
+            let distRight = this.state.sensorRight.getDistance();
             this.state.distFront = distFront;
             this.state.distLeft = distLeft;
             this.state.distRight = distRight;
@@ -541,7 +541,7 @@ class Drone {
                 this.landing("came to close to anything (F: " + distFront + " R: " + distRight + " L: " + distLeft);
             }
 
-            var stopDistance = 120;
+            const stopDistance = 120;
 
             //TODO add "rotatingPuffer" um nach einem Stop länger nachzudrehen?
 
