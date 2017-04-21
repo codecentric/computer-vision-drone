@@ -1,9 +1,10 @@
 /**
  * Created by tobias on 16.02.17.
  */
+"use strict";
 
-
-var Drone = require('../../main/drone/Drone')
+//import {Drone} from '../../main/drone/Drone'
+const Drone = require('../../main/drone/Drone.js');
 
 var drone = new Drone(180, true);
 

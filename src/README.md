@@ -67,6 +67,7 @@ Setup the network
 
 ### Install node.js
 
+
 There are different ways to install node.js on the PI. Maybe you want to do it like this:
 
 `curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -`  

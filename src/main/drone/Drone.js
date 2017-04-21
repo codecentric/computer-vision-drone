@@ -32,9 +32,8 @@ const globalDebugLevel = 1;
 readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
 
-module.exports = Drone;
-
-
+//module.exports = Drone;
+//export default Drone;
 /**
  * create a drone object. the constructor will set up all required sensors and components
  * @param flightDurationSec the duration in seconds the flight will last until landing
@@ -42,8 +41,8 @@ module.exports = Drone;
  * @constructor
  */
 
-class Drone {
-    constructor(flightDurationSec, testMode) {
+module.exports= class Drone {
+    constructor (flightDurationSec, testMode) {
         this.log("setting up cv-drone...");
 
         this.bebopOpts = {};
@@ -118,6 +117,23 @@ class Drone {
         if (this.config.testMode === true) {
             this.log("==================== T E S T M O D E =============");
         }
+        /* register some handlers for global errors */
+        process.on('exit', function() {
+            this.onExit("exit");
+        });
+        process.on('SIGINT', function(){
+            this.onExit("SIGINT");
+        });    // CTRL+C
+        process.on('SIGTERM', function(){
+            this.onExit("SIGTERM")
+        });  // KILL
+        process.on('uncaughtException', (err) => {
+            this.onException(err)
+        });   // UNCAUGHT EXCEPTIONS
+        process.stdin.on('keypress', function(){
+            this.initKeyHandler()
+        });
+
         try {
             this.addWebsocketServer();
             this.addHttpServer();
@@ -137,7 +153,9 @@ class Drone {
             this.voice = new Voice("voice/resources/common.res");
             this.voice.addHotWord(this.config.hotWordFile, "droneTakeOff", 0.4);
             //this.voice.registerHotwordReaction(console.log("SNOWBOY"));
-            this.voice.registerHotwordReaction(this.buttonPushed());
+            this.voice.registerHotwordReaction(function(){
+                this.buttonPushed()
+            });
             this.voice.triggerStart();
 
             this.buzzer = new Buzzer(19, "buzzer");
@@ -157,18 +175,14 @@ class Drone {
                 eventEmitter.emit("webHUD", JSON.stringify({'key': prop, 'value': newvalue}));
             });
 
-            /* register some handlers for global errors */
-            process.on('exit', this.onExit("exit"));
-            process.on('SIGINT', this.onExit("SIGINT"));    // CTRL+C
-            process.on('SIGTERM', this.onExit("SIGTERM"));  // KILL
-            process.on('uncaughtException', this.onException());   // UNCAUGHT EXCEPTIONS
-            process.stdin.on('keypress', this.initKeyHandler());
 
             /* ping drone once to check if connected */
             this.pingDrone();
 
             /* recurring ping for live connection check */
-            setInterval(this.pingDrone(), 350);
+            setInterval(() =>{
+                this.pingDrone();
+            }, 350);
 
             this.led.blink(5, 200);
             this.log("setting up cv-drone finished! ready for takeoff.");
@@ -179,7 +193,8 @@ class Drone {
 
         } catch (error) {
             this.state.readyForTakeoff = false;
-            this.log("error setting up drone: " + error.message);
+            this.log("error setting up drone: " + error);
+            this.log(error);
             this.onException();
         }
     }
@@ -225,8 +240,12 @@ class Drone {
             //this.bebop.PilotingSettings.maxAltitude(2);
             //this.bebop.PilotingSettings.minAltitude(2);
             /* battery level check */
-            this.bebop.on("battery", this.batteryCheck());
-            this.bebop.on("ready", this.onDroneReady());
+            this.bebop.on("battery", function(){
+                this.batteryCheck(data)
+            });
+            this.bebop.on("ready", function () {
+                this.onDroneReady();
+            });
 
 
             // TODO ONLY FOR TESTING. REMOVE!
@@ -241,7 +260,9 @@ class Drone {
 
 
             /* perform landing for emergencies */
-            this.bebop.land(this.cleanUpAfterLanding());
+            this.bebop.land(function(){
+                this.cleanUpAfterLanding()
+            });
 
             if (this.state.isReconnecting === true) {
                 this.log("RECONNECTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -336,16 +357,17 @@ class Drone {
 
         /* assume global Loglevel if not set */
         debugLevel = debugLevel || globalDebugLevel;
-        let message = {'key': key, 'message': message, 'value': value, 'debugLevel': debugLevel};
+        let returnMessage = {'key': key, 'message': message, 'value': value, 'debugLevel': debugLevel};
 
         /* log "log" keys to stdout */
         //if(key == "log") {
-        console.log(message.message);
+        console.log(returnMessage.message);
         //}
 
 
+
         /* log to event emitter for web UI */
-        eventEmitter.emit("webHUD", JSON.stringify(message));
+        eventEmitter.emit("webHUD", JSON.stringify(returnMessage));
     }
 
     /**
@@ -726,6 +748,9 @@ class Drone {
         this.httpServer.kill();
 
         this.emergencyLand();
+        setTimeout(function () {
+            process.exit(1);
+        }, 30000);
     }
 
 
