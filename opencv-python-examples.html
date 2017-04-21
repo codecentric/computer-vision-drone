@@ -14,12 +14,9 @@ make-smaller-titles: true
     <h2 class="header" itemprop="headline">Opencv Python Examples</h2>
 
       <div class="col-md-12 content-panel articles">
-      {% for post in site.pages %}
+      {% for post in site.pages.opencv-python-examples %}
     
-          <li>
             <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-            <small class="hidden-xs">{{ post.date | date: "%B %-d, %Y" }}</small> <!--post.date | date: "%B %-d, %Y"-->
-          </li>
      
     {% endfor %}
     </div>
