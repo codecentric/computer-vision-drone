@@ -1,4 +1,5 @@
 # Image warping
+
 Affine transformations, i.e. translation, scaling, rotation, shear mapping, are implemented by passing a 2x3 matrix 
 to ```cv2.warpAffine```. The first two columns of the matrix encode scaling, rotation and shear and the last column 
 the translation.
