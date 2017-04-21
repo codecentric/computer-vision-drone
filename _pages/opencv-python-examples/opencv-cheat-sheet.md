@@ -9,11 +9,11 @@ import numpy
 ```
 
 A condensed overview of the following can be found in the
-[Cheat Sheet](OpenCVCheatSheet.pdf)
+[Cheat Sheet](./OpenCVCheatSheet.pdf)
 
 ## Basics
 
-[Read or save image](opencv-read-and-save-images.md) : ```cv2.imshow('name of window', img)```
+[Read or save image](./opencv-read-and-save-images.md) : ```cv2.imshow('name of window', img)```
 
 [Rotate image](computer-vision-drone/_pages/opencv-rotate-image.md) : ```rotated_image = imutils.rotate(image, 90)```  
 
