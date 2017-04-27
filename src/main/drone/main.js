@@ -4,9 +4,7 @@
 "use strict";
 
 //import {Drone} from '../../main/drone/Drone'
-const Drone = require('../../main/drone/Drone.js');
+const Drone = require('./Drone.js');
 
 var drone = new Drone(180, true);
-
-
-//console.log("exit");
+drone.run();

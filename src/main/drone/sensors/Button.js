@@ -37,7 +37,6 @@ function Button(pinIn, name, callback) {
     wpi.wiringPiISR(this.pinIn, wpi.INT_EDGE_RISING, this.triggered.bind(this));
 }
 
-
 /**
  * this is the listener function which will be called on IO action.
  * It will block the button for some time

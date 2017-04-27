@@ -1,10 +1,27 @@
 /**
  * Created by raphael on 10.04.17.
  */
-const fork = require('child_process').fork;
+"use strict";
+const events = require('events');
 
-var httpServer = fork('./http/httpServer.js');
+const eventEmitter = new events.EventEmitter();
 
-setTimeout(function () {
-    httpServer.kill('SIGINT');
-}, 5000);
+class Person {
+    constructor (name) {
+        this.name = name;
+        try {
+            eventEmitter.on('event', () => this.talk());
+            //eventEmitter.emit('event');
+        } catch (error){
+            console.log(error)
+        }
+    }
+
+    talk (){
+        console.log('TALK');
+        setTimeout(() => eventEmitter.emit('event'), 500)
+    }
+}
+
+var a = new Person('A');
+setTimeout(() => a.talk(), 1000)
