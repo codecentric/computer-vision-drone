@@ -1,0 +1,42 @@
+
+    if(this.isDroneConnected == true) {
+
+        var distFront = this.sensorFront.getDistance();
+        var distLeft  = this.sensorLeft.getDistance();
+        var distRight = this.sensorRight.getDistance();
+
+        this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
+
+        if(distFront < 80 || distLeft < 70|| distRight < 70) {
+
+            console.log("F " + distFront);
+            console.log("R " + distRight);
+            console.log("L " + distLeft);
+            this.landing("came to close to anything (F: " + distFront + " R: " + distRight + " L: " + distLeft);
+        }
+
+        var stopDistance = 120;
+
+        //TODO add "rotatingPuffer" um nach einem Stop länger nachzudrehen?
+
+        /* one of the distances is lower then stop-distance, slow down the drone and start rotating */
+        if(distFront < stopDistance || distLeft < stopDistance || distRight < stopDistance) {
+            this.slowDown();
+
+            if((distLeft <= stopDistance) || distFront <= stopDistance) {
+                //setTimeout(this.startRotate.bind(this, 1), 100);
+                this.startRotate(1);
+            }
+
+            if(distRight <= stopDistance && distLeft >= stopDistance) {
+                //setTimeout(this.startRotate.bind(this, -1), 100);
+                this.startRotate(-1);
+            }
+
+        } else {
+
+            /* upfront free */
+            this.stopRotate();
+            //setTimeout(this.accelerate.bind(this), 500);
+            this.accelerate();
+        }

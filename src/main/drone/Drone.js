@@ -6,6 +6,10 @@
 
 /** set test mode to true to prevent the drone from really starting */
 
+
+
+var express = require('express');
+var vs = require("fs");
 var usonic = require('mmm-usonic');
 var Button = require('./sensors/Button');
 var DistanceSensor = require('./sensors/DistanceSensor');
@@ -13,9 +17,10 @@ var Buzzer = require('./sensors/Buzzer');
 var Bebop = require("node-bebop");
 var ping = require ("net-ping");
 var Voice = require('./voice/Voice');
-const readline = require('readline');
 
+const readline = require('readline');
 readline.emitKeypressEvents(process.stdin);
+
 process.stdin.setRawMode(true);
 
 module.exports = Drone;
@@ -49,8 +54,12 @@ function Drone(flightDurationSec, testMode) {
     this.flightControlInterval = 100;
 
     /* hotWord file for voice commands */
-    this.hotWordFile = "voice/resources/snowboy.umdl"
+    this.hotWordFile = "voice/resources/snowboy.umdl";
 
+    console.log("x");
+    /** external REST control server */
+    setTimeout(this.registerRESTHandler.bind(this), 0);
+    console.log("x");
 
     /** internal configuration =============================================================================== */
 
@@ -84,6 +93,7 @@ function Drone(flightDurationSec, testMode) {
     this.speed.accVectorBackward = 5;   // difference of speed when breaking the drone one step
     this.speed.accVectorStrafing = 0;   // difference of speed when accelerating into strafing direction
     this.movementLocked = false;        // checks if further movement orders are accepted
+    this.movementLockTimeDefault = 500; // the default lock time after a new movement
 
     /* is the drone ready for takeoff?
      setting to "false" in the constructor will prevent the drone from starting up */
@@ -166,6 +176,54 @@ function Drone(flightDurationSec, testMode) {
 }
 
 
+
+/**
+ * create the REST service which maps controls to external
+ */
+Drone.prototype.registerRESTHandler = function() {
+
+    this.restApp = express();
+    this.server = this.restApp.listen(8055, function() {
+        // var host = this.server.address().address;
+        // var port = server.address().port;
+
+        console.log("listening on port 8055");
+    });
+
+    this.restApp.get('/emergency', this.restEmergency.bind(this));
+    this.restApp.get('/rotateClockwise', this.restRotateClockwise.bind(this));
+    this.restApp.get('/rotateCounterclockwise', this.restRotateCounterclockwise.bind(this));
+    this.restApp.get('/stopRotate', this.restStopRotate.bind(this));
+    this.restApp.get('/stop', this.restSlowDown.bind(this));
+
+}
+
+Drone.prototype.restEmergency = function(req, res) {
+    this.emergencyLand();
+    res.end("ende");
+}
+
+Drone.prototype.restRotateClockwise = function(req, res) {
+    this.startRotate(1);
+    res.end("ende");
+}
+
+Drone.prototype.restRotateCounterclockwise = function(req, res) {
+    this.startRotate(-1);
+    res.end("ende");
+}
+
+Drone.prototype.restStopRotate = function(req, res) {
+    this.stopRotate();
+    res.end("ende");
+}
+
+Drone.prototype.restSlowDown = function(req, res) {
+    this.slowDown();
+    res.end("ende");
+}
+
+
 /**
  * init some keyboard handlers for special keys like emergency controlling
  */
@@ -198,6 +256,7 @@ Drone.prototype.initKeyHandler = function(ch, key) {
         }
     }
 }
+
 
 /**
  * setup method which checks that the drone is reachable via the network.
@@ -424,40 +483,6 @@ Drone.prototype.flightControl = function() {
 
         this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
 
-        if(distFront < 80 || distLeft < 70|| distRight < 70) {
-
-            console.log("F " + distFront);
-            console.log("R " + distRight);
-            console.log("L " + distLeft);
-            this.landing("came to close to anything (F: " + distFront + " R: " + distRight + " L: " + distLeft);
-        }
-
-        var stopDistance = 120;
-
-        //TODO add "rotatingPuffer" um nach einem Stop länger nachzudrehen?
-
-        /* one of the distances is lower then stop-distance, slow down the drone and start rotating */
-        if(distFront < stopDistance || distLeft < stopDistance || distRight < stopDistance) {
-            this.slowDown();
-
-            if((distLeft <= stopDistance) || distFront <= stopDistance) {
-                //setTimeout(this.startRotate.bind(this, 1), 100);
-                this.startRotate(1);
-            }
-
-            if(distRight <= stopDistance && distLeft >= stopDistance) {
-                //setTimeout(this.startRotate.bind(this, -1), 100);
-                this.startRotate(-1);
-            }
-
-        } else {
-
-            /* upfront free */
-            this.stopRotate();
-            //setTimeout(this.accelerate.bind(this), 500);
-            this.accelerate();
-        }
-
 
     } else {
 
@@ -493,6 +518,9 @@ Drone.prototype.flightControl = function() {
  * @param duration time in ms for the lock
  */
 Drone.prototype.lockMovement = function (duration) {
+    if(!duration) {
+        duration = this.movementLockTimeDefault;
+    }
        this.movementLocked =  true;
        setTimeout(this.unlockMovement.bind(this), duration);
 }
@@ -571,6 +599,7 @@ Drone.prototype.startRotate = function(direction) {
 Drone.prototype.accelerate = function() {
 
     if(this.speed.forward < this.speed.maxForward && !this.movementLocked) {
+        this.lockMovement();
         this.bebop.stop();
         this.speed.forward = this.speed.maxForward;
         this.bebop.forward(this.speed.forward);
@@ -584,7 +613,7 @@ Drone.prototype.accelerate = function() {
 Drone.prototype.slowDown = function() {
 
     if(this.speed.forward != 0 && !this.movementLocked) {
-        this.lockMovement(1000);
+        this.lockMovement();
         this.speed.forward = 0;
         this.bebop.stop();
         this.buzzer.blink(1, 500);
