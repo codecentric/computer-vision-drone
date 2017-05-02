@@ -228,16 +228,15 @@ module.exports = class Drone {
      * Once ready state is reached the method will not invoke anymore
      * @param delay set the timespan in milliseconds till the next triggerevent is fired
      */
-    checkReady(delay = 5000){
+    checkReady(delay = 1000){
         let s = this.state;
         console.log('checking ready state');
         if (s.isWLANConnected && s.isDroneConnected && s.sensorInitialized){
-            //eventEmitter.removeAllEventListeners('triggerCheckReady');
             eventEmitter.emit('initFinished');
         } else {
-            setTimeout(()=>eventEmitter.emit('triggerCheckReady'), 500);
+            setTimeout(()=>eventEmitter.emit('triggerCheckReady'), delay);
 
-            console.log(`not ready yet: ${s.isWLANConnected} ${s.isDroneConnected} ${s.sensorInitialized}`);
+            console.log(`not ready yet: WLAN: ${s.isWLANConnected}, Drone: ${s.isDroneConnected}, Sensor: ${s.sensorInitialized}`);
         }
     }
 
@@ -603,6 +602,7 @@ module.exports = class Drone {
                 this.bebop.land(this.cleanUpAfterLanding());
             } else {
                 this.log("[[drone is in test mode so will not land}}", 'landing');
+                this.cleanUpAfterLanding();
             }
 
             this.state.isFlying = false;
@@ -706,7 +706,6 @@ module.exports = class Drone {
      */
     lockMovement(duration) {
         this.state.movementLocked = true;
-        //this.log('movements locked', 'movementLocked', this.state.movementLocked, 0);
         setTimeout(() => this.unlockMovement(), duration);
     }
 
@@ -715,7 +714,6 @@ module.exports = class Drone {
      */
     unlockMovement() {
         this.state.movementLocked = false;
-        //this.log('movements unlocked', 'movementLocked', this.state.movementLocked, 0);
     }
 
     /**
@@ -872,7 +870,6 @@ module.exports = class Drone {
             this.bebop.land(this.cleanUpAfterLanding());
         }
         this.state.isFlying = false;
-        //this.log('changed flying state to: ' + this.state.isFlying, 'isFlying', this.state.isFlying, 0);
 
         if (this.config.testMode === true) {
             this.cleanUpAfterLanding();
