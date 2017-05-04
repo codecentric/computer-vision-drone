@@ -148,8 +148,10 @@ module.exports = class Drone {
         });
 
         try {
+            // Add the Websocket server which sent data to the web-frontend
             this.addWebsocketServer();
 
+            // add a http server for the webui
             this.addHttpServer();
 
 
@@ -165,18 +167,14 @@ module.exports = class Drone {
 
             //this.pingDrone();
 
+            // add the led for visual effects
             this.led = new Buzzer(26, "led");
-
-
             this.led.switch(Buzzer.ON);
 
+            // register the physical button for the launch event
             this.startButton = new Button(23, "startButton", () => {this.buttonPushed()});
 
-            this.led = new Buzzer(26, "led");
-            this.led.switch(Buzzer.ON);
-            this.startButton = new Button(23, "startButton", () => {
-                this.buttonPushed()
-            });
+            // add a buzzer for audio signals
             this.buzzer = new Buzzer(19, "buzzer");
             this.buzzer.onOff(100);
 
@@ -190,19 +188,27 @@ module.exports = class Drone {
             this.voice.triggerStart();
 */
 
-
+            // ping the drone if the ping event is emitted
             eventEmitter.on('ping', () => {
                 this.pingDrone()
             });
             //eventEmitter.emit('ping');
+
+            // checks if the drone is in ready mode
             eventEmitter.on('triggerCheckReady', () => {
                 this.checkReady();
             });
 
+            // triggers the sensor initiation, but is triggered only once
             eventEmitter.once('initSensor', () => this.initSensor());
+            eventEmitter.once('sensorInitialized', () => this.state.sensorInitialized = true);
+
+            // once the ping was successful, try to connect to the drone
             eventEmitter.once('pingSuccessful', () => {
                 this.connectDrone();
             });
+
+            // print a message that the drone-initiation is finished
             eventEmitter.once('initFinished', () => {
                 this.led.blink(5, 200);
                 this.log("setting up cv-drone finished! ready for takeoff.");
@@ -351,6 +357,25 @@ module.exports = class Drone {
      * initialize a Sensor
      */
     initSensor() {
+        this.config.sensors = fork(__dirname + '/Sensor.js');
+
+        this.config.sensors.on('message', (msg) => {
+
+
+            if (msg.distanceData) {
+                    //console.log(`Before -- Front: ${this.state.distFront}, Left: ${this.state.distLeft}, Right: ${this.state.distRight}`);
+                    this.state.distFront = msg.distanceData.front;
+                    this.state.distLeft = msg.distanceData.left;
+                    this.state.distRight = msg.distanceData.right;
+                    //console.log(`After -- Front: ${this.state.distFront}, Left: ${this.state.distLeft}, Right: ${this.state.distRight}`);
+
+                } else if (msg.message == 'sensorInitialized') {
+                    eventEmitter.emit('sensorInitialized');
+                }
+        });
+        //setInterval(() => this.config.sensors.send({msg: 'getData'}), 20);
+
+        /*
         usonic.init((error) => {
             if (error) {
                 this.log("error setting up ultrasonic sensor module: " + error.message);
@@ -364,8 +389,16 @@ module.exports = class Drone {
                 this.state.sensorRight.triggerStart();
                 this.state.sensorInitialized = true;
                 eventEmitter.emit('sensorInitialized');
+                eventEmitter.emit('refreshSensor');
             }
         });
+        eventEmitter.on('refreshSensor', () => {
+            this.state.sensorFront.refresh();
+            this.state.sensorLeft.refresh();
+            this.state.sensorRight.refresh();
+            eventEmitter.emit('refreshSensor');
+        })
+        */
     }
 
     /**
@@ -373,7 +406,7 @@ module.exports = class Drone {
      */
     initKeyHandler(ch, key) {
 
-
+        console.log('key pressed');
         if (key.ctrl && key.name === 'c') {
             console.log("EXIT EVENT");
             this.onExit("STRG+C");
@@ -626,15 +659,21 @@ module.exports = class Drone {
     flightControl() {
 
         if (this.state.isDroneConnected === true) {
-
+            /*
             let distFront = this.state.sensorFront.getDistance();
             let distLeft = this.state.sensorLeft.getDistance();
             let distRight = this.state.sensorRight.getDistance();
             this.state.distFront = distFront;
             this.state.distLeft = distLeft;
             this.state.distRight = distRight;
+            */
+            let distFront = this.state.distFront;
+            let distLeft = this.state.distLeft;
+            let distRight = this.state.distRight;
+            console.log(`Global -- Front: ${this.state.distFront}, Left: ${this.state.distLeft}, Right: ${this.state.distRight}`);
+            console.log(`intern -- Front: ${distFront}, Left: ${distLeft}, Right: ${distRight}`);
 
-            this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
+            //this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
 
             if (distFront < 80 || distLeft < 70 || distRight < 70) {
 
@@ -670,6 +709,8 @@ module.exports = class Drone {
                 this.accelerate();
             }
 
+            // trigger the Sensor to update Distances
+            this.config.sensors.send({msg: 'getData'});
 
         } else {
 
@@ -835,9 +876,8 @@ module.exports = class Drone {
             this.log("error: can not broadcast exception by led or buzzer because of: " + error.message);
         }
         this.httpServer.kill();
-
+        this.config.sensors.kill();
         this.emergencyLand();
-
     }
 
 
@@ -852,6 +892,7 @@ module.exports = class Drone {
             this.landing("landing on exit event");
         }
         this.httpServer.kill();
+        this.config.sensors.kill();
         process.exit(1);
 
     }

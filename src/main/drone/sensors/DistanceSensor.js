@@ -25,6 +25,7 @@
  */
 
 var usonic = require('mmm-usonic');
+const events = require('events');
 
 module.exports = DistanceSensor;
 
@@ -55,7 +56,7 @@ function DistanceSensor(pinTrigger, pinEcho, name, refreshInterval) {
 DistanceSensor.prototype.refresh = function() {
     /* get distance from sensor */
     var newMeasured = this.internalSensor();
-
+    //console.log(`Name: ${this.name} Data: ${newMeasured}`);
     /* filter invalid values (-1 or > max distance) */
     if( newMeasured == -1 || newMeasured > this.maxDistance) {
         newMeasured = this.maxDistance;
