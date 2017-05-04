@@ -227,7 +227,8 @@ module.exports = class Drone {
     }
 
     run () {
-        eventEmitter.emit('ping');
+        //eventEmitter.emit('ping');
+        eventEmitter.emit('initSensor');
     }
     /**
      * check if the ready state is reached. If not it is triggered again after a certain time.
@@ -367,13 +368,13 @@ module.exports = class Drone {
                     this.state.distFront = msg.distanceData.front;
                     this.state.distLeft = msg.distanceData.left;
                     this.state.distRight = msg.distanceData.right;
-                    //console.log(`After -- Front: ${this.state.distFront}, Left: ${this.state.distLeft}, Right: ${this.state.distRight}`);
+                    console.log(`After -- Left: ${this.state.distLeft}, Front: ${this.state.distFront}, Right: ${this.state.distRight}`);
 
                 } else if (msg.message == 'sensorInitialized') {
                     eventEmitter.emit('sensorInitialized');
                 }
         });
-        //setInterval(() => this.config.sensors.send({msg: 'getData'}), 20);
+        setInterval(() => this.config.sensors.send({msg: 'getData'}), 200);
 
         /*
         usonic.init((error) => {

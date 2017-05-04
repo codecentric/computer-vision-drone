@@ -5,7 +5,7 @@
 const usonic = require('mmm-usonic');
 const DistanceSensor = require('./sensors/DistanceSensor.js');
 
-const sensorRefreshIntervall = 20;
+const sensorRefreshIntervall = 40;
 
 usonic.init((error) => {
     if (error) {

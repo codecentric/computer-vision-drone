@@ -45,8 +45,8 @@ function DistanceSensor(pinTrigger, pinEcho, name, refreshInterval) {
     this.pinTrigger = pinTrigger;
     this.pinEcho = pinEcho;
     this.name = name;
-    this.distances = [0, 0, 0 ,0 ,0, 0, 0]; // last X measurements
-    this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 1000, true);
+    this.distances = [0, 0, 0, 0, 0]; // last X measurements
+    this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 450, true);
 }
 
 
@@ -87,9 +87,9 @@ DistanceSensor.prototype.getDistance = function() {
             this.distances.reduce(
                 function(a,b) { return a+b}
             )        )
-        - Math.max.apply(Math, this.distances)  // remove biggest value
-        - Math.min.apply(Math, this.distances)  // remove smallest value
-    ) / (this.distances.length-2))              // build average
+        //- Math.max.apply(Math, this.distances)  // remove biggest value
+        //- Math.min.apply(Math, this.distances)  // remove smallest value
+    ) / (this.distances.length))              // build average
         .toFixed(2);                            // reduce number of decimal places
 
     return cleanDist;
