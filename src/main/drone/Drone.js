@@ -18,15 +18,10 @@ const WebSocketServer = require('ws').Server;
 const WatchJS = require("melanke-watchjs");
 const watch = WatchJS.watch;
 const filepath = require('filepath');
-
-
-//const spawn = require('child_process').spawn;
-const execFile = require('child_process').execFile;
 const fork = require('child_process').fork;
 const fs = require('fs');
 const readline = require('readline');
 const eventEmitter = new events.EventEmitter();
-const globalDebugLevel = 1;
 
 
 readline.emitKeypressEvents(process.stdin);
@@ -119,7 +114,6 @@ module.exports = class Drone {
         watch(this.state, function (prop, action, newvalue) {
             /* log to event emitter for web UI */
             eventEmitter.emit("webHUD", JSON.stringify({'key': prop, 'value': newvalue}));
-            //console.log("webHUD", JSON.stringify({'key' : prop, 'value' : newvalue}));
         });
 
         watch(this.speed, function (prop, action, newvalue) {
@@ -165,8 +159,6 @@ module.exports = class Drone {
                             ttl: 128
                         });
 
-            //this.pingDrone();
-
             // add the led for visual effects
             this.led = new Buzzer(26, "led");
             this.led.switch(Buzzer.ON);
@@ -178,7 +170,7 @@ module.exports = class Drone {
             this.buzzer = new Buzzer(19, "buzzer");
             this.buzzer.onOff(100);
 
-/*
+            /* Uncomment for adding voice commands to the drone.
             this.voice = new Voice("voice/resources/common.res");
             this.voice.addHotWord(this.config.hotWordFile, "droneTakeOff", 0.4);
             //this.voice.registerHotwordReaction(console.log("SNOWBOY"));
@@ -186,13 +178,12 @@ module.exports = class Drone {
                 this.buttonPushed()
             });
             this.voice.triggerStart();
-*/
+            */
 
             // ping the drone if the ping event is emitted
             eventEmitter.on('ping', () => {
                 this.pingDrone()
             });
-            //eventEmitter.emit('ping');
 
             // checks if the drone is in ready mode
             eventEmitter.on('triggerCheckReady', () => {
@@ -226,9 +217,11 @@ module.exports = class Drone {
         }
     }
 
+    /**
+     * trigger the drone after initiation
+     */
     run () {
         eventEmitter.emit('ping');
-        //eventEmitter.emit('initSensor');
     }
     /**
      * check if the ready state is reached. If not it is triggered again after a certain time.
@@ -248,18 +241,19 @@ module.exports = class Drone {
     }
 
     /**
-     * adds a websocket server so data can be sent to the webui
+     * adds a websocket server so data can be sent to the webui. It reacts on events and forward them via the websocket connection
      */
     addWebsocketServer() {
         this.wss = new WebSocketServer({host: '0.0.0.0', port: 8000});
 
-
+        // TODO What happens if multiple clients connect?
         this.wss.on('connection', function (ws) {
             console.log("websocket server ready");
             eventEmitter.on('webHUD', function (message) {
                 try {
                     ws.send(message);
                 } catch (err) {
+                    // ignores if a message is send after connection is closed
                     if (err !== 'Error: not opened') {
                         console.log('Websocket error: %s', err);
                     }
@@ -273,6 +267,7 @@ module.exports = class Drone {
      * Add a static http server which sent messages to the client
      */
     addHttpServer() {
+        // fork a new process for the http server
         this.httpServer = fork(filepath.create(__dirname, '/http/httpServer.js'));
     }
 
@@ -281,7 +276,6 @@ module.exports = class Drone {
      */
     connectDrone() {
         /* ping drone once to check if connected */
-        //this.pingDrone();
         this.bebop = Bebop.createClient(this.bebopOpts);
 
         /* connect to drone and pass a connected handler */
@@ -358,8 +352,9 @@ module.exports = class Drone {
      * initialize a Sensor
      */
     initSensor() {
+        // fork the sensors to its own process so the high frequent measuring, do not block the main process in any kind
         this.config.sensors = fork(__dirname + '/Sensor.js');
-
+        // register a message channel for receiving messages from the forked process
         this.config.sensors.on('message', (msg) => {
 
             //console.log(msg)
@@ -377,35 +372,6 @@ module.exports = class Drone {
 
             }
         });
-        setInterval(() => {
-            this.config.sensors.send({msg: 'getData'});
-            //console.log('requested Data');
-        }, 400);
-
-        /*
-        usonic.init((error) => {
-            if (error) {
-                this.log("error setting up ultrasonic sensor module: " + error.message);
-                this.onException();
-            } else {
-                this.state.sensorRight = new DistanceSensor(17, 5, "right", this.config.sensorRefreshIntervall);
-                this.state.sensorFront = new DistanceSensor(27, 6, "front", this.config.sensorRefreshIntervall);
-                this.state.sensorLeft = new DistanceSensor(22, 13, "left", this.config.sensorRefreshIntervall);
-                this.state.sensorFront.triggerStart();
-                this.state.sensorLeft.triggerStart();
-                this.state.sensorRight.triggerStart();
-                this.state.sensorInitialized = true;
-                eventEmitter.emit('sensorInitialized');
-                eventEmitter.emit('refreshSensor');
-            }
-        });
-        eventEmitter.on('refreshSensor', () => {
-            this.state.sensorFront.refresh();
-            this.state.sensorLeft.refresh();
-            this.state.sensorRight.refresh();
-            eventEmitter.emit('refreshSensor');
-        })
-        */
     }
 
     /**
@@ -666,27 +632,13 @@ module.exports = class Drone {
     flightControl() {
 
         if (this.state.isDroneConnected === true) {
-            /*
-            let distFront = this.state.sensorFront.getDistance();
-            let distLeft = this.state.sensorLeft.getDistance();
-            let distRight = this.state.sensorRight.getDistance();
-            this.state.distFront = distFront;
-            this.state.distLeft = distLeft;
-            this.state.distRight = distRight;
-            */
             let distFront = this.state.distFront;
             let distLeft = this.state.distLeft;
             let distRight = this.state.distRight;
-            //console.log(`Global -- Front: ${this.state.distFront}, Left: ${this.state.distLeft}, Right: ${this.state.distRight}`);
-            //console.log(`intern -- Front: ${distFront}, Left: ${distLeft}, Right: ${distRight}`);
 
             this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
 
             if (distFront < 80 || distLeft < 70 || distRight < 50) {
-
-                //this.log("F " + distFront);
-                //this.log("R " + distRight);
-                //this.log("L " + distLeft);
                 this.landing("came to close to anything (F: " + distFront + " R: " + distRight + " L: " + distLeft);
             }
 

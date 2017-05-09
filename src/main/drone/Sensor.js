@@ -35,15 +35,5 @@ function sendData (front, left, right) {
 }
 process.send({message:'sensorInitialized'});
 process.send({message:'refreshSensor'});
-/*
-process.on('message', (m) => {
-    //process.send({msg: m.hello});
-    process.send({message: 'recieved Data Request'});
-    if (m.msg === 'getData') {
-        process.send({message: 'recieved Data Request'});
-        process.send({distanceData: {front:sensorFront.getDistance(), left: sensorLeft.getDistance(), right: sensorRight.getDistance()}})
-    }
-});
-*/
 
 
