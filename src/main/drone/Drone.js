@@ -227,8 +227,8 @@ module.exports = class Drone {
     }
 
     run () {
-        //eventEmitter.emit('ping');
-        eventEmitter.emit('initSensor');
+        eventEmitter.emit('ping');
+        //eventEmitter.emit('initSensor');
     }
     /**
      * check if the ready state is reached. If not it is triggered again after a certain time.
@@ -362,19 +362,25 @@ module.exports = class Drone {
 
         this.config.sensors.on('message', (msg) => {
 
-
+            //console.log(msg)
             if (msg.distanceData) {
                     //console.log(`Before -- Front: ${this.state.distFront}, Left: ${this.state.distLeft}, Right: ${this.state.distRight}`);
                     this.state.distFront = msg.distanceData.front;
                     this.state.distLeft = msg.distanceData.left;
                     this.state.distRight = msg.distanceData.right;
-                    console.log(`After -- Left: ${this.state.distLeft}, Front: ${this.state.distFront}, Right: ${this.state.distRight}`);
+                    //console.log(`After -- Left: ${this.state.distLeft}, Front: ${this.state.distFront}, Right: ${this.state.distRight}`);
 
-                } else if (msg.message == 'sensorInitialized') {
+            } else if (msg.message == 'sensorInitialized') {
                     eventEmitter.emit('sensorInitialized');
-                }
+
+            } else {
+
+            }
         });
-        setInterval(() => this.config.sensors.send({msg: 'getData'}), 200);
+        setInterval(() => {
+            this.config.sensors.send({msg: 'getData'});
+            //console.log('requested Data');
+        }, 400);
 
         /*
         usonic.init((error) => {
@@ -671,12 +677,12 @@ module.exports = class Drone {
             let distFront = this.state.distFront;
             let distLeft = this.state.distLeft;
             let distRight = this.state.distRight;
-            console.log(`Global -- Front: ${this.state.distFront}, Left: ${this.state.distLeft}, Right: ${this.state.distRight}`);
-            console.log(`intern -- Front: ${distFront}, Left: ${distLeft}, Right: ${distRight}`);
+            //console.log(`Global -- Front: ${this.state.distFront}, Left: ${this.state.distLeft}, Right: ${this.state.distRight}`);
+            //console.log(`intern -- Front: ${distFront}, Left: ${distLeft}, Right: ${distRight}`);
 
-            //this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
+            this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
 
-            if (distFront < 80 || distLeft < 70 || distRight < 70) {
+            if (distFront < 80 || distLeft < 70 || distRight < 50) {
 
                 //this.log("F " + distFront);
                 //this.log("R " + distRight);
@@ -684,7 +690,7 @@ module.exports = class Drone {
                 this.landing("came to close to anything (F: " + distFront + " R: " + distRight + " L: " + distLeft);
             }
 
-            const stopDistance = 120;
+            const stopDistance = 100;
 
             //TODO add "rotatingPuffer" um nach einem Stop länger nachzudrehen?
 
@@ -876,8 +882,13 @@ module.exports = class Drone {
         } catch (error) {
             this.log("error: can not broadcast exception by led or buzzer because of: " + error.message);
         }
-        this.httpServer.kill();
-        this.config.sensors.kill();
+        try {
+            this.httpServer.kill();
+            this.config.sensors.kill();
+
+        } catch (error) {
+
+        }
         this.emergencyLand();
     }
 
@@ -892,8 +903,13 @@ module.exports = class Drone {
         if (this.state.isFlying === true) {
             this.landing("landing on exit event");
         }
-        this.httpServer.kill();
-        this.config.sensors.kill();
+        try {
+            this.httpServer.kill();
+            this.config.sensors.kill();
+
+        } catch (error) {
+
+        }
         process.exit(1);
 
     }

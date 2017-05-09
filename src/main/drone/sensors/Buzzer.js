@@ -13,7 +13,7 @@
 'use strict'
 
 
-var wpi = require('wiring-pi');
+const wpi = require('wiring-pi');
 
 module.exports = Buzzer;
 

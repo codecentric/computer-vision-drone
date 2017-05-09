@@ -26,6 +26,7 @@
 
 var usonic = require('mmm-usonic');
 const events = require('events');
+var statistics = require('math-statistics');
 
 module.exports = DistanceSensor;
 
@@ -45,8 +46,8 @@ function DistanceSensor(pinTrigger, pinEcho, name, refreshInterval) {
     this.pinTrigger = pinTrigger;
     this.pinEcho = pinEcho;
     this.name = name;
-    this.distances = [0, 0, 0, 0, 0]; // last X measurements
-    this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 450, true);
+    this.distances = [0, 0, 0, 0, 0, 0, 0]; // last X measurements
+    this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 1000, true);
 }
 
 
@@ -65,6 +66,7 @@ DistanceSensor.prototype.refresh = function() {
     /* add a new measurement and remove the oldest */
     this.distances.push(newMeasured);
     this.distances.shift();
+    setTimeout(this.refresh.bind(this),this.refreshInterval);
 };
 
 
@@ -73,7 +75,7 @@ DistanceSensor.prototype.refresh = function() {
  */
 DistanceSensor.prototype.triggerStart = function() {
     console.log("sensor [" + this.name + " ] is beginning with scanning.");
-    setInterval(this.refresh.bind(this), this.refreshInterval);
+    setTimeout(this.refresh.bind(this), this.refreshInterval);
 };
 
 
@@ -82,14 +84,14 @@ DistanceSensor.prototype.triggerStart = function() {
  * an average, and round that to 2 digits
  */
 DistanceSensor.prototype.getDistance = function() {
-
+    let dist = this.distances
     var cleanDist = (((
-            this.distances.reduce(
+            dist.reduce(
                 function(a,b) { return a+b}
             )        )
-        //- Math.max.apply(Math, this.distances)  // remove biggest value
-        //- Math.min.apply(Math, this.distances)  // remove smallest value
-    ) / (this.distances.length))              // build average
+        - Math.max.apply(Math, this.distances)  // remove biggest value
+        - Math.min.apply(Math, this.distances)  // remove smallest value
+    ) / (dist.length - 2))              // build average
         .toFixed(2);                            // reduce number of decimal places
 
     return cleanDist;

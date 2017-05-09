@@ -5,31 +5,45 @@
 const usonic = require('mmm-usonic');
 const DistanceSensor = require('./sensors/DistanceSensor.js');
 
-const sensorRefreshIntervall = 40;
+const sensorRefreshIntervall = 20;
 
 usonic.init((error) => {
     if (error) {
         process.send({error: "error setting up ultrasonic sensor module: " + error.message});
     } else {
+        process.on('message', (m) => {
+            //process.send({msg: m.hello});
+            //process.send({message: 'recieved Data Request'});
+
+        });
+
         const sensorRight = new DistanceSensor(17, 5, "right", sensorRefreshIntervall);
         const sensorFront = new DistanceSensor(27, 6, "front", sensorRefreshIntervall);
         const sensorLeft = new DistanceSensor(22, 13, "left", sensorRefreshIntervall);
         sensorFront.triggerStart();
         sensorLeft.triggerStart();
         sensorRight.triggerStart();
+        sendData(sensorFront, sensorLeft, sensorRight);
         /* send success mesage to parent */
-        process.send({message:'sensorInitialized'});
-        process.send({message:'refreshSensor'});
-        process.on('message', (m) => {
-            //process.send({msg: m.hello});
-
-            if (m.msg === 'getData') {
-                process.send({distanceData: {front:sensorFront.getDistance(), left: sensorLeft.getDistance(), right: sensorRight.getDistance()}})
-            }
-        });
     }
 });
+function sendData (front, left, right) {
+    setTimeout(() => {
+        setInterval(() => process.send({distanceData: {front:front.getDistance(), left: left.getDistance(), right: right.getDistance()}}), 100)
+    }, 500);
 
-
+}
+process.send({message:'sensorInitialized'});
+process.send({message:'refreshSensor'});
+/*
+process.on('message', (m) => {
+    //process.send({msg: m.hello});
+    process.send({message: 'recieved Data Request'});
+    if (m.msg === 'getData') {
+        process.send({message: 'recieved Data Request'});
+        process.send({distanceData: {front:sensorFront.getDistance(), left: sensorLeft.getDistance(), right: sensorRight.getDistance()}})
+    }
+});
+*/
 
 
