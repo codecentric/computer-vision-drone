@@ -98,3 +98,9 @@ ul li {
     -webkit-transform: scaleX(-1);
     -ms-transform: scaleX(-1);
 }
+
+@media (min-width: 1200px) {
+    .container {
+        width: 95%;
+    }
+}

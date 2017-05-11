@@ -5,7 +5,7 @@
 const usonic = require('mmm-usonic');
 const DistanceSensor = require('./sensors/DistanceSensor.js');
 
-const sensorRefreshIntervall = 20;
+const sensorRefreshIntervall = 25;
 
 usonic.init((error) => {
     if (error) {
@@ -30,7 +30,7 @@ usonic.init((error) => {
 function sendData (front, left, right) {
     setTimeout(() => {
         setInterval(() => process.send({distanceData: {front:front.getDistance(), left: left.getDistance(), right: right.getDistance()}}), 100)
-    }, 500);
+    }, 100);
 
 }
 process.send({message:'sensorInitialized'});

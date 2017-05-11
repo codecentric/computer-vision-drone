@@ -6,5 +6,5 @@
 //import {Drone} from '../../main/drone/Drone'
 const Drone = require('./Drone.js');
 
-var drone = new Drone(180, true);
-drone.run();
+var drone = new Drone(180, false);
+//drone.run();

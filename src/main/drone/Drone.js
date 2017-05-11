@@ -22,6 +22,7 @@ const fork = require('child_process').fork;
 const fs = require('fs');
 const readline = require('readline');
 const eventEmitter = new events.EventEmitter();
+const globalDebugLevel = 1;
 
 
 readline.emitKeypressEvents(process.stdin);
@@ -89,7 +90,7 @@ module.exports = class Drone {
         this.speed.turning = 0;            // current turning speed of the drone ( > 0 = clockwise)
         this.speed.turningDirection = 0;    // -1 =
         this.speed.strafing = 0;            // current strafing speed of the drone ( > 0 = right direction)
-        this.speed.maxForward = 15;         // maximum forward speed
+        this.speed.maxForward = 10;         // maximum forward speed
         this.speed.maxTurning = 40;         // turning speed if turning is active
         this.speed.maxStrafing = 0;         // maximum strafing speed
         this.speed.accVectorForward = 3;    // difference of speed when performing one acceleration step forwards
@@ -207,7 +208,7 @@ module.exports = class Drone {
                 this.log("Press [T]akeoff, or [Return] for emergency landing!");
                 this.log("====================================================");
             });
-
+            this.run();
 
         } catch (error) {
             this.state.readyForTakeoff = false;
@@ -217,11 +218,16 @@ module.exports = class Drone {
         }
     }
 
+
     /**
      * trigger the drone after initiation
      */
     run () {
-        eventEmitter.emit('ping');
+        if (this.config.testMode === true) {
+            eventEmitter.emit('initSensor');
+        } else {
+            eventEmitter.emit('ping');
+        }
     }
     /**
      * check if the ready state is reached. If not it is triggered again after a certain time.
@@ -363,7 +369,8 @@ module.exports = class Drone {
                     this.state.distFront = msg.distanceData.front;
                     this.state.distLeft = msg.distanceData.left;
                     this.state.distRight = msg.distanceData.right;
-                    //console.log(`After -- Left: ${this.state.distLeft}, Front: ${this.state.distFront}, Right: ${this.state.distRight}`);
+
+                    console.log(`Left: ${this.state.distLeft}, Front: ${this.state.distFront}, Right: ${this.state.distRight}`);
 
             } else if (msg.message == 'sensorInitialized') {
                     eventEmitter.emit('sensorInitialized');
@@ -638,11 +645,11 @@ module.exports = class Drone {
 
             this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
 
-            if (distFront < 80 || distLeft < 70 || distRight < 50) {
+            if (distFront < 80 || distLeft < 70 || distRight < 70) {
                 this.landing("came to close to anything (F: " + distFront + " R: " + distRight + " L: " + distLeft);
             }
 
-            const stopDistance = 100;
+            const stopDistance = 120;
 
             //TODO add "rotatingPuffer" um nach einem Stop länger nachzudrehen?
 
@@ -865,7 +872,6 @@ module.exports = class Drone {
         process.exit(1);
 
     }
-
 
     /**
      * perform an emergency landing of the drone at the place where it is standing

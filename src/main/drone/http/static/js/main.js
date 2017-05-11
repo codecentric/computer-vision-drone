@@ -166,7 +166,7 @@ $(window).load(function () {
                 }]
 
             });
-            for (var i = 0; i <= 20; i++) {
+            for (var i = 0; i <= 30; i++) {
                 chart.series[0].addPoint(0, false);
             }
             return chart;

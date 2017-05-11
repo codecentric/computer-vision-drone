@@ -46,8 +46,9 @@ function DistanceSensor(pinTrigger, pinEcho, name, refreshInterval) {
     this.pinTrigger = pinTrigger;
     this.pinEcho = pinEcho;
     this.name = name;
-    this.distances = [0, 0, 0, 0, 0, 0, 0]; // last X measurements
-    this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 1000, true);
+    this.distances = [0, 0, 0, 0, 0]; // last X measurements
+    this.internalSensor = usonic.createSensor(this.pinEcho, this.pinTrigger, 750, true);
+    this.failCounter = 0;
 }
 
 
@@ -59,13 +60,20 @@ DistanceSensor.prototype.refresh = function() {
     var newMeasured = this.internalSensor();
     //console.log(`Name: ${this.name} Data: ${newMeasured}`);
     /* filter invalid values (-1 or > max distance) */
-    if( newMeasured == -1 || newMeasured > this.maxDistance) {
+    if( newMeasured == -1 || newMeasured > this.maxDistance || newMeasured < 7) {
         newMeasured = this.maxDistance;
+        this.failCounter += 1;
+        if (this.failCounter > 3) {
+            this.failCounter = 0;
+            this.distances.push(this.maxDistance);
+            this.distances.shift();
+        }
+    } else {
+        /* add a new measurement and remove the oldest */
+        this.distances.push(newMeasured);
+        this.distances.shift();
+        this.failCounter = 0;
     }
-
-    /* add a new measurement and remove the oldest */
-    this.distances.push(newMeasured);
-    this.distances.shift();
     setTimeout(this.refresh.bind(this),this.refreshInterval);
 };
 
@@ -89,9 +97,9 @@ DistanceSensor.prototype.getDistance = function() {
             dist.reduce(
                 function(a,b) { return a+b}
             )        )
-        - Math.max.apply(Math, this.distances)  // remove biggest value
-        - Math.min.apply(Math, this.distances)  // remove smallest value
-    ) / (dist.length - 2))              // build average
+        //- Math.max.apply(Math, this.distances)  // remove biggest value
+        //- Math.min.apply(Math, this.distances)  // remove smallest value
+    ) / (dist.length ))              // build average
         .toFixed(2);                            // reduce number of decimal places
 
     return cleanDist;
