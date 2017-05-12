@@ -14,9 +14,11 @@ Dieser Artikel ist der erste in einer Serie und soll Interessierten einen einfac
 
 Es existieren diverse Frameworks für Computer Vision. Das wohl populärste ist OpenCV (http://www.opencv.org) und ebenfalls empfehlenswert ist dlib (http://dlib.net). 
 
+![computer vision frameworks](frameworks.png)
+
 > " ... OpenCV is released under a BSD license and hence it’s free for both academic and commercial use. It has C++, C, Python and Java interfaces and supports Windows, Linux, Mac OS, iOS and Android. OpenCV was designed for computational efficiency and with a strong focus on real-time applications. Written in optimized C/C++, the library can take advantage of multi-core processing. Enabled with OpenCL, it can take advantage of the hardware acceleration of the underlying heterogeneous compute platform. ..." - http://www.opencv.org
  
-Je nach Vorliebe/Vorwissen kann man damit auf unterschiedlichsten Plattformen entwickeln. Für einen leichten Einstieg empfehle ich eine Entwicklungs-Umgebung auf Ubuntu 16.04 mit Python 3.x und OpenCV 3.x aufzubauen. Auf meinem Macbook verwende ich dafür eine virtuelle Maschine auf Basis vmware Workstation (hier funktioniert die Integration von von externer Hardware im Vergleich zu anderen Virtualisierungs-Lösungen meist stabiler). Die Komponenten lassen sich auch auf anderen Betriebssystemen zum Laufen bringen - hier ist evtl. aber etwas "Versions-Konflikt-und-Dependency-Gefummel" notwendig.
+Je nach Vorliebe/Vorwissen kann man damit auf unterschiedlichsten Plattformen entwickeln. Für einen leichten Einstieg empfehle ich eine Entwicklungs-Umgebung auf Ubuntu 16.04 mit Python 3.x und OpenCV 3.x aufzubauen. Auf meinem Macbook verwende ich eine virtuelle Maschine auf Basis von vmware Workstation (hier funktioniert die Integration von externer Hardware im Vergleich zu anderen Virtualisierungs-Lösungen meist stabiler). Die Komponenten lassen sich auch auf anderen Betriebssystemen zum Laufen bringen - hier ist evtl. aber etwas "Versions-Konflikt-und-Dependency-Gefummel" notwendig.
 
 dlib ist zwar bei weitem nicht so umfangreich wie OpenCV - aber manche Funktionen sind einfach gut. Beispielsweise die "Facial Landmark Detection" (siehe: http://cvdrone.de/dlib-facial-landmark-detection.html) oder der Correlation Tracker ... siehe:
 
@@ -32,9 +34,51 @@ Es gibt im Internet viele Anleitungen, wie man OpenCV installieren kann - ich we
 
 # Computer Vision Basics
 
-Der Fortschritt im Bereich Computer Vision passiert zur Zeit mit Hilfe von Neuronalen Netzen und Deep Learning, für einen Einstieg in das Thema sollte man sich aber zunächst mit den Basics beschäftigen.
+Der Fortschritt im Bereich Computer Vision passiert zur Zeit mit Hilfe mit Hilfe von Neuronalen Netzen und Deep Learning, für einen Einstieg in das Thema sollte man sich vielleicht aber zunächst mit den Basics beschäftigen.
+
+[![opencv basics](http://img.youtube.com/vi/Q_2tbDCJTnU/0.jpg)](https://youtu.be/Q_2tbDCJTnU "OpenCV Basics")
+
 
 ## Bilder sind multidimensionale Arrays
+
+Ein Bild wird im Computer als multidimensionaler Array repräsentiert. In Python ist der Datentyp "numpy" in C ist es "Mat". Die Koordinate (0, 0) ist in der linken oberen Ecke. Bei einem farbigen Bild steht an dieser Stelle ein Triple mit den Farbwerten. Je nach Auflösung und Farbraum können die Arrays unterschiedlich groß sein. Die Farbwerte reichen jeweils von 0 bis 255. In OpenCV gibt man als erstes die Y und dann die X Koordinate an (das ist teilweise verwirrend). Folgender Code liest ein Bild ein und führt einige Basic Operationen auf Pixel Ebene aus.
+
+```python
+import cv2
+
+# lese Bild von Festplatte
+image = cv2.imread("test.png")
+
+# lese Farbwerte an Position y, x
+y = 100
+x = 50
+(b, g, r) = image[y, x]
+
+# gib Farbwerte auf Bildschirm aus
+print(b,g,r)
+
+# setze Farbwerte auf Rot (im BGR Farbraum)
+image[y, x] = (0, 0, 255)
+
+# waehle ein Region auf Interest an Punkt: (y, x) mit Dimension 50x50 Pixel
+region_of_interest = image[y:y+50, x:x+50]
+
+# zeige Bild in Fenster an
+cv2.imshow("Bild", image)
+
+# zeige Region of Interest an
+cv2.imshow("ROI", region_of_interest)
+
+# setze ROI auf gruen
+region_of_interest[:, :] = (0, 255, 0)
+
+# die ROI ist ein "Zeiger" auf das urspruenglich geladene image. Es enthaelt nun eine gruene Box!
+cv2.imshow("Bild modifiziert", image)
+
+# warte auf Tastendruck (wichtig, sonst sieht man das Fenster nicht)
+cv2.waitKey(0)
+
+```
 
 ## Farbräume
 
@@ -43,6 +87,7 @@ Der Fortschritt im Bereich Computer Vision passiert zur Zeit mit Hilfe von Neuro
 ## Detektoren
 
 
+# cvdrone Demo explained
 
 
 
