@@ -2,11 +2,11 @@
 
 Computer Vision ist eine spannende Disziplin in der Informatik. Die Forschung beschäftigt sich bereits seit Jahrzenten mit dem Thema, aber erst durch aktuelle Fortschritte im Bereich Big Data und künstlicher Intelligenz ergeben sich beeindruckende neue Möglichkeiten. Mittels Cloud Technologien sowie neuen GPUs wird die Verarbeitung immer billiger und schneller. "Pay-as-you-go Modelle" ermöglichen einen risikolosen Einstieg - ohne große vorab Investitionen. Kleine Embedded Systeme (z.B. nvidia Jetson) ermöglichen innovative, mobile und smarte Geräte mit hoher Rechenleistung bei geringem Stromverbrauch. 
  
-Vor vielen Millionen Jahren, kam es in der Evolution zur kambrischen Explosion. Dabei ist einem "relativ kurzem" Zeitraum die Artenvielfalt auf der Erde "explodiert". Einige Forscher sind der Meinung, dass eine Ursache dafür die Entwicklung des Sehens war und dass wir heute im Bereich Computer Vision auf einem ähnlichen Weg sind [1]. Allerdings entwickeln sich die Fähigkeiten von Computern deutlich schneller, als in der Evolution der Fall war. 
+Vor vielen Millionen Jahren, kam es in der Evolution zur kambrischen Explosion. Dabei ist einem "relativ kurzem" Zeitraum die Artenvielfalt auf der Erde "explodiert". Einige Forscher sind der Meinung, dass eine Ursache dafür die Entwicklung des Sehens war und dass wir heute im Bereich Computer Vision auf einem ähnlichen Weg sind [1]. Allerdings entwickeln sich die Fähigkeiten von Computern deutlich schneller, als es in der Evolution der Fall war. 
 
 > Autos, Roboter und Drohnen beginnen zu verstehen, was in Bildern und Videos zu sehen ist. Die Schnittstelle "Computer Vision" zwischen Mensch und Maschine wird in den nächsten Jahren wahrscheinlich stark an Bedeutung gewinnen. 
 
-Dieser Artikel ist der erste in einer Serie und soll Interessierten einen einfachen Einstieg in das Thema Computer Vision ermöglichen. Am Beispiel einer interaktiven Drohne wird erklärt, wie man Objekte und Personen in einem Video erkennen kann ... hier die Demo aus unserem Projekt http://cvdrone.de
+Dieser Artikel ist der erste in einer Serie und soll Interessierten einen einfachen Einstieg in das Thema Computer Vision ermöglichen. Am Beispiel einer interaktiven Drohne wird erklärt, wie man (mit einfachen Mitteln) Objekte und Personen in einem Video erkennen kann ... hier die Demo aus unserem Projekt http://cvdrone.de
 
 [![dlib correlation tracking](http://img.youtube.com/vi/zCdacGMnlO0/0.jpg)](https://youtu.be/zCdacGMnlO0 "dlib correlation tracking")
 
@@ -31,6 +31,8 @@ Einige Algorithmen basieren auf CUDA zur Nutzung der GPU. Dafür benötigt man e
 Es gibt im Internet viele Anleitungen, wie man OpenCV installieren kann - ich werde daher nicht das Rad neu erfinden, sondern verweise auf den lesenswerten Blog von Adrian Rosebrock. Also zunächst eine Ubuntu vm aufsetzen und dann folgenden Artikel Schritt für Schritt nachvollziehen: http://www.pyimagesearch.com/2016/10/24/ubuntu-16-04-how-to-install-opencv/ 
 
 # Computer Vision Basics
+
+Der Fortschritt im Bereich Computer Vision passiert zur Zeit mit Hilfe von Neuronalen Netzen und Deep Learning, für einen Einstieg in das Thema sollte man sich aber zunächst mit den Basics beschäftigen.
 
 ## Bilder sind multidimensionale Arrays
 
