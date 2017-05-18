@@ -24,6 +24,8 @@ dlib ist zwar bei weitem nicht so umfangreich wie OpenCV - aber manche Funktione
 
 [![dlib correlation tracking](http://img.youtube.com/vi/sUv0HjpVgd8/0.jpg)](https://youtu.be/sUv0HjpVgd8?t=35s "dlib correlation tracking")
 
+Weiterhin gibt es einen OpenVX Standard. Dieser macht sich zur Aufgabe Grafik-Hardware zu abstrahieren und diese damit besser nutzbar zu machen. Eine Implementierung davon ist nvidias VisionWork. Hier wurde viel Aufwand betrieben, um die wichtigsten CV Algorithmen speziell für die Ausführung auf GPUs zu optimieren. Wer viel Performance bei geringem Stromverbrauch sucht, sollte sich VisionWorks genauer anschauen. 
+
 ## GPU oder CPU - ist das hier die Frage?
 
 Einige Algorithmen basieren auf CUDA zur Nutzung der GPU. Dafür benötigt man eine Grafikkarte von nvidia. Hat man diese nicht, kann man auf AWS eine GPU Instanz mieten oder man besorgt sich ein Entwickler Board (z.B. nvidia Jetson TK1). Für einen ersten Einstieg ist das nicht unbedingt notwendig - aufwändigere Algorithmen (Neuronale Netze, Deep Learning etc.) laufen mit Hardware Beschleunigung aber oft um Größenordnungen schneller. In diesem Bereich fährt man übrigens nicht unbedingt gut, wenn man auf latest-greatest Versionen setzt. Evtl. ist ein älteres Ubuntu und ein nicht ganz aktueller Linux Kernel nötig, um alle Treiber und Abhängigkeiten kompilieren zu können. Im AWS Marketplace findet man GPU Instanzen, bei denen bereits OpenCV, Python, CUDA etc. lauffähig vorinstalliert sind (basierend auf Ubuntu 14.04 - Stand Mai 2017).
@@ -31,6 +33,8 @@ Einige Algorithmen basieren auf CUDA zur Nutzung der GPU. Dafür benötigt man e
 ## Installation von OpenCV mit Python Wrappern
 
 Es gibt im Internet viele Anleitungen, wie man OpenCV installieren kann - ich werde daher nicht das Rad neu erfinden, sondern verweise auf den lesenswerten Blog von Adrian Rosebrock. Also zunächst eine Ubuntu vm aufsetzen und dann folgenden Artikel Schritt für Schritt nachvollziehen: http://www.pyimagesearch.com/2016/10/24/ubuntu-16-04-how-to-install-opencv/ 
+
+OpenCV ist zwar in C geschrieben, mir ist aber der Einstieg mit den Python Wrappern leichter gefallen. Je nach Vorwissen kommt man damit deutlich schneller zu funktionierenden Prototypen. Der Performance Unterschied ist dabei in vielen Fällen vernachlässigbar gering. 
 
 # Computer Vision Basics
 
@@ -43,7 +47,7 @@ Hier ein Video mit einer kurzen Darstellung der Basics, sowie Codebeispielen, wi
 
 ## Bilder sind multidimensionale Arrays
 
-Ein Bild wird im Computer als multidimensionaler Array repräsentiert. In Python ist der Datentyp "numpy" in C ist es "Mat". Die Koordinate (0, 0) ist in der linken oberen Ecke. Bei einem farbigen Bild steht an dieser Stelle ein Triple mit den Farbwerten. Je nach Auflösung und Farbraum können die Arrays unterschiedlich groß sein. Die Farbwerte reichen jeweils von 0 bis 255. In OpenCV gibt man als erstes die Y und dann die X Koordinate an (das ist teilweise verwirrend). 
+Ein Bild wird im Computer als multidimensionaler Array repräsentiert. In Python ist der Datentyp "numpy" in C ist es "Mat". Die Koordinate (0, 0) ist in der linken oberen Ecke. Bei einem farbigen Bild stehen an jeder Koordinate 3 Farbwerte. Je nach Auflösung und Farbraum können die Arrays unterschiedlich groß sein. Die Farbwerte reichen jeweils von 0 bis 255. In OpenCV gibt man als erstes die Y und dann die X Koordinate an (das ist teilweise verwirrend). 
 
 Folgender Code liest ein Bild ein und führt einige Basic Operationen auf Pixel Ebene aus:
 
@@ -86,7 +90,7 @@ cv2.waitKey(0)
 ## Farbräume
 
 Der default Farb Raum in OpenCV ist BGR - also Blue Green Red. Normalerweise kennt man es eher als RGB - also auch hier wieder leichte Verwirrung am Anfang. Aber dafür gibt es einen guten Grund: "War so, ist so und wird daher so bleiben!"
-Je nachdem in welchem Farbraum man arbeitet, hat dies Vor- und Nachteile für die jeweilige Applikation. Beispielsweise ist ein Farbraum wie HSV leichter zu handhaben, wenn man nach bestimmten Farben filtert. Möchte ich im BGR Farbraum alles filtern, was irgendwie "orange" ist, ist das nicht so leicht zu implmentieren - in HSV ist das deutlich einfacher. Auch ist dieser Farb Raum z.B. nicht so anfällig für Änderung der Helligkeit (durch Wolken/Sonne).
+Je nachdem in welchem Farbraum man arbeitet, hat dies Vor- und Nachteile für die jeweilige Applikation. Beispielsweise ist ein Farbraum wie HSV leichter zu handhaben, wenn man nach bestimmten Farben filtert. Möchte ich im BGR Farbraum alles filtern, was irgendwie "orange" ist, ist das nicht so leicht zu implementieren - in HSV ist das deutlich einfacher. Auch ist dieser Farb Raum z.B. nicht so anfällig für Änderung der Helligkeit (durch Wolken/Sonne).
 Konvertiert man ein Bild in Graustufen, hat es nur noch einen Farb-Kanal. Dies macht zum Beispiel Sinn, um Datenmengen und Rechenzeit zu reduzieren.
 
 Hier wieder ein kleines Beispiel:
@@ -114,23 +118,41 @@ cv2.waitKey(0)
 
 In der Computer Vision muss man teilweise etwas um die Ecke denken, um komplexere Funktionen zu implementieren. Der Computer versteht ja erstmal nicht wirklich was in einem Bild zu sehen ist, sondern er sieht nur Zahlen, die Farbwerte repräsentieren. Ich möchte hier einige Methoden hervorheben, die zum Grundwerkzeug des Computer Visionärs gehören ...
 
+### Thresholding
+
+Thresholding wird häufig verwendet, um Bereiche eines Bildes, die bestimmte (Farb-)Eigenschaften haben, zu filtern. Es gibt verschiedene Thresholding Methoden - eine davon ist "Binary Thresholding". Dabei definiert man einen Schwellwert und man erhält als Output ein Schwarz/Weiß Bild. Pixel, die den den Schwellwert überschreiten sind Weiß - alle anderen Pixel sind Schwarz. Damit kann man dann zum Beispiel alle Pixel im Bild "suchen", die Orange sind (so wie der Marker in unserem Demo Video).
+
+Diese Thresholding Masken sind dann oft Grundlage für weitere Analysen. 
+
+### Konturen finden
+
+Für Schwarz/Weiß Bilder existieren effiziente Algorithmen, um darin Konturen zu finden. Diese erkennen zusammenhängende Pixel und gruppieren diese zu Blobs. Zusätzlich kann man diverse Eigenschaften dieser Konturen für weitere Analysen verwenden - zum Beispiel die Fläche oder die Kantenlänge der Kontur und man kann sich eine Bounding Box zurückgeben lassen. In unserem Demo Video verwenden wir dies, um die Position des orangenen Markers zu finden - dabei suchen wir nur Konturen heraus, die eine gewisse Mindestfläche haben (so können wir einzelne "noisy" Pixel herausfiltern, die im Orange Bereich liegen). 
+
+### Convolution
+
+Der Begriff Convolution taucht im Bereich Computer Vision und Machine Learning häufig auf. Die mathematische Grundlage davon ist eigentlich sehr einfach. Im Prinzip geht es um die Multiplikation von 2 Matrizen. Die Erste Matrix ist das Eingangs-Bild und die zweite der sogenannte Kernel. 
+
+TODO: blurring, sharpening, edges ... hoch effizient numpy etc.
+
+### Feature Extraction / Classifiers
+
 ### Background Subtraction
 
 Wenn man eine statische Kamera hat, gibt es diverse (relativ einfache) Methoden, um Bewegung in einem Bild zu erkennen. Man geht dann davon aus, dass das was sich nicht bewegt der Hintergrund ist. Einfach gesagt subtrahiert man die Pixel-Farb-Werte vom aktuellen Frame mit denen vom vorher gehenden Frame. Dort, wo sich nichts verändert hat, ergibt dies 0 - also keine Bewegung. Dieses Modell ist aber für die Praxis meist zu simpel, denn durch leichte Veränderungen der Lichtverhältnisse oder Umwelteinflüsse wie z.B. Wind erhält man zu viel "Noise". Über die letzten Jahrzehnte wurde eine Vielzahl von Algorithmen entwickelt, die alle ihre Vor- und Nachteile haben. Einen "One-Fits-All" Algorithmus, der in allen Situationen 100% funktioniert, gibt es nicht. Ein gute Übersicht über bekannte Verfahren gibt es hier: https://github.com/andrewssobral/bgslibrary/wiki/List-of-available-algorithms
 
 Ein häufig genutzer Algorithmus setzt auf ein Gaussian Mixture Model (GMM) oder MoG2, wie es in OpenCV genannt wird. 
 
-### Convolution
-
-### Feature Extraction / Classifiers
-
+TODO: include beispiel video BGS
 
 
 ## Detektoren
 
-# cvdrone Demo explained
-
 # Ausblick Deep Learning
+
+TODO: 
+* basics mit opencv
+* more mit Deep Learning
+* Beispiel Video Drone / Yolo
 
 
 ## References
