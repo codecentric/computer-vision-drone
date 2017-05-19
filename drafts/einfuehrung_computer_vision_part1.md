@@ -32,7 +32,7 @@ Einige Algorithmen basieren auf CUDA zur Nutzung der GPU. Dafür benötigt man e
 
 ## Installation von OpenCV mit Python Wrappern
 
-Es gibt im Internet viele Anleitungen, wie man OpenCV installieren kann - ich werde daher nicht das Rad neu erfinden, sondern verweise auf den lesenswerten Blog von Adrian Rosebrock. Also zunächst eine Ubuntu vm aufsetzen und dann folgenden Artikel Schritt für Schritt nachvollziehen: http://www.pyimagesearch.com/2016/10/24/ubuntu-16-04-how-to-install-opencv/ 
+Es gibt im Internet viele Anleitungen, wie man OpenCV installieren kann - ich werde daher nicht das Rad neu erfinden, sondern verweise auf den lesenswerten Blog von Adrian Rosebrock [3]. Also zunächst eine Ubuntu vm aufsetzen und dann folgenden Artikel Schritt für Schritt nachvollziehen: http://www.pyimagesearch.com/2016/10/24/ubuntu-16-04-how-to-install-opencv/ 
 
 OpenCV ist zwar in C geschrieben, mir ist aber der Einstieg mit den Python Wrappern leichter gefallen. Je nach Vorwissen kommt man damit deutlich schneller zu funktionierenden Prototypen. Der Performance Unterschied ist dabei in vielen Fällen vernachlässigbar gering. 
 
@@ -256,27 +256,26 @@ while cam.isOpened():
     # wenn ESC gedrückt beende programm
     if key == 27:
         break
-
 ```
-
-### Convolution
-
-Der Begriff Convolution taucht im Bereich Computer Vision und Machine Learning häufig auf. Die mathematische Grundlage davon ist eigentlich sehr einfach. Im Prinzip geht es um die Multiplikation von 2 Matrizen. Die Erste Matrix ist das Eingangs-Bild und die zweite der sogenannte Kernel. 
-
-TODO: blurring, sharpening, edges ... hoch effizient numpy etc.
-
-### Feature Extraction / Classifiers
 
 ### Background Subtraction
 
 Wenn man eine statische Kamera hat, gibt es diverse (relativ einfache) Methoden, um Bewegung in einem Bild zu erkennen. Man geht dann davon aus, dass das was sich nicht bewegt der Hintergrund ist. Einfach gesagt subtrahiert man die Pixel-Farb-Werte vom aktuellen Frame mit denen vom vorher gehenden Frame. Dort, wo sich nichts verändert hat, ergibt dies 0 - also keine Bewegung. Dieses Modell ist aber für die Praxis meist zu simpel, denn durch leichte Veränderungen der Lichtverhältnisse oder Umwelteinflüsse wie z.B. Wind erhält man zu viel "Noise". Über die letzten Jahrzehnte wurde eine Vielzahl von Algorithmen entwickelt, die alle ihre Vor- und Nachteile haben. Einen "One-Fits-All" Algorithmus, der in allen Situationen 100% funktioniert, gibt es nicht. Ein gute Übersicht über bekannte Verfahren gibt es hier: https://github.com/andrewssobral/bgslibrary/wiki/List-of-available-algorithms
 
-Ein häufig genutzer Algorithmus setzt auf ein Gaussian Mixture Model (GMM) oder MoG2, wie es in OpenCV genannt wird. 
+Ein häufig genutzer Algorithmus setzt auf ein Gaussian Mixture Model (GMM) oder MoG2, wie es in OpenCV genannt wird. Neuere Algorithmen sind zum Beispiel SubSENSE [2]
 
-TODO: include beispiel video BGS
+Hier ein kurzes Beispiel Video:
+
+[![opencv basics background subtraction](http://img.youtube.com/vi/fPc_N1I-Wq4/0.jpg)](https://youtu.be/fPc_N1I-Wq4 "OpenCV Basics Background Subraction")
 
 
-## Detektoren
+### Detektoren
+
+TODO: 
+
+* default HOG detector
+* Haar Cascade Classifier
+* ...
 
 # Ausblick Deep Learning
 
@@ -288,4 +287,6 @@ TODO:
 
 ## References
 
-[1] - Fei-Fei Li - Professor at Stanford University. https://youtu.be/qLCKtc9moks
+* [1] - Fei-Fei Li - Professor at Stanford University. https://youtu.be/qLCKtc9moks
+* [2] - SuBSENSE - https://www.ncbi.nlm.nih.gov/pubmed/25494507
+* [3] - http://pyimagesearch.com 
