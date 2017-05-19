@@ -291,7 +291,7 @@ Eine vereinfachte Visualisierung eines HOG Feature Vektors kann man sich so vors
   \ ____ /
 ```
 
-In unserem Drohnen Demo Video verwenden wir einen Haar Cascade Classifier, der nur nach Gesichtern in der Nähe vom detektierten orangenen Marker sucht. Damit können wir die Zahl der False Negatives so weit reduzieren, dass wir insgesamt ein gutes Ergebnis erzielen.
+In unserem Drohnen Demo Video verwenden wir einen Haar Cascade Classifier, der nur nach Gesichtern in der Nähe des detektierten orangenen Marker sucht. Damit können wir die Zahl der False Negatives so weit reduzieren, dass wir insgesamt ein gutes Ergebnis erzielen.
 
 
 Hier der Video Ausschnitt, mit einer kurzen Erklärung zum Code:
