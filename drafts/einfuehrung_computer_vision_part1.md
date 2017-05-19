@@ -279,14 +279,24 @@ TODO:
 
 # Ausblick Deep Learning
 
-TODO: 
-* basics mit opencv
-* more mit Deep Learning
-* Beispiel Video Drone / Yolo
+Zum Schluss möchte ich noch einen kleinen Ausblick auf das Thema Deep Learning geben. Viele Forscher beschäftigen sich mit dem Thema und man findet regelmäßig neue beeindruckende Demos und Algorithmen auf youtube. Einer davon ist YOLO [4]. Damit ist nicht das Jugendwort aus 2012 gemeint - sondern es steht für "You Only Look Once". Dahinter steckt ein Convolutional Neural Network, das in Echtzeit (auf entsprechender Hardware) verschiedenste Klassen von Objekten erkennen kann.
+ 
+Wir haben den Algorithmus einmal ausprobiert. Dazu haben wir unsere Drohne durch unser Büro fliegen lassen. Auf AWS haben wir eine GPU Instanz gemietet und dort YOLO installiert. Wir haben dazu ein vorkonfiguriertes "TensorFlow Image" aus dem Amazon Marketplace gestartet und sind der Anleitung auf https://pjreddie.com/darknet/yolo/ gefolgt. Man kann natürlich auch selbst eine Instanz aufsetzen - aber alle Abhängigkeiten zum Laufen zu bringen ist nicht trivial. Wer es probieren möchte, hier eine Starthilfe: http://cvdrone.de/install-opencv-on-aws-with-cuda.html
+
+Das Ergebnis unseres Drohnen Fluges seht ihr hier:
+
+[![opencv basics deeplearning](http://img.youtube.com/vi/su3pHwPyrVY/0.jpg)](https://youtu.be/su3pHwPyrVY "OpenCV Basics deeplearning")
+
+Weitere interessante Beispiele sind "Convolutional Pose Machines": https://www.youtube.com/watch?v=pW6nZXeWlGM
+oder "Style Transfer": https://www.youtube.com/watch?v=Khuj4ASldmU
+
+
+
 
 
 ## References
 
 * [1] - Fei-Fei Li - Professor at Stanford University. https://youtu.be/qLCKtc9moks
 * [2] - SuBSENSE - https://www.ncbi.nlm.nih.gov/pubmed/25494507
-* [3] - http://pyimagesearch.com 
+* [3] - http://pyimagesearch.com
+* [4] - YOLO - https://pjreddie.com/darknet/yolo/
