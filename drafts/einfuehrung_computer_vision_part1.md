@@ -290,7 +290,10 @@ Das Ergebnis unseres Drohnen Fluges seht ihr hier:
 Weitere interessante Beispiele sind "Convolutional Pose Machines": https://www.youtube.com/watch?v=pW6nZXeWlGM
 oder "Style Transfer": https://www.youtube.com/watch?v=Khuj4ASldmU
 
+Wer sich tiefer in das Thema einarbeiten möchte, dem empfehle ich das Buch "Deep Learning" von Ian Goodfellow et. al. Laut dem Buch verdoppeln sich Artificial Neural Networks alle 2,4 Jahre und im Jahre 2015 lag die Anzahl der Neuronen der größten Netzwerke wie GoogLeNet zwischen dem Gehirn einer Biene und dem eines Froschs. Dennoch sind einige spezialisierte ANNs dem Menschen bereits überlegen. Geht die Entwicklung so weiter, erwartet man, dass die größten neuralen Netzwerke um 2050 in der Größenordnung des menschlichen Gehirns liegen werden. 
 
+
+Ich hoffe, dass ich mit diesem Artikel etwas Interesse für Computer Vision wecken konnte. Ich freue mich über Shares und Feedback (gerne über: https://twitter.com/moseroli). Unter http://cvdrone.de findet man mehr Infos und Videos zu unserem Drohnen Projekt.
 
 
 
