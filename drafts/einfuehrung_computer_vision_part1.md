@@ -310,8 +310,11 @@ Das Ergebnis unseres Drohnen Fluges kann man hier sehen:
 
 [![opencv basics deeplearning](http://img.youtube.com/vi/su3pHwPyrVY/0.jpg)](https://youtu.be/su3pHwPyrVY "OpenCV Basics deeplearning")
 
-Weitere interessante Beispiele sind "Convolutional Pose Machines": https://www.youtube.com/watch?v=pW6nZXeWlGM
-oder "Style Transfer": https://www.youtube.com/watch?v=Khuj4ASldmU (... und noch viele mehr ...)
+Weitere interessante Beispiele sind 
+
+* "Convolutional Pose Machines": https://www.youtube.com/watch?v=pW6nZXeWlGM
+* "Style Transfer": https://www.youtube.com/watch?v=Khuj4ASldmU 
+* (... und noch viele mehr ...)
 
 Wer sich tiefer in das Thema einarbeiten möchte, dem empfehle ich das Buch "Deep Learning" von Ian Goodfellow et al. Laut dem Buch verdoppeln sich Artificial Neural Networks alle 2,4 Jahre und 2015 lag die Anzahl der Neuronen der größten Netzwerke wie GoogLeNet zwischen dem Gehirn einer Biene und dem eines Froschs. Dennoch waren einige spezialisierte ANNs dem Menschen in ganz bestimmten Aufgaben bereits überlegen. Geht die Entwicklung so weiter, erwartet man, dass die größten neuronalen Netzwerke um 2056 in der Größenordnung des menschlichen Gehirns liegen werden. 
 
