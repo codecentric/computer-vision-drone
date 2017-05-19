@@ -294,9 +294,9 @@ Eine vereinfachte Visualisierung eines HOG Feature Vektors kann man sich so vors
 In unserem Drohnen Demo Video verwenden wir einen Haar Cascade Classifier, der nur nach Gesichtern in der Nähe des detektierten orangenen Marker sucht. Damit können wir die Zahl der False Negatives so weit reduzieren, dass wir insgesamt ein gutes Ergebnis erzielen.
 
 
-Hier der Video Ausschnitt, mit einer kurzen Erklärung zum Code:
+Hier der Video Ausschnitt, zum Facedetektor in der Nähe des Markers:
 
-[![opencv basics face detection](http://img.youtube.com/vi/RCyiRpQ2xME/0.jpg)](https://youtu.be/RCyiRpQ2xME "OpenCV Basics face detection")
+[![opencv basics face detection](http://img.youtube.com/vi/0X1yA8gVKFc/0.jpg)](https://youtu.be/0X1yA8gVKFc "OpenCV Basics face detection")
 
 
 
