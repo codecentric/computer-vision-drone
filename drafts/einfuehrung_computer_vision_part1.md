@@ -124,9 +124,140 @@ Thresholding wird häufig verwendet, um Bereiche eines Bildes, die bestimmte (Fa
 
 Diese Thresholding Masken sind dann oft Grundlage für weitere Analysen. 
 
+
+[![opencv basics thresholding](http://img.youtube.com/vi/6OozI19C7pQ/0.jpg)](https://youtu.be/6OozI19C7pQ "OpenCV Basics Thresholding")
+
+Hier der Code zu dem Video:
+
+```python
+
+## ermittle Farbwerte eines Tennisballs
+
+import cv2
+
+
+# initialisiere Webcam
+cam = cv2.VideoCapture(0)
+
+# define region of interest
+x, y, w, h = 400, 400, 100, 100
+
+# zeige stream von WebCam an
+while cam.isOpened():
+    # lese frame von WebCam
+    ret, frame = cam.read()
+
+    # konvertiere frame in HSV Farbraum, um besser nach Farb Ranges filtern zu können
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # zeichne rechteck in bild
+    cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 255), thickness=1)
+
+    # gebe Hue Wert an der linken oberen ecke der ROI aus, um Farbwerte des Tennis balls zu ermitteln:
+    cv2.putText(frame, "HSV: {0}".format(frame[y+1, x+1]), (x, 600),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), thickness=2)
+
+    # zeige Frame an
+    cv2.imshow("frame", frame)
+
+    # warte auf Tastendruck (sonst sieht man das fenster nicht)
+    key = cv2.waitKey(1) & 0xff
+
+    # wenn ESC gedrückt beende programm
+    if key == 27:
+        break
+
+```
+
+Mit den Farbwerten filtern wir nach Range:
+
+```python
+import cv2
+
+
+# initialisiere Webcam
+cam = cv2.VideoCapture(0)
+
+# definiere farb ranges
+lower_yellow = (18, 100, 210)
+upper_yellow = (40, 160, 245)
+
+# zeige stream von WebCam an
+while cam.isOpened():
+    # lese frame von WebCam
+    ret, frame = cam.read()
+
+    # konvertiere frame in HSV Farbraum, um besser nach Farb Ranges filtern zu können
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # filtere bild nach farb grenzen
+    mask = cv2.inRange(frame, lower_yellow, upper_yellow)
+
+    # zeige Frame an
+    cv2.imshow("threshold", mask)
+
+    # warte auf Tastendruck (sonst sieht man das fenster nicht)
+    key = cv2.waitKey(1) & 0xff
+
+    # wenn ESC gedrückt beende programm
+    if key == 27:
+        break
+
+```
+
 ### Konturen finden
 
 Für Schwarz/Weiß Bilder existieren effiziente Algorithmen, um darin Konturen zu finden. Diese erkennen zusammenhängende Pixel und gruppieren diese zu Blobs. Zusätzlich kann man diverse Eigenschaften dieser Konturen für weitere Analysen verwenden - zum Beispiel die Fläche oder die Kantenlänge der Kontur und man kann sich eine Bounding Box zurückgeben lassen. In unserem Demo Video verwenden wir dies, um die Position des orangenen Markers zu finden - dabei suchen wir nur Konturen heraus, die eine gewisse Mindestfläche haben (so können wir einzelne "noisy" Pixel herausfiltern, die im Orange Bereich liegen). 
+
+Hier versuchen wir jetzt den Tennis Ball im Bild zu finden und filtern die noisy Pixel heraus:
+
+[![opencv basics contours](http://img.youtube.com/vi/Wp7qylBXXv4/0.jpg)](https://youtu.be/Wp7qylBXXv4 "OpenCV Basics Konturen")
+
+```python
+import cv2
+
+# initialisiere Webcam
+cam = cv2.VideoCapture(0)
+
+# definiere farb ranges
+lower_yellow = (18, 100, 210)
+upper_yellow = (40, 160, 245)
+
+# zeige stream von WebCam an
+while cam.isOpened():
+    # lese frame von WebCam
+    ret, frame = cam.read()
+
+    # konvertiere frame in HSV Farbraum, um besser nach Farb Ranges filtern zu können
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # filtere bild nach farb grenzen
+    mask = cv2.inRange(frame, lower_yellow, upper_yellow)
+
+    # finde Konturen in der Maske, die nur noch zeigt, wo gelbe Pixel sind:
+    _, contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
+                                      cv2.CHAIN_APPROX_SIMPLE)
+
+    # suche die größte contour heraus (diese ist höchst wahrscheinlich der Tennis Ball)
+    # dazu nehmen wir die Fläche der Kontur:
+    if len(contours) > 0:
+        tennis_ball = max(contours, key=cv2.contourArea)
+
+        # zeichne die Bounding box des tennis balls in das Video Bild ein:
+        x, y, w, h = cv2.boundingRect(tennis_ball)
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), thickness=3)
+
+    # zeige Frame an
+    cv2.imshow("frame", frame)
+
+    # warte auf Tastendruck (sonst sieht man das fenster nicht)
+    key = cv2.waitKey(1) & 0xff
+
+    # wenn ESC gedrückt beende programm
+    if key == 27:
+        break
+
+```
 
 ### Convolution
 
