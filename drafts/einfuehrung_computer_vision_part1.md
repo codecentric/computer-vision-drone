@@ -271,26 +271,49 @@ Hier ein kurzes Beispiel Video:
 
 ### Detektoren
 
-TODO: 
+Bei OpenCV oder dlib sind bereits diverse "standard" Detektoren integriert. Ein Programm, das in einem Webcam Stream Gesichter finden soll, ist in ein paar Zeilen Python schnell zusammengehackt. Taugen solche Programme auch für praktische Einsatzzwecke?! Wohl eher nicht. Die standard Detektoren haben hohe Fehlerraten (viele False Positives und False Negatives). "Klassisch", benutzt man vor allem folgende Methoden, um Gesichter in einem Bild zu finden ...
 
-* default HOG detector
-* Haar Cascade Classifier
-* ...
+Haar Cascade Classifier:
+
+Sie gehen zurück auf ein Paper von Viola und Jones aus dem Jahr 2000. Der Algorithmus ist relativ schnell - man kann ihn in abgespeckter Auflösung und Framerate auf einem Raspberry Pi laufen lassen. OpenCV bringt bereits einige vortrainierte Haar Cascade Classifier mit - unter anderem um Gesichter von Menschen oder Katzen zu erkennen. Allerdings erkennt dieser Classifier auch regelmäßig die Rückenlehne meines Stuhls als Gesicht.
+
+HOG Detektoren:
+
+HOG steht für Histogram of oriented Gradients. Dabei wird ein Bildausschnitt in ein Grid unterteilt. Für jede Box des Grids werden die dominanten Kannten ermittelt und in Zahlenwerte für die Ausrichtung der dieser Kannten umgewandelt. Auf diesen Werten wird dann ein Modell trainiert. Die benötigte Rechenleistung ist dabei deutlich höher als bei Haar Cascade Classifiern - man kann damit aber unter Umständen bessere Detektions-Ergebnisse erzielen. 
+
+Eine vereinfachte Visualisierung eines HOG Feature Vektors kann man sich so vorstellen. Die dominanten Gradienten in jeder Box des Grids sind insgesamt eindeutig als Gesicht zu erkennen:
+
+```
+   ______
+  / _  _ \
+ |   /    |
+ |   __   | 
+  \ ____ /
+```
+
+In unserem Drohnen Demo Video verwenden wir einen Haar Cascade Classifier, der nur nach Gesichtern in der Nähe vom detektierten orangenen Marker sucht. Damit können wir die Zahl der False Negatives so weit reduzieren, dass wir insgesamt ein gutes Ergebnis erzielen.
+
+
+Hier der Video Ausschnitt, mit einer kurzen Erklärung zum Code:
+
+[![opencv basics face detection](http://img.youtube.com/vi/RCyiRpQ2xME/0.jpg)](https://youtu.be/RCyiRpQ2xME "OpenCV Basics face detection")
+
+
 
 # Ausblick Deep Learning
 
-Zum Schluss möchte ich noch einen kleinen Ausblick auf das Thema Deep Learning geben. Viele Forscher beschäftigen sich mit dem Thema und man findet regelmäßig neue beeindruckende Demos und Algorithmen auf youtube. Einer davon ist YOLO [4]. Damit ist nicht das Jugendwort aus 2012 gemeint - sondern es steht für "You Only Look Once". Dahinter steckt ein Convolutional Neural Network, das in Echtzeit (auf entsprechender Hardware) verschiedenste Klassen von Objekten erkennen kann.
+Zum Schluss möchte ich noch einen kleinen Ausblick auf das Thema Deep Learning geben. Viele Forscher beschäftigen sich mit dem Gebiet und man findet regelmäßig neue beeindruckende Demos und Algorithmen auf youtube. Einer davon ist YOLO [4]. Damit ist nicht das Jugendwort aus 2012 gemeint - sondern es steht für "You Only Look Once". Dahinter steckt ein Convolutional Neural Network, das in Echtzeit (auf entsprechender Hardware) verschiedenste Klassen von Objekten erkennen kann.
  
-Wir haben den Algorithmus einmal ausprobiert. Dazu haben wir unsere Drohne durch unser Büro fliegen lassen. Auf AWS haben wir eine GPU Instanz gemietet und dort YOLO installiert. Wir haben dazu ein vorkonfiguriertes "TensorFlow Image" aus dem Amazon Marketplace gestartet und sind der Anleitung auf https://pjreddie.com/darknet/yolo/ gefolgt. Man kann natürlich auch selbst eine Instanz aufsetzen - aber alle Abhängigkeiten zum Laufen zu bringen ist nicht trivial. Wer es probieren möchte, hier eine Starthilfe: http://cvdrone.de/install-opencv-on-aws-with-cuda.html
+Wir haben den Algorithmus einmal ausprobiert. Dazu haben wir unsere Drohne durch unser Büro fliegen lassen. Auf AWS haben wir eine GPU Instanz gemietet und dort YOLO installiert. Wir haben dazu ein vorkonfiguriertes "TensorFlow Image" aus dem Amazon Marketplace gestartet und sind der Anleitung auf https://pjreddie.com/darknet/yolo/ gefolgt. Man kann natürlich auch selbst eine Instanz aufsetzen - aber alle Abhängigkeiten zum Laufen zu bringen ist nicht trivial. Wer es probieren möchte, hier eine Starthilfe: http://cvdrone.de/install-opencv-on-aws-with-cuda.html . An dieser Stelle haben wir auch ganz deutlich gemerkt, wieviel Unterschied eine GPU bringt - während der Algorithmus auf CPU etwa 15-20 Sekunden pro Frame rechnete, brauchte er mit GPU Unterstützung gerade noch 6 ms für die gleiche Arbeit.
 
-Das Ergebnis unseres Drohnen Fluges seht ihr hier:
+Das Ergebnis unseres Drohnen Fluges kann man hier sehen:
 
 [![opencv basics deeplearning](http://img.youtube.com/vi/su3pHwPyrVY/0.jpg)](https://youtu.be/su3pHwPyrVY "OpenCV Basics deeplearning")
 
 Weitere interessante Beispiele sind "Convolutional Pose Machines": https://www.youtube.com/watch?v=pW6nZXeWlGM
-oder "Style Transfer": https://www.youtube.com/watch?v=Khuj4ASldmU
+oder "Style Transfer": https://www.youtube.com/watch?v=Khuj4ASldmU (... und noch viele mehr ...)
 
-Wer sich tiefer in das Thema einarbeiten möchte, dem empfehle ich das Buch "Deep Learning" von Ian Goodfellow et. al. Laut dem Buch verdoppeln sich Artificial Neural Networks alle 2,4 Jahre und im Jahre 2015 lag die Anzahl der Neuronen der größten Netzwerke wie GoogLeNet zwischen dem Gehirn einer Biene und dem eines Froschs. Dennoch sind einige spezialisierte ANNs dem Menschen bereits überlegen. Geht die Entwicklung so weiter, erwartet man, dass die größten neuralen Netzwerke um 2050 in der Größenordnung des menschlichen Gehirns liegen werden. 
+Wer sich tiefer in das Thema einarbeiten möchte, dem empfehle ich das Buch "Deep Learning" von Ian Goodfellow et al. Laut dem Buch verdoppeln sich Artificial Neural Networks alle 2,4 Jahre und 2015 lag die Anzahl der Neuronen der größten Netzwerke wie GoogLeNet zwischen dem Gehirn einer Biene und dem eines Froschs. Dennoch waren einige spezialisierte ANNs dem Menschen in ganz bestimmten Aufgaben bereits überlegen. Geht die Entwicklung so weiter, erwartet man, dass die größten neuronalen Netzwerke um 2056 in der Größenordnung des menschlichen Gehirns liegen werden. 
 
 
 Ich hoffe, dass ich mit diesem Artikel etwas Interesse für Computer Vision wecken konnte. Ich freue mich über Shares und Feedback (gerne über: https://twitter.com/moseroli). Unter http://cvdrone.de findet man mehr Infos und Videos zu unserem Drohnen Projekt.
