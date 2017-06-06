@@ -1,4 +1,5 @@
 # Convert colorspaces
+
 We can convert between different [colorspaces](http://docs.opencv.org/3.2.0/de/d25/imgproc_color_conversions.html), e.g. from BGR to gray scale, with 
 ```python
 cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

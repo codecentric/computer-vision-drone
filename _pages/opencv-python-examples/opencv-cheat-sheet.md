@@ -9,25 +9,25 @@ import numpy
 ```
 
 A condensed overview of the following can be found in the
-[Cheat Sheet](OpenCVCheatSheet.pdf)
+[Cheat Sheet](http://cvdrone.de/_pages/opencv-python-examples/OpenCVCheatSheet.pdf)
 
 ## Basics
 
-[Read or save image](opencv-read-and-save-images.md) : ```cv2.imshow('name of window', img)```
+[Read or save image](http://cvdrone.de/_pages/opencv-python-examples/opencv-read-and-save-images/) : ```cv2.imshow('name of window', img)```
 
-[Rotate image](opencv-rotate-image.md) : ```rotated_image = imutils.rotate(image, 90)```  
+[Rotate image](http://cvdrone.de/_pages/opencv-python-examples/opencv-rotate-image/) : ```rotated_image = imutils.rotate(image, 90)```  
 
-[Resize_image](opencv-resize-image.md) : ```img2 = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA)```
+[Resize image](http://cvdrone.de/_pages/opencv-python-examples/opencv-resize-image/) : ```img2 = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA)```
 
-[Change parts of image](opencv-change-parts-of-image.md)
+[Change parts of image](http://cvdrone.de/_pages/opencv-python-examples/opencv-change-parts-of-image/)
 
-[Split or merge channels](opencv-split-merge-channels.md)
+[Split or merge channels](http://cvdrone.de/_pages/opencv-python-examples/opencv-split-merge-channels/)
 
-[Add a border to an image](opencv-add-border.md)
+[Add a border to an image](http://cvdrone.de/_pages/opencv-python-examples/opencv-add-border/)
 
-[Convert colorspaces](opencv-convert-colorspaces.md)
+[Convert colorspaces](http://cvdrone.de/_pages/opencv-python-examples/opencv-convert-colorspaces/)
 
-[Warp image](opencv-warp-image.md)
+[Warp image](http://cvdrone.de/_pages/opencv-python-examples/opencv-warp-image/)
 
 ### Image filtering
 Thresholding selects pixels in a gray scale image whose intensity is larger (or smaller) than a threshold and assigns a new value to them.

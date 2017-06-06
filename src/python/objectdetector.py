@@ -1,9 +1,12 @@
 import imutils
+import time
 
 import videowriter
+from person_counter import PersonCounter
 from config import *
 
 import hud
+import voice_commands
 
 import cv2
 
@@ -34,7 +37,7 @@ class ObjectDetector:
         except IndexError:
             contour = None
 
-        cv2.imshow("ojbect", mask)
+        #cv2.imshow("ojbect", mask)
 
         return contour
 
@@ -74,13 +77,34 @@ marker_detector = ObjectDetector()
 face_detector = FaceDetector()
 frame_idx = 0
 writer = videowriter.VideoWriter(cam, out_file="/home/user/opencv/videos/object-detection.mp4")
+status = hud.HudStatus()
+pc = PersonCounter()
+curr_frame = None
 
+
+def count_callback():
+    return pc.count(curr_frame)
+
+
+voice_detector = voice_commands.VoiceCommand(callback=count_callback)
+voice_detector.start()
 
 while True:
     ret, frame = cam.read()
-    frame = imutils.resize(frame, width=640)
+    if ret != True:
+        print(ret)
+    frame = imutils.resize(frame, width=1024)
+    curr_frame = frame.copy()
     frame_idx += 1
     marker = marker_detector.detect(frame)
+
+    if frame_idx == 1:
+        status.set_status("starting")
+
+    if pc.is_running():
+        status.set_status("counting persons", 10)
+
+    status.update()
 
     if marker is not None:
         marker = cv2.boundingRect(marker)
@@ -97,9 +121,24 @@ while True:
 
                 hud.mark_rois(frame, [(p_x1, p_y1, p_x2, p_y2)])
 
-    hud.get_hud(frame, None, frame_idx)
+    pc_frame, pc_count = pc.get_count()
+    if pc_frame is not None:
+        status.set_status("found persons: {0}".format(pc_count), 100)
+        cv2.imshow("person count", pc_frame)
+        cv2.moveWindow("person count", 1024, 0)
+
+    hud.get_hud(frame, status.get_status(), frame_idx)
     cv2.imshow("frame", frame)
+    cv2.moveWindow("frame", 0, 0)
     writer.write(frame)
+
     key = cv2.waitKey(1) & 0xff
     if key == 27:
         break
+
+    if key == ord('c'):
+        pc.count(frame)
+
+del voice_detector
+cv2.destroyAllWindows()
+cam.release()
