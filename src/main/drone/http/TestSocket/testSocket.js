@@ -84,6 +84,38 @@ wss.on('connection', function(ws) {
 
         }
     });
+    ws.on('message', function incoming(message) {
+        //console.log('received: %s', message);
+        try {
+            let msg = JSON.parse(message);
+            if (msg.message) {
+                console.log('Message ' + msg.message)
+            } else if (msg.function) {
+                //console.log('recieved function call ' + msg.function)
+                try {
+                    switch (msg.function) {
+                        case 'turn':
+                            turn(msg.args);
+                            break;
+                        case 'autoPilot':
+                            autoPilot(msg.args[0]);
+                            break;
+                        default:
+                            console.log(`unkown message ${msg} ${msg.function}`)
+                            break;
+                    }
+                } catch (err) {
+                    console.log(err.message)
+                }
+            }
+            //console.log(JSON.stringify(msg))
+        } catch (error){
+            console.log('Error message not in JSON Syntax')
+        }
+    });
+    function turn(direction) {
+        console.log('turning ' + direction)
+    }
     ws.on('close', function () {
         console.log('disconnecting client ');
     });
@@ -143,6 +175,18 @@ wss.on('connection', function(ws) {
     },5000);
 });
 
+    /**
+     * set the autopilot mode
+     */
+
+function autoPilot(boolean) {
+        if (boolean === 'true' || boolean === 'false') {
+                this.state.autoPilot = true;
+                log(`autoPilot changed because value is valid. Value: ${boolean}`)
+        } else {
+            console.log(`autoPilot not changed because value is invalid. Value: ${boolean}`)
+        }
+}
 
 function log(message, key, value, debugLevel) {
 
