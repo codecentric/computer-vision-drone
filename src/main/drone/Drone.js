@@ -29,7 +29,6 @@ readline.emitKeypressEvents(process.stdin);
 if (process.stdin.isTTY) {
     process.stdin.setRawMode(true);
 }
-
 //module.exports = Drone;
 //export default Drone;
 /**
@@ -446,6 +445,13 @@ module.exports = class Drone {
     }
 
     /**
+     * send a message to the forked process with the running sensors
+     * @param sensors to be updated
+     */
+    updateSensor(sensors) {
+        sensors.send({msg: 'getData'})
+    }
+    /**
      * init some keyboard handlers for special keys like emergency controlling
      */
     initKeyHandler(ch, key) {
@@ -725,17 +731,18 @@ module.exports = class Drone {
             let distFront = this.state.distFront;
             let distLeft = this.state.distLeft;
             let distRight = this.state.distRight;
-
+            let tooClose = false
             this.showHUD(distFront, distLeft, distRight, this.speed.turning, this.speed.turningDirection);
 
             if (distFront < 80 || distLeft < 70 || distRight < 70) {
                 this.landing("came to close to anything (F: " + distFront + " R: " + distRight + " L: " + distLeft);
+                tooClose = true
             }
 
             const stopDistance = 120;
 
             //TODO add "rotatingPuffer" um nach einem Stop länger nachzudrehen?
-            if (this.state.autoPilot === true) {
+            if (this.state.autoPilot === true && tooClose === false) {
                 /* one of the distances is lower then stop-distance, slow down the drone and start rotating */
                 if (distFront < stopDistance || distLeft < stopDistance || distRight < stopDistance) {
                     this.slowDown();
@@ -760,7 +767,7 @@ module.exports = class Drone {
             }
 
             // trigger the Sensor to update Distances
-            this.config.sensors.send({msg: 'getData'});
+            this.updateSensor(this.config.sensors)
 
         } else {
 
@@ -790,6 +797,7 @@ module.exports = class Drone {
             }
         }
     }
+
 
     /**
      * Lock the drone so no further movement commands will be executed
@@ -997,4 +1005,5 @@ module.exports = class Drone {
 
     }
 }
+
 

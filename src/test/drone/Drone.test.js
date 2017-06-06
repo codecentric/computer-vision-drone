@@ -405,11 +405,246 @@ describe('Drone Control', function () {
     })
     describe('#unlockMovement', function () {
 
-        it('should ulock movements', function () {
+        it('should unlock movements', function () {
             drone.state.movementLocked = true
             expect(drone.state.movementLocked).to.be.true
             drone.unlockMovement()
             expect(drone.state.movementLocked).to.be.false
         })
+    })
+
+    describe('#flightControl', function () {
+        describe('when drone is not connected', function () {
+            it('and wlan disconnected', function () {
+                sinon.stub(drone, 'log')
+                drone.state.isDroneConnected = false
+                drone.state.isWLANConnected = false
+                drone.flightControl()
+                expect(drone.log.calledWith('WLAN NOT CONNECTED')).to.be.true;
+            })
+
+        })
+
+        describe('when drone is connected', function () {
+            beforeEach(function () {
+                sinon.stub(drone, 'showHUD')
+                sinon.stub(drone, 'landing')
+                sinon.stub(drone, 'stopRotate')
+                sinon.stub(drone, 'startRotate')
+                sinon.stub(drone, 'accelerate')
+                sinon.stub(drone, 'slowDown')
+                sinon.stub(drone, 'updateSensor')
+
+                drone.state.isDroneConnected = true
+                drone.state.isWLANConnected = true
+
+            })
+
+            afterEach(function () {
+                drone.showHUD.restore()
+                drone.landing.restore()
+                drone.stopRotate.restore()
+                drone.startRotate.restore()
+                drone.accelerate.restore()
+                drone.slowDown.restore()
+                drone.updateSensor.restore()
+
+            })
+
+            describe('all way (upfront) free', function () {
+                beforeEach(function () {
+                    drone.state.distFront = 200
+                    drone.state.distLeft = 200
+                    drone.state.distRight = 200
+                })
+                it('autopilot on ', function () {
+                    drone.state.autoPilot = true
+                    drone.flightControl()
+
+                    expect(drone.landing.called).to.be.false
+                    expect(drone.slowDown.called).to.be.false
+                    expect(drone.stopRotate.calledOnce).to.be.true
+                    expect(drone.accelerate.calledOnce).to.be.true
+                    expect(drone.updateSensor.calledOnce).to.be.true
+                })
+
+                it('autopilot off', function () {
+                    drone.state.autoPilot = false
+                    drone.flightControl()
+
+                    expect(drone.landing.called).to.be.false
+                    expect(drone.slowDown.called).to.be.false
+                    expect(drone.stopRotate.called).to.be.false
+                    expect(drone.accelerate.called).to.be.false
+                    expect(drone.updateSensor.calledOnce).to.be.true
+
+                })
+            })
+
+            describe('object in the front', function () {
+
+                describe('but not too close', function () {
+                    it('rotate right', function () {
+                        drone.state.autoPilot = true
+
+                        drone.state.distFront = 110
+                        drone.flightControl()
+                        expect(drone.landing.called).to.be.false
+                        expect(drone.slowDown.calledOnce).to.be.true
+                        expect(drone.startRotate.calledWith(1)).to.be.true
+                        expect(drone.startRotate.calledWith(-1)).to.be.false
+
+                    })
+                })
+
+                describe('too close', function () {
+                    it('trigger landing', function () {
+                        drone.state.autoPilot = true
+
+                        drone.state.distFront = 69
+                        drone.flightControl()
+                        expect(drone.landing.calledOnce).to.be.true
+                        expect(drone.slowDown.called).to.be.false
+                        expect(drone.startRotate.called).to.be.false
+
+                    })
+                })
+
+                describe('but not too close and autopilot off', function () {
+                    it('do nothing', function () {
+                        drone.state.autoPilot = false
+
+                        drone.state.distFront = 110
+                        drone.flightControl()
+                        expect(drone.landing.called).to.be.false
+                        expect(drone.slowDown.called).to.be.false
+                        expect(drone.stopRotate.called).to.be.false
+                        expect(drone.accelerate.called).to.be.false
+                        expect(drone.startRotate.called).to.be.false
+                        expect(drone.updateSensor.calledOnce).to.be.true
+                    })
+                })
+                describe('but too close and autopilot off', function () {
+                    it('trigger landing', function () {
+                        drone.state.autoPilot = false
+
+                        drone.state.distFront = 70
+                        drone.flightControl()
+                        expect(drone.landing.called).to.be.true
+                        expect(drone.slowDown.called).to.be.false
+                        expect(drone.stopRotate.called).to.be.false
+                        expect(drone.accelerate.called).to.be.false
+                        expect(drone.startRotate.called).to.be.false
+                        expect(drone.updateSensor.calledOnce).to.be.true
+                    })
+                })
+            })
+
+            describe('object left and front', function () {
+                describe('both not too close', function () {
+                    it('rotate right', function () {
+                        drone.state.distFront = 110
+                        drone.state.distLeft = 110
+                        drone.flightControl()
+
+                        expect(drone.landing.called).to.be.false
+                        expect(drone.slowDown.calledOnce).to.be.true
+                        expect(drone.startRotate.calledWith(1)).to.be.true
+                    })
+                })
+                describe('one of the too close', function () {
+                    it('trigger landing', function () {
+                        drone.state.distFront = 110
+                        drone.state.distLeft = 50
+                        drone.flightControl()
+
+                        expect(drone.landing.called).to.be.true
+                        expect(drone.slowDown.calledOnce).to.be.false
+                        expect(drone.startRotate.called).to.be.false
+                    })
+                })
+                describe('both too close', function () {
+                    it('trigger landing', function () {
+                        drone.state.distFront = 50
+                        drone.state.distLeft = 50
+                        drone.flightControl()
+
+                        expect(drone.landing.called).to.be.true
+                        expect(drone.slowDown.calledOnce).to.be.false
+                        expect(drone.startRotate.called).to.be.false
+                    })
+                })
+            })
+            describe('object right and front', function () {
+                describe('both not too close', function () {
+                    it('rotate left', function () {
+                        drone.state.distFront = 110
+                        drone.state.distRight = 110
+                        drone.flightControl()
+
+                        expect(drone.landing.called).to.be.false
+                        expect(drone.slowDown.calledOnce).to.be.true
+                        expect(drone.startRotate.calledWith(-1)).to.be.true
+                    })
+                })
+                describe('one of the too close', function () {
+                    it('trigger landing', function () {
+                        drone.state.distFront = 110
+                        drone.state.distLeft = 50
+                        drone.flightControl()
+
+                        expect(drone.landing.called).to.be.true
+                        expect(drone.slowDown.calledOnce).to.be.false
+                        expect(drone.startRotate.called).to.be.false
+                    })
+                })
+                describe('both too close', function () {
+                    it('trigger landing', function () {
+                        drone.state.distFront = 50
+                        drone.state.distLeft = 50
+                        drone.flightControl()
+
+                        expect(drone.landing.called).to.be.true
+                        expect(drone.slowDown.calledOnce).to.be.false
+                        expect(drone.startRotate.called).to.be.false
+                    })
+                })
+
+            })
+
+            describe('object left', function () {
+                describe('but not too close', function () {
+                    it('rotate right', function () {
+                        drone.state.autoPilot = true
+
+                        drone.state.distLeft = 110
+                        drone.flightControl()
+                        expect(drone.landing.called).to.be.false
+                        expect(drone.slowDown.calledOnce).to.be.true
+                        expect(drone.startRotate.calledWith(1)).to.be.true
+                        expect(drone.startRotate.calledWith(-1)).to.be.false
+
+                    })
+                })
+            })
+            describe('object right', function () {
+                describe('but not too close', function () {
+                    it('rotate right', function () {
+                        drone.state.autoPilot = true
+
+                        drone.state.distRight = 110
+                        drone.flightControl()
+                        expect(drone.landing.called).to.be.false
+                        expect(drone.slowDown.calledOnce).to.be.true
+                        expect(drone.startRotate.calledWith(1)).to.be.false
+                        expect(drone.startRotate.calledWith(-1)).to.be.true
+
+                    })
+                })
+            })
+
+
+        })
+
     })
 });
