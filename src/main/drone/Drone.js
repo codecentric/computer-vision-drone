@@ -168,7 +168,12 @@ module.exports = class Drone {
             this.addWebsocketServer();
 
             // add a http server for the webui
-            this.addHttpServer();
+
+            try {
+                this.addHttpServer();
+            } catch (err) {
+                this.log(err)
+            }
 
 
             /* recurring ping for live connection check */
@@ -197,9 +202,8 @@ module.exports = class Drone {
              });
              this.voice.triggerStart();
              */
-            addEventListener();
+            this.addEventListeners();
 
-            this.run();
 
         } catch (error) {
             this.state.readyForTakeoff = false;
@@ -236,7 +240,7 @@ module.exports = class Drone {
     addEventListeners() {
         // ping the drone if the ping event is emitted
         eventEmitter.on('ping', () => {
-            this.pingDrone(this.bebopOpts.ip, this.reactOnPing())
+            this.pingDrone(this.bebopOpts.ip, (err) => this.reactOnPing(err))
         });
 
         // checks if the drone is in ready mode
@@ -284,6 +288,7 @@ module.exports = class Drone {
      * adds a websocket server so data can be sent to the webui. It reacts on events and forward them via the websocket connection
      */
     addWebsocketServer() {
+
         this.wss = new WebSocketServer({host: '0.0.0.0', port: 8000});
 
         // TODO What happens if multiple clients connect?
@@ -299,6 +304,17 @@ module.exports = class Drone {
                     }
                 }
             });
+
+            /*  this is the interface for controlling the drone via websocket.
+            *   a message must be in json and the following structure:
+            *   {
+            *       'function': 'nameOfTheFunction',
+            *       'args':     ['arg1', 'arg2', ... 'arg n']
+            *    }
+            *
+            *    The method call is not automatically executed.
+            *    Only the defined functions below can be called.
+            */
             ws.on('message', function incoming(message) {
                 try {
                     let msg = JSON.parse(message);
@@ -432,8 +448,9 @@ module.exports = class Drone {
                 this.state.distFront = msg.distanceData.front;
                 this.state.distLeft = msg.distanceData.left;
                 this.state.distRight = msg.distanceData.right;
-
-                console.log(`Left: ${this.state.distLeft}, Front: ${this.state.distFront}, Right: ${this.state.distRight}`);
+                if (this.state.testMode === true) {
+                    console.log(`Left: ${this.state.distLeft}, Front: ${this.state.distFront}, Right: ${this.state.distRight}`);
+                }
 
             } else if (msg.message == 'sensorInitialized') {
                 eventEmitter.emit('sensorInitialized');
@@ -451,6 +468,7 @@ module.exports = class Drone {
     updateSensor(sensors) {
         sensors.send({msg: 'getData'})
     }
+
     /**
      * init some keyboard handlers for special keys like emergency controlling
      */
@@ -468,7 +486,7 @@ module.exports = class Drone {
                     break;
 
                 case 't':
-                    this.buttonPushed(this.takeoff);
+                    this.buttonPushed(() => this.takeoff());
 
                     break;
 

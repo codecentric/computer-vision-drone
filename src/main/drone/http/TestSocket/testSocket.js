@@ -43,6 +43,7 @@ state.isReconnecting = false;        // is the drone currently reconnecting?
 state.distFront = 999;
 state.distLeft = 999;
 state.distRight = 999;
+state.autoPilot = true;
 
 //process.on('exit', onExit());
 //process.on('SIGINT', onExit());    // CTRL+C
@@ -181,8 +182,8 @@ wss.on('connection', function(ws) {
 
 function autoPilot(boolean) {
         if (boolean === 'true' || boolean === 'false') {
-                this.state.autoPilot = true;
-                log(`autoPilot changed because value is valid. Value: ${boolean}`)
+                state.autoPilot = true;
+                console.log(`autoPilot changed because value is valid. Value: ${boolean}`)
         } else {
             console.log(`autoPilot not changed because value is invalid. Value: ${boolean}`)
         }

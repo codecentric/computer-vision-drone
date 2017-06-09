@@ -7,4 +7,4 @@
 const Drone = require('./Drone.js');
 
 var drone = new Drone(180, false);
-//drone.run();
+drone.run();
