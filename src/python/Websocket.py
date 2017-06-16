@@ -22,14 +22,13 @@ class WebsocketClient(object):
         self.WS.run_forever()
 
     def on_message(self, ws, message):
-        print message
+        print (message)
 
     def on_error(self, ws, error):
-        print error
+        print (error)
 
     def on_close(self, ws):
-        ws.send(json.dumps({'function': 'autoPilot', 'args': ['true']}))
-        print "### closed ###"
+        print ("### closed ###")
 
     def on_open(self, ws):
         # runOCV(self.ws)

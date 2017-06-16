@@ -292,7 +292,7 @@ module.exports = class Drone {
         this.wss = new WebSocketServer({host: '0.0.0.0', port: 8000});
 
         // TODO What happens if multiple clients connect?
-        this.wss.on('connection', function (ws) {
+        this.wss.on('connection', (ws) => {
             console.log("websocket server ready");
             eventEmitter.on('webHUD', function (message) {
                 try {
@@ -306,16 +306,16 @@ module.exports = class Drone {
             });
 
             /*  this is the interface for controlling the drone via websocket.
-            *   a message must be in json and the following structure:
-            *   {
-            *       'function': 'nameOfTheFunction',
-            *       'args':     ['arg1', 'arg2', ... 'arg n']
-            *    }
-            *
-            *    The method call is not automatically executed.
-            *    Only the defined functions below can be called.
-            */
-            ws.on('message', function incoming(message) {
+             *   a message must be in json and the following structure:
+             *   {
+             *       'function': 'nameOfTheFunction',
+             *       'args':     ['arg1', 'arg2', ... 'arg n']
+             *    }
+             *
+             *    The method call is not automatically executed.
+             *    Only the defined functions below can be called.
+             */
+            ws.on('message', (message) => {
                 try {
                     let msg = JSON.parse(message);
                     if (msg.message) {
@@ -840,10 +840,14 @@ module.exports = class Drone {
     setAutoPilot(boolean) {
         if (boolean === 'true' || boolean === true) {
             this.state.autoPilot = true;
+            this.log(`autoPilot changed because value valid. Value: ${boolean}`)
+
         } else if (boolean === 'false' || boolean === false) {
             this.state.autoPilot = false;
             this.stopRotate();
             this.slowDown()
+            this.log(`autoPilot changed because value valid. Value: ${boolean}`)
+
 
         } else {
             this.log(`autoPilot not changed because value is invalid. Value: ${boolean}`)
@@ -899,10 +903,12 @@ module.exports = class Drone {
      * @param direction 1 = clockwise, -1 = counterclockwise
      */
     startRotate(direction) {
-
+        console.log('rotate ' + direction)
         this.speed.turningDirection = direction;
         //this.log('Turning Direction changed: ' + direction, 'turningDirection', direction, 0);
-
+        if (this.speed.turning !== 0) {
+            this.stopRotate()
+        }
         if (this.speed.turning === 0 && !this.state.movementLocked) {
             if (this.config.testMode !== true) {
                 this.bebop.stop();
@@ -912,10 +918,15 @@ module.exports = class Drone {
             if (this.config.testMode !== true) {
                 if (direction === 1) {
                     this.bebop.clockwise(this.speed.turning);
-                } else {
+                } else if(direction === 1) {
                     this.bebop.counterClockwise(this.speed.turning);
+                } else {
+                    this.stopRotate()
                 }
             }
+        } else {
+            console.log('Locked ' + this.state.movementLocked)
+            console.log('TurningSpeed ' + this.speed.turning)
         }
     }
 

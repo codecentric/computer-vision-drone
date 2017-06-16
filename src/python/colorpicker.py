@@ -10,11 +10,11 @@ def on_mouse_click (event, x, y, flags, frame):
         colors.append(frame[y,x].tolist())
 
 def main():
-    capture = cv2.VideoCapture(1)
+    capture = cv2.VideoCapture(0)
 
     while True:
         _, frame = capture.read()
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HLS_FULL)
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HLS)
         if colors:
             cv2.putText(hsv, str(colors[-1]), (10, 50), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 0), 2)
         cv2.imshow('frame', hsv)
@@ -37,11 +37,11 @@ def main():
     maxb = max(c[0] for c in colors)
     maxg = max(c[1] for c in colors)
     maxr = max(c[2] for c in colors)
-    print minr, ming, minb, maxr, maxg, maxb
+    print (minr, ming, minb, maxr, maxg, maxb)
 
     lb = [minb,ming,minr]
     ub = [maxb,maxg,maxr]
-    print lb, ub
+    print (lb, ub)
 
 if __name__ == "__main__":
     main()

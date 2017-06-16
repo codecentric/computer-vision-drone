@@ -16,15 +16,18 @@ usonic.init((error) => {
             //process.send({message: 'recieved Data Request'});
 
         });
-
-        const sensorRight = new DistanceSensor(17, 5, "right", sensorRefreshIntervall);
-        const sensorFront = new DistanceSensor(27, 6, "front", sensorRefreshIntervall);
-        const sensorLeft = new DistanceSensor(22, 13, "left", sensorRefreshIntervall);
-        sensorFront.triggerStart();
-        sensorLeft.triggerStart();
-        sensorRight.triggerStart();
-        sendData(sensorFront, sensorLeft, sensorRight);
-        /* send success mesage to parent */
+        try {
+            const sensorRight = new DistanceSensor(17, 5, "right", sensorRefreshIntervall);
+            const sensorFront = new DistanceSensor(27, 6, "front", sensorRefreshIntervall);
+            const sensorLeft = new DistanceSensor(22, 13, "left", sensorRefreshIntervall);
+            sensorFront.triggerStart();
+            sensorLeft.triggerStart();
+            sensorRight.triggerStart();
+            sendData(sensorFront, sensorLeft, sensorRight);
+            /* send success mesage to parent */
+        } catch (err) {
+            process.send(err)
+        }
     }
 });
 function sendData (front, left, right) {

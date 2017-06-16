@@ -5,10 +5,10 @@ import json
 LEFT, STOP, RIGHT = [1], [0], [-1]
 
 
-class DroneControl:
+class DroneControl():
     def __init__(self):
         self.ws = WebsocketClient()
-        self.ws.send(json.dumps({'message': 'Beginning with OCV'}))
+        sleep(1)
 
     def _rotate(self, direction):
         self.ws.send(json.dumps({'function': 'turn', 'args': direction}))
@@ -28,6 +28,9 @@ class DroneControl:
     def land(self):
         pass
 
+    def autopilot(self, bool):
+        self.ws.send(json.dumps({'function': 'autoPilot', 'args': [bool]}))
+
 
 def test_flight():
     duration = 2
@@ -46,6 +49,7 @@ def test_flight():
     sleep(duration)
 
     drone.land()
+    drone.autopilot('true')
 
 
 test_flight()

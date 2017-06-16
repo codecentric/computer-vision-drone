@@ -19,6 +19,8 @@ import hud
 import cv2
 
 cam = cv2.VideoCapture(1)
+
+#cam.set(6, 1)
 margin_x = 60
 margin_y = 160
 
@@ -30,13 +32,13 @@ class ObjectDetector:
         #5,166,255
         #5,138,179
 
-        self.color_lower = (5, 130, 160)
+        self.color_lower = (3, 130, 130)
         # self.color_upper = (10, 100, 255)
         self.color_upper = (10, 190, 255)
         self.min_area = min_area
 
     def detect(self, frame):
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HLS_FULL)
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HLS)
         mask = cv2.inRange(hsv, self.color_lower, self.color_upper)
         mask = cv2.erode(mask, None, iterations=2)
         mask = cv2.dilate(mask, None, iterations=2)
@@ -96,7 +98,6 @@ def runocv(ws):
     ws.send(json.dumps({'message': 'Beginning with OCV'}))
 
     while True:
-
         ret, frame = cam.read()
         frame = imutils.resize(frame, width=640)
         frame_idx += 1
