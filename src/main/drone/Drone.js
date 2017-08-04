@@ -294,16 +294,7 @@ module.exports = class Drone {
         // TODO What happens if multiple clients connect?
         this.wss.on('connection', (ws) => {
             console.log("websocket server ready");
-            eventEmitter.on('webHUD', function (message) {
-                try {
-                    ws.send(message);
-                } catch (err) {
-                    // ignores if a message is send after connection is closed
-                    if (err !== 'Error: not opened') {
-                        console.log('Websocket error: %s', err);
-                    }
-                }
-            });
+
 
             /*  this is the interface for controlling the drone via websocket.
              *   a message must be in json and the following structure:
@@ -316,31 +307,44 @@ module.exports = class Drone {
              *    Only the defined functions below can be called.
              */
             ws.on('message', (message) => {
-                try {
-                    let msg = JSON.parse(message);
-                    if (msg.message) {
-                        console.log('Message ' + msg.message)
-                    } else if (msg.function) {
-                        //console.log('recieved function call ' + msg.function)
+                if (msg === 'webui') {
+                    eventEmitter.on('webHUD', function (message) {
                         try {
-                            switch (msg.function) {
-                                case 'turn':
-                                    this.startRotate(msg.args[0]);
-                                    break;
-                                case 'autoPilot':
-                                    this.setAutoPilot(msg.args[0]);
-                                    break;
-                                default:
-                                    console.log(`unkown message ${msg} ${msg.function}`)
-                                    break;
-                            }
+                            ws.send(message);
                         } catch (err) {
-                            console.log(err.message)
+                            // ignores if a message is send after connection is closed
+                            if (err !== 'Error: not opened') {
+                                console.log('Websocket error: %s', err);
+                            }
                         }
+                    });
+                } else {
+                    try {
+                        let msg = JSON.parse(message);
+                        if (msg.message) {
+                            console.log('Message ' + msg.message)
+                        } else if (msg.function) {
+                            //console.log('recieved function call ' + msg.function)
+                            try {
+                                switch (msg.function) {
+                                    case 'turn':
+                                        this.startRotate(msg.args[0]);
+                                        break;
+                                    case 'autoPilot':
+                                        this.setAutoPilot(msg.args[0]);
+                                        break;
+                                    default:
+                                        console.log(`unkown message ${msg} ${msg.function}`)
+                                        break;
+                                }
+                            } catch (err) {
+                                console.log(err.message)
+                            }
+                        }
+                        //console.log(JSON.stringify(msg))
+                    } catch (error) {
+                        console.log('Error message not in JSON Syntax')
                     }
-                    //console.log(JSON.stringify(msg))
-                } catch (error) {
-                    console.log('Error message not in JSON Syntax')
                 }
             });
         });
@@ -918,7 +922,7 @@ module.exports = class Drone {
             if (this.config.testMode !== true) {
                 if (direction === 1) {
                     this.bebop.clockwise(this.speed.turning);
-                } else if(direction === 1) {
+                } else if (direction === 1) {
                     this.bebop.counterClockwise(this.speed.turning);
                 } else {
                     this.stopRotate()

@@ -117,6 +117,7 @@ $(window).load(function () {
         socket.onopen = function () {
             message('Connection ' + socket.readyState + ' (open)');
             setLabelColor('#status-websocket', true);
+            socket.send('webui')
             setTimeout(function () {
                 distInterval = setInterval(function () {
                     updateDistanceView('#leftSensor > div.progress-bar', leftChart, distances.left, 0);
@@ -171,7 +172,7 @@ $(window).load(function () {
             }
             return chart;
         }
-        // Funktion welche die Nchrichten an das Log anfügt
+        // Funktion die die Nachrichten an das Log anfügt
         function message(msg) {
             try {
                 var json = JSON.parse(msg);
