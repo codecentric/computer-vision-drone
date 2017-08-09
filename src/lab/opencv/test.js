@@ -5,9 +5,9 @@ using mplayer (part of ffmpeg):
 */
 "use strict";
 
-var bebop = require("../../../../node-bebop/lib/");
+var bebop = require("../../../../node-bebop/lib");
 
-var drone = bebop.createClient({ip: "192.168.43.1"});
+var drone = bebop.createClient({ip: "192.168.42.1"});
 
 drone.connect(function() {
   drone.MediaStreaming.videoStreamMode(2);

@@ -1,6 +1,7 @@
-from pydrone import *
+import cv2
+import numpy as np
 from datetime import datetime
-import imutils
+from config.drone_config import *
 
 HUD_COLOR = (0, 100, 0)
 HUD_CLIGHT = (200, 255, 200)
@@ -93,7 +94,7 @@ def get_hud(frame, action=None, idx=None):
     mask = cv2.rectangle(mask, (x1 + 1, y1 + 1), (x2 - 1, y2 - 1), HUD_COLOR, thickness=1)
 
     t = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    cv2.putText(mask, "cvdrone.de - pydrone version {0}".format(VERSION), (x1 + 20, y1 - 10),
+    cv2.putText(mask, "cvdrone.de - pydrone version {0}".format(CONF.VERSION), (x1 + 20, y1 - 10),
                 FONT, FONT_SIZE, HUD_COLOR)
     cv2.putText(mask, "{0} - {1}".format(t, idx), (x1 + 20, y2 + 20),
                 FONT, FONT_SIZE, HUD_COLOR)

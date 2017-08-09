@@ -1,13 +1,23 @@
-from time import sleep
-from Websocket import WebsocketClient
+""" cvdrone.de Drone Controller - sends navigation commands to websocket server
+
+requires node-bebop JS library and running WebSocket Server from src/main/drone/cvmain.js
+
+* Author: Oli Moser (http://twitter.com/moseroli)
+* Version: 0.1 (08.2017)
+
+"""
+
 import json
+from time import sleep
+from utils.Websocket import WebsocketClient
 
 LEFT, STOP, RIGHT = [1], [0], [-1]
 
 
-class DroneControl():
+class DroneController():
     def __init__(self):
         self.ws = WebsocketClient()
+        # do a short sleep until ws connection is ready
         sleep(1)
 
     def _rotate(self, direction):
@@ -23,33 +33,12 @@ class DroneControl():
         self._rotate(RIGHT)
 
     def take_off(self):
-        pass
+        self.ws.send(json.dumps({'function': 'takeOff', 'args': None}))
 
     def land(self):
-        pass
+        self.ws.send(json.dumps({'function': 'land', 'args': None}))
 
     def autopilot(self, bool):
         self.ws.send(json.dumps({'function': 'autoPilot', 'args': [bool]}))
 
 
-def test_flight():
-    duration = 2
-    drone = DroneControl()
-
-    drone.take_off()
-    sleep(duration)
-
-    drone.rotate_left()
-    sleep(duration)
-
-    drone.rotate_right()
-    sleep(duration)
-
-    drone.rotate_stop()
-    sleep(duration)
-
-    drone.land()
-    drone.autopilot('true')
-
-
-test_flight()

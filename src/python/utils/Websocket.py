@@ -1,16 +1,14 @@
 import json
 import threading
-
 import websocket
+from config.drone_config import *
 
 
 class WebsocketClient(object):
     WS = None
 
     def __init__(self):
-        websocket.enableTrace(True)
-        self.WS = websocket.WebSocketApp("ws://localhost:8000/",
-                                         #on_message=self.on_message,
+        self.WS = websocket.WebSocketApp(CONF.WS_URL,
                                          on_open=self.on_open,
                                          on_error=self.on_error,
                                          on_close=self.on_close)
@@ -19,9 +17,11 @@ class WebsocketClient(object):
         thread.start()
 
     def run(self):
+        print("run websocket")
         self.WS.run_forever()
 
     def on_message(self, ws, message):
+        print("on_message")
         print (message)
 
     def on_error(self, ws, error):
@@ -36,4 +36,5 @@ class WebsocketClient(object):
         print ('connection opend')
 
     def send(self, message):
+        print("sending message to ws {}".format(message))
         self.WS.send(message)

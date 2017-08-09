@@ -1,13 +1,14 @@
 import dlib
 import cv2
 import numpy as np
+import imutils
 
 predictor_path = "./shape_predictor_68_face_landmarks.dat"
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
 
-cam = cv2.VideoCapture(0)
+cam = cv2.VideoCapture(1)
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
@@ -20,6 +21,7 @@ frame_idx = 0
 
 while True:
     ret, img = cam.read()
+    img = imutils.resize(img, width=640)
     mask = np.zeros_like(img)
     frame_idx += 1
 
