@@ -11,3 +11,4 @@ class CONF:
     # URL of websocket that sends commands via node-bebop js library to drone
     WS_URL = 'ws://localhost:8000/'
     VIDEO_WIDTH = 600
+    CNN_MODEL_NAME = "ssd_mobilenet_v1_coco_11_06_2017"

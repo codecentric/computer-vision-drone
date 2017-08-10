@@ -105,7 +105,7 @@ module.exports = class Drone {
          setting to "false" in the constructor will prevent the drone from starting up */
         this.state.readyForTakeoff = undefined;   // setting to false in constructor will prevent from
         this.state.isFlying = false;              // is the drone currently flying?
-        this.state.isWLANConnected = false;       // is the pi connected to WLAN of the drone?
+        this.state.isWLANConnected = true;       // is the pi connected to WLAN of the drone?
         this.state.isDroneConnected = false;      // is the connection to the drone stable?
         this.state.isReconnecting = false;        // is the drone currently reconnecting?
         this.state.sensorInitialized = true;     // are the sensors initialized ?
@@ -166,6 +166,9 @@ module.exports = class Drone {
             this.createPingSession()
 
             this.addEventListeners();
+            // XXX
+            eventEmitter.emit('sensorInitialized');
+            this.connectDrone();
 
 
         } catch (error) {
@@ -218,7 +221,6 @@ module.exports = class Drone {
 
         // print a message that the drone-initiation is finished
         eventEmitter.once('initFinished', () => {
-            this.led.blink(5, 200);
             this.log("setting up cv-drone finished! ready for takeoff.");
             this.log("====================================================");
             this.log("Press [T]akeoff, or [Return] for emergency landing!");
@@ -233,7 +235,7 @@ module.exports = class Drone {
      */
     checkReady(delay = 1000) {
         let s = this.state;
-        console.log('checking ready state');
+        this.log('checking ready state');
         if (s.isWLANConnected && s.isDroneConnected && s.sensorInitialized) {
             eventEmitter.emit('initFinished');
         } else {
@@ -308,6 +310,7 @@ module.exports = class Drone {
      */
     addHttpServer() {
         // fork a new process for the http server
+        this.log("adding httpServer")
         this.httpServer = fork(filepath.create(__dirname, '/http/httpServer.js'));
     }
 
@@ -316,8 +319,9 @@ module.exports = class Drone {
      */
     connectDrone() {
         /* ping drone once to check if connected */
-        this.bebop = Bebop.createClient(this.bebopOpts);
+        this.log("connecting to drone");
 
+        this.bebop = Bebop.createClient(this.bebopOpts);
         /* connect to drone and pass a connected handler */
         this.bebop.connect(() => {
             this.onConnect()
@@ -333,8 +337,9 @@ module.exports = class Drone {
         this.log("================================ CONNECTED TO DRONE");
 
         try {
+            this.log("connected to drone")
             /* enables video streaming */
-            this.bebop.MediaStreaming.videoStreamMode(2);
+            // this.bebop.MediaStreaming.videoStreamMode(2);
             this.bebop.PictureSettings.videoStabilizationMode(3);
             this.bebop.MediaStreaming.videoEnable(1);
 
@@ -458,6 +463,7 @@ module.exports = class Drone {
      */
     pingDrone(ip, callback) {
         let session;
+        this.log("pinging drone")
         if (this.pingSession !== undefined) {
             session = this.pingSession
         } else {
@@ -478,7 +484,7 @@ module.exports = class Drone {
     reactOnPing(error) {
 
         if (error) {
-            //console.log(error);
+            console.log(error);
 
             this.state.isWLANConnected = false;
             this.log('wlan not connected');
@@ -695,6 +701,7 @@ module.exports = class Drone {
      * @param duration time in ms for the lock
      */
     lockMovement(duration) {
+        this.log("locking movement")
         this.state.movementLocked = true;
         setTimeout(() => this.unlockMovement(), duration);
     }

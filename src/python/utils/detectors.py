@@ -12,7 +12,7 @@ import tensorflow as tf
 
 
 class ObjectDetector:
-    def __init__(self, model_name="ssd_mobilenet_v1_coco_11_06_2017"):
+    def __init__(self, model_name=CONF.CNN_MODEL_NAME):
         self.model_name = model_name
         self.check_point = "./models/{}/frozen_inference_graph.pb".format(self.model_name)
         self.num_classes = 90
