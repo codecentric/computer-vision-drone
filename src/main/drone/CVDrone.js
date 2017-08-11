@@ -765,7 +765,7 @@ module.exports = class Drone {
             if (this.config.testMode !== true) {
                 if (direction === 1) {
                     this.bebop.clockwise(this.speed.turning);
-                } else if (direction === 1) {
+                } else if (direction === -1) {
                     this.bebop.counterClockwise(this.speed.turning);
                 } else {
                     this.stopRotate()

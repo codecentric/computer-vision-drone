@@ -12,3 +12,6 @@ class CONF:
     WS_URL = 'ws://localhost:8000/'
     VIDEO_WIDTH = 600
     CNN_MODEL_NAME = "ssd_mobilenet_v1_coco_11_06_2017"
+    MARKER_PADDING_X = 0.05
+    MARKER_PADDING_Y = 0.10
+    MIDDLE_PADDING = 0.10

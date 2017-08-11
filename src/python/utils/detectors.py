@@ -9,6 +9,7 @@ from config.drone_config import *
 import cv2
 import numpy as np
 import tensorflow as tf
+import utils.hud as hud
 
 
 class ObjectDetector:
@@ -60,3 +61,35 @@ class ObjectDetector:
 
         return boxes, scores, classes, num_detections
 
+    def detect_persons(self, roi):
+        pass
+
+
+class MarkerDetector:
+    marker_color_lower = (3, 80, 130)
+    marker_color_upper = (10, 190, 255)
+    marker_min_area = 400
+
+    def detect_marker(self, frame):
+
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HLS)
+        mask = cv2.inRange(hsv, self.marker_color_lower,
+                           self.marker_color_upper)
+        mask = cv2.erode(mask, None, iterations=2)
+        mask = cv2.dilate(mask, None, iterations=2)
+
+        #print(hsv[200,300])
+
+        _, contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
+                                          cv2.CHAIN_APPROX_SIMPLE)
+
+        try:
+            contour = sorted(contours, key=cv2.contourArea, reverse=True)[0]
+            if cv2.contourArea(contour) < self.marker_min_area:
+                contour = None
+            else:
+                hud.mark_rois(frame, [cv2.boundingRect(contour)], label="marker detected")
+        except IndexError:
+            contour = None
+
+        return contour

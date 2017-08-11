@@ -11,7 +11,7 @@ import json
 from time import sleep
 from utils.Websocket import WebsocketClient
 
-LEFT, STOP, RIGHT = [1], [0], [-1]
+LEFT, STOP, RIGHT = [-1], [0], [1]
 
 
 class DroneController():
