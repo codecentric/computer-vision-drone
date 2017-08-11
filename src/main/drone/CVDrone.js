@@ -163,11 +163,11 @@ module.exports = class Drone {
 
             /* recurring ping for live connection check */
             // TODO Maybe move to the top, because it is an attribute
-            this.createPingSession()
+            //this.createPingSession()
 
             this.addEventListeners();
             // XXX
-            eventEmitter.emit('sensorInitialized');
+            // eventEmitter.emit('sensorInitialized');
             this.connectDrone();
 
 
@@ -205,19 +205,19 @@ module.exports = class Drone {
      */
     addEventListeners() {
         // ping the drone if the ping event is emitted
-        eventEmitter.on('ping', () => {
-            this.pingDrone(this.bebopOpts.ip, (err) => this.reactOnPing(err))
-        });
+        // eventEmitter.on('ping', () => {
+        //     this.pingDrone(this.bebopOpts.ip, (err) => this.reactOnPing(err))
+        // });
 
         // checks if the drone is in ready mode
         eventEmitter.on('triggerCheckReady', () => {
             this.checkReady();
         });
 
-        // once the ping was successful, try to connect to the drone
-        eventEmitter.once('pingSuccessful', () => {
-            this.connectDrone();
-        });
+        // // once the ping was successful, try to connect to the drone
+        // eventEmitter.once('pingSuccessful', () => {
+        //     this.connectDrone();
+        // });
 
         // print a message that the drone-initiation is finished
         eventEmitter.once('initFinished', () => {
@@ -236,13 +236,7 @@ module.exports = class Drone {
     checkReady(delay = 1000) {
         let s = this.state;
         this.log('checking ready state');
-        if (s.isWLANConnected && s.isDroneConnected && s.sensorInitialized) {
-            eventEmitter.emit('initFinished');
-        } else {
-            setTimeout(() => eventEmitter.emit('triggerCheckReady'), delay);
-
-            console.log(`not ready yet: WLAN: ${s.isWLANConnected}, Drone: ${s.isDroneConnected}, Sensor: ${s.sensorInitialized}`);
-        }
+        eventEmitter.emit('initFinished');
     }
 
     /**
@@ -339,7 +333,7 @@ module.exports = class Drone {
         try {
             this.log("connected to drone")
             /* enables video streaming */
-            // this.bebop.MediaStreaming.videoStreamMode(2);
+            this.bebop.MediaStreaming.videoStreamMode(2);
             this.bebop.PictureSettings.videoStabilizationMode(3);
             this.bebop.MediaStreaming.videoEnable(1);
 
@@ -412,7 +406,7 @@ module.exports = class Drone {
                     break;
 
                 case 't':
-                    this.buttonPushed(() => this.takeoff());
+                    this.takeoff();
 
                     break;
 

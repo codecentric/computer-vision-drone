@@ -15,6 +15,7 @@ class DroneView():
     def __init__(self):
         self.frame = None
 
-    def process_frame(self, frame, idx=None):
+    def process_frame(self, frame, t0, idx=None):
         get_hud(frame, idx=idx)
+        return frame, t0
 

@@ -5,5 +5,5 @@
 
 const Drone = require('./CVDrone.js');
 
-var drone = new Drone(180, true);
+var drone = new Drone(180, false);
 drone.run();

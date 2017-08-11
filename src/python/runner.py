@@ -11,6 +11,7 @@ from display import DroneView
 from utils.detectors import ObjectDetector
 from config.drone_config import *
 
+
 video = cv2.VideoCapture(CONF.VIDEO_URL)
 dc = DroneController()
 dv = DroneView()
@@ -23,13 +24,23 @@ while video.isOpened():
     ret, frame = video.read()
     frame_idx += 1
 
-    dv.process_frame(frame, idx=frame_idx)
-    result = od.detect_objects(frame)
+    dv.process_frame(frame, 0, idx=frame_idx)
 
-    cv2.imshow("cvdrone View", frame)
-    cv2.moveWindow("cvdrone View", 0, 0)
+    cv2.imshow("drone view", frame)
 
     key = cv2.waitKey(1) & 0xff
-    if key == 27:
-        break
 
+    if key == ord('t'):
+        dc.take_off()
+    if key == ord('l'):
+        dc.land()
+    if key == ord('s'):
+        dc.rotate_stop()
+    if key == 2:
+        dc.rotate_left()
+    if key == 3:
+        dc.rotate_right()
+
+    if key == 27:
+        dc.land()
+        break

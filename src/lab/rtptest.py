@@ -1,6 +1,6 @@
 import cv2
 
-cam = cv2.VideoCapture("./bebop.sdp")
+cam = cv2.VideoCapture("../python/config/bebop.sdp")
 
 while True:
     ret, frame = cam.read()
