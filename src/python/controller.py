@@ -12,7 +12,7 @@ from time import sleep, time
 from utils.Websocket import WebsocketClient
 
 LEFT, STOP, RIGHT = [-1], [0], [1]
-MAX_CMD_INTERVAL = 0.75  # in seconds
+MAX_CMD_INTERVAL = 0.1  # in seconds
 
 
 class DroneController:
@@ -21,7 +21,7 @@ class DroneController:
         # do a short sleep until ws connection is ready
         sleep(1)
         self.last_command = time()
-        self.flying = True
+        self.flying = False
 
     def _rotate(self, direction):
         now = time()

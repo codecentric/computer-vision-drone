@@ -7,10 +7,12 @@
 
 import cv2
 import imutils
+import numpy as np
 
 from controller import DroneController
 from display import DroneView
 from utils.detectors import ObjectDetector, MarkerDetector
+import utils.hud
 from config.drone_config import *
 import threading
 
@@ -35,7 +37,6 @@ pad_y = int(video_height * CONF.MARKER_PADDING_Y)
 
 frame_idx = 0
 action_str = ""
-
 
 
 def get_roi_size(roi):
@@ -72,7 +73,7 @@ while video.isOpened():
         bx2 = int(bx2 * video_width)
         by1 = int(by1 * video_height)
         by2 = int(by2 * video_height)
-        frame = cv2.rectangle(frame, (bx1, by1), (bx2, by2), (0, 255, 0))
+        utils.hud.mark_rois(frame, [[bx1, by1, bx2-bx1, by2-by1]])
 
         x1 = max(bx1 - pad_x, 0)
         y1 = max(by1 - pad_y, 0)
