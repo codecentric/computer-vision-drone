@@ -18,6 +18,7 @@ classNames = ('background',
 net = dnn.readNetFromCaffe("./MobileNetSSD.prototxt", "./MobileNetSSD_deploy.caffemodel")
 
 cap = cv2.VideoCapture("/Users/omoser/work/computer-vision-drone/src/python/config/bebop.sdp")
+cap = cv2.VideoCapture("/Users/omoser/data/testvideos/test_small.mp4")
 
 while cap.isOpened():
 

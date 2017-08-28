@@ -20,6 +20,8 @@ class ObjectDetector:
 
         self.detection_graph = tf.Graph()
         self.thresh = 0.5
+        self.last_detection = []
+        self.running_detection = False
 
         with self.detection_graph.as_default():
             od_graph_def = tf.GraphDef()
@@ -61,8 +63,12 @@ class ObjectDetector:
 
         return boxes, scores, classes, num_detections
 
-    def detect_persons(self, roi):
-        pass
+    def detect_persons(self, frame):
+        self.running_detection = True
+        boxes, scores, classes, num_dets = self.detect_objects(frame)
+        persons = np.where((classes[0] == 1) & (scores[0] > 0.55))
+        self.last_detection = np.squeeze(boxes)[persons]
+        self.running_detection = False
 
 
 class MarkerDetector:
@@ -77,8 +83,6 @@ class MarkerDetector:
                            self.marker_color_upper)
         mask = cv2.erode(mask, None, iterations=2)
         mask = cv2.dilate(mask, None, iterations=2)
-
-        #print(hsv[200,300])
 
         _, contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
                                           cv2.CHAIN_APPROX_SIMPLE)
