@@ -66,7 +66,7 @@ class ObjectDetector:
     def detect_persons(self, frame):
         self.running_detection = True
         boxes, scores, classes, num_dets = self.detect_objects(frame)
-        persons = np.where((classes[0] == 1) & (scores[0] > 0.55))
+        persons = np.where((classes[0] == 1) & (scores[0] > 0.5))
         self.last_detection = np.squeeze(boxes)[persons]
         self.running_detection = False
 

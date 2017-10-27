@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import imutils
 
-predictor_path = "./shape_predictor_68_face_landmarks.dat"
+predictor_path = "/Users/omoser/work/computer-vision-drone/src/python/models/shape_predictor_68_face_landmarks.dat"
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)

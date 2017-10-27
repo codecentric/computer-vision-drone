@@ -1,6 +1,6 @@
 import cv2
 
-cam = cv2.VideoCapture("../python/config/bebop.sdp")
+cam = cv2.VideoCapture("rtsp://10.10.58.136:554/play1.sdp")
 
 while True:
     ret, frame = cam.read()
